@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validation sheet: world (stage/viewer) vs dataset for one pilot county.
+"""Validation sheet: world (stage/viewer) vs dataset for one county.
 
 Manifest rules: every comparison world-vs-dataset; any mismatch >5% is FLAGGED,
 not silently passed. Output: validation/<fips>_<county>_validation.md + .json.
@@ -38,7 +38,7 @@ g_proj = gpd.GeoSeries([geom_wgs], crs=4326).to_crs(C.utm)
 area_sqmi = float(g_proj.area.iloc[0]) / 2.58999e6
 ref_area = float(m["land_area_sqmi"]) + float(m["water_area_sqmi"])
 cmp("county polygon area (sq mi)", round(area_sqmi, 1), round(ref_area, 1), thresh=1.0,
-    note="Census 2023 cartographic polygon vs master land+water area")
+    note=f"{C.boundary_source} polygon vs master land+water area")
 
 # 2. buildings vs housing units (manifest: buildings >= 0.8 * housing_units_2020)
 bl = json.loads((VD / "buildings.json").read_text())
@@ -126,8 +126,7 @@ from rasterio.features import geometry_mask as _gmask
 with rasterio.open(next((W / "layers" / "terrain").glob("dem_*_*.tif"))) as src:
     valid = ~np.isnan(src.read(1))
     tf, shp = src.transform, (src.height, src.width)
-cpoly = gpd.read_file(REPO / "pilots" / "pilot_county_boundaries.geojson")
-cpoly = cpoly[cpoly["fips5"] == FIPS].geometry.iloc[0]
+cpoly = C.geom  # pilot or any county, from county_config
 inside = cpoly.intersection(_box(*dem_bounds))
 cov_bbox = inside.area / cpoly.area * 100
 # finer: rasterize the county onto the DEM grid and test valid cells

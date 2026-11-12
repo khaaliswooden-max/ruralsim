@@ -25,9 +25,27 @@ python3 tools/build_national.py
 
 # full rebuild including live data fetches (needs network)
 python3 tools/build_county.py 31173
+
+# build any other current U.S. county the same way (boundary cached to counties/<fips>.geojson)
+python3 tools/build_county.py 48301      # Loving County, TX
+
+# rebuild the website into public/ (Vercel runs this on every push to main)
+python3 tools/build_site.py
 ```
 
 Pilot FIPS: 31173 Thurston NE · 16081 Teton ID · 54047 McDowell WV · 20019 Chautauqua KS · 01131 Wilcox AL.
+Live site: <https://www.ruralsim.io>. The data tables in `data/` and `pilots/` were built by the
+scripts in `build_scripts/` (see its README for sources).
+
+The live fetchers depend on public services that are sometimes down or rate-limited
+(OpenStreetMap Overpass, Open-Meteo, CropScape). Each fetch is resumable: rerun the same
+command and it picks up where it stopped.
+
+## License
+
+Code: [Apache 2.0](LICENSE). Data: see [DATA_LICENSE.md](DATA_LICENSE.md). Map data derived from
+OpenStreetMap is © OpenStreetMap contributors under the ODbL; other public data keeps its
+publisher's terms; RuralSim's own specs, results and writing are CC BY 4.0.
 Reproducibility check (2026-11-12, clean machine): all five stages, all ten cards at 20 seeds, and
 the national table reproduced identically to the original build.
 
@@ -69,7 +87,7 @@ Built 2026-11-10. Everything Kimi K3.1 Pro needs to start building the 3D rural 
 | `specs/rqli_spec.yaml` | Quality-of-life index: 9 domains, 21 indicators, 6 hard constraints | |
 | `experiments/experiment_card_schema.yaml` | The format every test must follow | |
 | `experiments/seed_experiments.yaml` | Ten ready-to-run experiment cards | 10 |
-| `build_scripts/` | **Not included** — the scripts that produced `data/` and `pilots/` were absent from the exported build; `data/codebook.csv` documents every source | |
+| `build_scripts/` | The scripts that produced `data/` and `pilots/` from raw sources (restored 2026-11-12; see its README) | |
 
 ## Checks run on the data
 
