@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Company: RuralSim</title>
+<meta name="description" content="Why RuralSim exists, how it supports Thelvanor's rural AI infrastructure, and who builds it.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/style.css">
+<style>
+  .head { padding: 64px 0 6px; }
+  .head h1 { font-size: clamp(40px, 5.6vw, 68px); letter-spacing: -.025em; max-width: 16ch; }
+  .head .lede { margin-top: 26px; max-width: 46ch; }
+  .jump { display: flex; gap: 22px; flex-wrap: wrap; margin-top: 28px; font: 500 15px var(--sans); }
+
+  section { padding-top: 88px; scroll-margin-top: 24px; }
+  .row { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 28px 48px; align-items: start; }
+  .row.flip { grid-template-columns: minmax(0, 1fr) minmax(0, 1.55fr); }
+  .row.flip .film { order: 2; }
+  .kicker { font: 600 13px/1 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--contour); margin-bottom: 14px; }
+  section h2 { font-size: 34px; margin-bottom: 16px; }
+
+  .film { margin: 0; }
+  .film video { width: 100%; aspect-ratio: 16/9; display: block; background: #07090a; border-radius: 4px; box-shadow: 0 0 0 1px var(--rule); }
+  .film figcaption { font: 14px/1.5 var(--sans); color: var(--dim); margin-top: 10px; }
+
+  .facts { list-style: none; padding: 0; margin: 18px 0 0; font-size: 16px; line-height: 1.5; }
+  .facts li { border-top: 1px solid var(--rule); padding: 10px 0; }
+  .facts b { font-weight: 600; }
+  .met { color: var(--met); font-weight: 600; } .miss { color: var(--miss); font-weight: 600; }
+
+  .papers { list-style: none; padding: 0; margin: 18px 0 0; font-size: 16px; line-height: 1.45; }
+  .papers li { display: grid; grid-template-columns: 82px 1fr; gap: 12px; border-top: 1px solid var(--rule); padding: 10px 0; }
+  .papers span { color: var(--dim); font-size: 14px; padding-top: 2px; }
+
+  .commit { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; margin-top: 26px; }
+  .commit div { border-top: 3px solid var(--contour); padding-top: 14px; }
+  .commit b { font: 600 17px var(--sans); display: block; margin-bottom: 6px; }
+  .commit p { font-size: 16px; line-height: 1.5; }
+
+  @media (max-width: 900px) {
+    .row, .row.flip { grid-template-columns: 1fr; }
+    .row.flip .film { order: 0; }
+    .commit { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="bar">
+    <a class="mark" href="/">RuralSim</a>
+    <nav aria-label="Site">
+      <a href="/#counties">Counties</a>
+      <a href="/experiments.html">Experiments</a>
+      <a href="/national.html">Every county</a>
+      <a href="/company.html" aria-current="page">Company</a>
+      <a href="https://github.com/khaaliswooden-max/ruralsim">Source</a>
+    </nav>
+  </header>
+
+  <div class="head">
+    <h1>Test it here before it’s built there.</h1>
+    <p class="lede">Most rural infrastructure is designed somewhere else and tested only after it’s been built. RuralSim moves that testing first, onto real counties rebuilt from public data, and scores every plan by what it does for the people who live there.</p>
+    <nav class="jump" aria-label="On this page">
+      <a href="#mission">Mission</a>
+      <a href="#thelvanor">How RuralSim supports Thelvanor</a>
+      <a href="#founder">Founder</a>
+    </nav>
+  </div>
+
+  <section id="mission" aria-labelledby="mission-h">
+    <div class="row">
+      <figure class="film">
+        <video controls preload="none" playsinline poster="/media/mission.jpg" aria-describedby="mission-cap">
+          <source src="/media/mission.mp4" type="video/mp4">
+        </video>
+        <figcaption id="mission-cap">Mission · 1 minute · no sound</figcaption>
+      </figure>
+      <div>
+        <div class="kicker">Mission</div>
+        <h2 id="mission-h">A test range for rural America</h2>
+        <p>66.3 million Americans live in rural places, 20% of the country. 719 counties have no hospital at all. Decisions about their power, water, care and connectivity are often made with averages that hide who gets left out.</p>
+        <p>RuralSim is a reproducible digital twin: five pilot counties in 3D, a statistical table for every U.S. county, and ten experiments. Each experiment states its pass bar before it runs, and it fails if the worst-off tenth of households does not gain.</p>
+        <p><a href="/experiments.html">See what the experiments found</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section id="thelvanor" aria-labelledby="thelvanor-h">
+    <div class="row flip">
+      <figure class="film">
+        <video controls preload="none" playsinline poster="/media/thelvanor.jpg" aria-describedby="thelvanor-cap">
+          <source src="/media/thelvanor.mp4" type="video/mp4">
+        </video>
+        <figcaption id="thelvanor-cap">How RuralSim supports Thelvanor · 1 minute · no sound</figcaption>
+      </figure>
+      <div>
+        <div class="kicker">Thelvanor</div>
+        <h2 id="thelvanor-h">Thelvanor builds. RuralSim proves.</h2>
+        <p>Thelvanor builds small, solar-powered AI infrastructure for rural communities, anchored at hospitals, schools, courthouses and fire and police stations. RuralSim tests each design before anything is installed.</p>
+        <ul class="facts">
+          <li><b>20 MW data center on a rural co-op feeder.</b> Lowest-income power rates fell 23.8% when it bought from the grid and <span class="miss">rose 16.7%</span> when it generated its own power. Same load, opposite outcome.</li>
+          <li><b>Hospital and school microgrid.</b> <span class="met">Carried a 72-hour outage in 30 of 30 simulated winters</span> in Teton County, Idaho.</li>
+          <li><b>Edge AI triage at the clinic.</b> <span class="miss">84.8% uptime against a 99% target</span> in Thurston County, Nebraska. With only 4 hours of battery, it shows what to fix next.</li>
+        </ul>
+        <p class="small" style="margin-top:14px">Simulated, screening-grade results: reduced-order models with assumed device parameters. Decision support, not a finding.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="founder" aria-labelledby="founder-h">
+    <div class="row">
+      <figure class="film">
+        <video controls preload="none" playsinline poster="/media/founder.jpg" aria-describedby="founder-cap">
+          <source src="/media/founder.mp4" type="video/mp4">
+        </video>
+        <figcaption id="founder-cap">Founder · 2 minutes · no sound</figcaption>
+      </figure>
+      <div>
+        <div class="kicker">Founder</div>
+        <h2 id="founder-h">Aldrich Khaalis Wooden, Sr.</h2>
+        <p>U.S. Army veteran (Medical Supply Specialist, 76J), then a civilian logistics contractor in Kuwait and Iraq. He has more than 15 years in IT management, supply chain and federal contracting, and speaks English, Arabic, German and Spanish. He holds an MBA from Southern New Hampshire University, is completing an MSIT there, and plans a Ph.D. in Engineering Management.</p>
+        <ul class="papers" aria-label="Selected papers on SSRN">
+          <li><span>Oct 2025</span><a href="https://papers.ssrn.com/sol3/cf_dev/AbsByAuth.cfm?per_id=8105377">From Critical Access Hospital to Rural Health Hub: A First-Principles Redesign</a></li>
+          <li><span>Oct 2025</span><a href="https://papers.ssrn.com/sol3/cf_dev/AbsByAuth.cfm?per_id=8105377">Edge AI for Rural Hospitals and Water Utilities: The ARIS-2025 Reference Architecture</a></li>
+          <li><span>Mar 2026</span><a href="https://papers.ssrn.com/sol3/cf_dev/AbsByAuth.cfm?per_id=8105377">What Would It Mean to Solve the Critical Access Hospital Problem? A Benchmark Framework</a></li>
+          <li><span>May 2026</span><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6755144">The 65 Percent Problem: Why $32.5 Billion of Rural Health Funding Cannot Be Counted</a></li>
+          <li><span>Oct 2026</span><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7631278">Thelvanor Keg-1: Pre-Build Design of a Sub-$1,000 Solar-Powered Three-Node Data Center</a></li>
+        </ul>
+        <p class="small" style="margin-top:14px">ORCID <a href="https://orcid.org/0009-0004-7679-5142">0009-0004-7679-5142</a> · <a href="https://github.com/khaaliswooden-max">GitHub</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="commit-h">
+    <h2 id="commit-h">What we commit to</h2>
+    <div class="commit">
+      <div><b>Reproducible</b><p>Methods, assumptions, data sources and limits are documented. A clean-machine rebuild reproduced all five county worlds, all 200 experiment runs bit for bit, and the national table byte for byte.</p></div>
+      <div><b>Open to the people it models</b><p>The models, their public data and their results are published here at no charge, so rural decision-makers can weigh options without paying for proprietary analysis.</p></div>
+      <div><b>Nonpartisan</b><p>Political and election variables are excluded in code from every objective and optimizer. RuralSim does not advocate for any party or candidate.</p></div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>Videos use RuralSim’s own 3D county renders. Every number on this page traces to the <a href="https://github.com/khaaliswooden-max/ruralsim/blob/main/experiments/BATCH_REPORT.md">experiment ledger</a>, the <a href="https://github.com/khaaliswooden-max/ruralsim/blob/main/national/tier_a_summary.md">national summary</a> or the papers linked above.</p>
+  </footer>
+</div>
+</body>
+</html>

@@ -29,7 +29,7 @@ a:hover { text-decoration-thickness: 2px; }
 .bar { display: flex; align-items: baseline; gap: 28px; padding: 22px 0 18px; border-bottom: 1px solid var(--rule); }
 .bar .mark { font: 750 20px/1 var(--sans); color: var(--ink); text-decoration: none; letter-spacing: -.01em; margin-right: auto; }
 .bar nav { display: flex; gap: 22px; font: 500 15px/1 var(--sans); }
-.bar nav a { color: var(--dim); text-decoration: none; }
+.bar nav a { color: var(--dim); text-decoration: none; white-space: nowrap; }
 .bar nav a:hover, .bar nav a[aria-current] { color: var(--ink); }
 .bar nav a[aria-current] { box-shadow: 0 2px 0 var(--contour); }
 
@@ -58,5 +58,6 @@ p { margin: 0 0 1em; max-width: var(--measure); }
   .wrap { padding: 0 18px; }
   .bar { flex-wrap: wrap; gap: 14px; }
   .bar .mark { width: 100%; }
+  .bar nav { flex-wrap: wrap; gap: 12px 18px; }
   .lede { font-size: 19px; }
 }
