@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RuralSim: five rural counties, rebuilt in 3D</title>
+<meta name="description" content="Five real rural U.S. counties rebuilt as 3D digital twins from public data, used to test whether interventions like telehealth, drones and microgrids would help the people who live there.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/style.css">
+<style>
+  .hero { padding: 64px 0 8px; }
+  .hero h1 { font-size: clamp(40px, 6vw, 76px); letter-spacing: -.025em; max-width: 17ch; }
+  .hero .under { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px 56px; align-items: end; margin-top: 30px; }
+  .hero .lede { margin: 0; color: var(--ink); max-width: 44ch; }
+  .hero .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+  .specimens { margin: 52px 0 0; padding: 28px 0 0; border-top: 1px solid var(--rule); }
+
+  /* specimen row: county outlines at one shared scale */
+  .specimens { position: relative; }
+  .specimens svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .specimens .county { cursor: pointer; }
+  .specimens .county path { fill: rgba(143,84,39,.07); stroke: var(--contour); stroke-width: 1.6; vector-effect: non-scaling-stroke;
+                            transition: fill .18s, stroke .18s; }
+  .specimens .county:hover path, .specimens .county:focus-visible path { fill: rgba(143,84,39,.2); stroke-width: 2.4; }
+  .specimens .county:hover text:first-of-type, .specimens .county:focus-visible text:first-of-type { fill: var(--contour); }
+  .specimens .county:focus { outline: none; }
+  .specimens .baseline { stroke: var(--rule); stroke-width: 1; vector-effect: non-scaling-stroke; }
+  .specimens text { font: 500 13px var(--sans); fill: var(--ink); }
+  .specimens text.sub { font-weight: 400; fill: var(--dim); }
+  .scale { font: 13px/1 var(--sans); color: var(--dim); margin-top: 14px; display: flex; align-items: center; gap: 10px; }
+  .scale i { display: inline-block; height: 6px; border: 1px solid var(--dim); border-top: 0; }
+
+  section { padding-top: 88px; }
+  section > h2 { font-size: 34px; margin-bottom: 10px; }
+  section > .intro { color: var(--dim); }
+
+  .counties { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 36px 28px; margin-top: 34px; }
+  .cty { text-decoration: none; color: inherit; display: block; }
+  .cty img { width: 100%; aspect-ratio: 16/10; object-fit: cover; border-radius: 4px; display: block;
+             background: var(--sheet-2); box-shadow: 0 0 0 1px var(--rule); }
+  .cty:hover img { box-shadow: 0 0 0 2px var(--contour); }
+  .cty:hover h3 { color: var(--contour); }
+  .cty h3 { font-size: 24px; margin: 16px 0 2px; }
+  .cty .arch { font: 500 15px var(--sans); color: var(--contour); }
+  .cty dl { display: grid; grid-template-columns: auto 1fr; gap: 3px 16px; margin: 12px 0 0; font: 14px/1.45 var(--sans); }
+  .cty dt { color: var(--dim); }
+  .cty dd { margin: 0; }
+
+  .findings { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; margin-top: 30px; }
+  .findings div { border-top: 3px solid var(--rule); padding-top: 14px; }
+  .findings .met { border-color: var(--met); }
+  .findings .not { border-color: var(--miss); }
+  .findings b { font: 600 15px var(--sans); display: block; margin-bottom: 6px; }
+  .findings ul { margin: 0; padding: 0; list-style: none; font-size: 16px; line-height: 1.5; }
+  .findings li { margin-bottom: 8px; }
+
+  .limits { background: var(--sheet-2); border-left: 3px solid var(--contour); padding: 26px 30px; margin-top: 30px; border-radius: 0 6px 6px 0; }
+  .limits p:last-child { margin-bottom: 0; }
+
+  @media (max-width: 900px) {
+    .hero { padding-top: 40px; }
+    .hero .under { grid-template-columns: 1fr; }
+    .findings { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="bar">
+    <a class="mark" href="/">RuralSim</a>
+    <nav aria-label="Site">
+      <a href="/#counties">Counties</a>
+      <a href="/experiments.html">Experiments</a>
+      <a href="/national.html">Every county</a>
+      <a href="https://github.com/khaaliswooden-max/ruralsim">Source</a>
+    </nav>
+  </header>
+
+  <div class="hero">
+    <h1>Five rural counties, rebuilt to test what would help.</h1>
+    <figure class="specimens">
+      <svg id="spec" role="group" aria-label="The five pilot counties drawn at the same scale"></svg>
+      <figcaption class="scale"><i id="scalebar"></i><span id="scalelabel"></span><span>All five drawn at the same scale from their real boundaries. Select one to open it in 3D.</span></figcaption>
+    </figure>
+    <div class="under">
+      <p class="lede">Each one is a 3D model built from public records: roads, buildings, terrain, power lines, water systems, hospitals and bridges. We use them to try ideas before anyone spends money on them.</p>
+      <div class="actions">
+        <a class="btn" href="#counties">Explore a county in 3D</a>
+        <a class="btn quiet" href="/experiments.html">See what the experiments found</a>
+      </div>
+    </div>
+  </div>
+
+  <section id="counties">
+    <h2>The five counties</h2>
+    <p class="intro">Each was chosen by a written rule to represent a different kind of rural America. Open one to fly over it, switch data layers on and off, and see where every layer came from.</p>
+    <div class="counties" id="cards"></div>
+  </section>
+
+  <section>
+    <h2>What the experiments found</h2>
+    <p class="intro">Ten ideas, each run 20 times on simulated households, each judged against a success line written down before it ran. Failures are reported as plainly as wins.</p>
+    <div class="findings" id="findings"></div>
+    <p style="margin-top:22px"><a href="/experiments.html">Read every result, with the spread across all 20 runs</a></p>
+  </section>
+
+  <section>
+    <h2>Every county in the country</h2>
+    <p class="intro">A companion table covers 3,163 U.S. counties with population history, income, poverty and hospital counts, built from Census, USDA and CMS data. 719 counties have no hospital at all; 477 of those are rural.</p>
+    <p><a href="/national.html">Search and sort the national table</a></p>
+  </section>
+
+  <section>
+    <h2>How to read this</h2>
+    <div class="limits">
+      <p>These are screening results, not findings. The simulations are simplified models with assumed equipment numbers. They are good for deciding which ideas deserve a closer look, and not for making claims about real people.</p>
+      <p>Every household in the experiments is synthetic. No real person's records are used. Political and election data are excluded from every model.</p>
+      <p>Some layers are incomplete in ways we report rather than patch. OpenStreetMap misses many rural buildings, and federal water-system records have no locations, so some systems are counted but not placed on the map.</p>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>Data: U.S. Census Bureau, USDA ERS, CMS, USGS 3DEP and NHD, EPA SDWIS, FHWA National Bridge Inventory, EIA, BTS, USGS PAD-US, Open-Meteo, and OpenStreetMap contributors (ODbL). Code and full provenance are on <a href="https://github.com/khaaliswooden-max/ruralsim">GitHub</a>.</p>
+  </footer>
+</div>
+
+<script type="module">
+const pilots = await (await fetch('/data/pilots.json')).json();
+const exps = await (await fetch('/data/experiments.json')).json();
+const fmt = n => n.toLocaleString('en-US');
+const viewer = p => `/worlds/${p.dir}/viewer/`;
+
+// specimen row: one shared km-per-unit scale, bottoms on a common baseline
+const svg = document.getElementById('spec');
+const gap = 22, labelH = 46;
+const totalW = pilots.reduce((s, p) => s + p.width_km, 0) + gap * (pilots.length - 1);
+const maxH = Math.max(...pilots.map(p => p.height_km));
+svg.setAttribute('viewBox', `0 0 ${totalW} ${maxH + labelH}`);
+const NS = 'http://www.w3.org/2000/svg';
+let x = 0;
+const pxPerKm = () => svg.getBoundingClientRect().width / totalW;
+for (const p of pilots) {
+  const g = document.createElementNS(NS, 'a');
+  g.setAttribute('href', viewer(p));
+  g.setAttribute('class', 'county');
+  g.setAttribute('aria-label', `${p.name}, ${p.state}: open in 3D`);
+  const path = document.createElementNS(NS, 'path');
+  path.setAttribute('d', p.path);
+  path.setAttribute('transform', `translate(${x} ${maxH - p.height_km})`);
+  g.append(path);
+  const cx = x + p.width_km / 2;
+  const t1 = document.createElementNS(NS, 'text');
+  t1.setAttribute('x', cx); t1.setAttribute('y', maxH + 18); t1.setAttribute('text-anchor', 'middle');
+  t1.textContent = p.name.replace(' County', '');
+  const t2 = document.createElementNS(NS, 'text');
+  t2.setAttribute('x', cx); t2.setAttribute('y', maxH + 36); t2.setAttribute('text-anchor', 'middle');
+  t2.setAttribute('class', 'sub'); t2.textContent = p.state;
+  g.append(t1, t2);
+  svg.append(g);
+  x += p.width_km + gap;
+}
+// text must stay legible whatever the svg scale
+const fixText = () => {
+  const k = pxPerKm();
+  svg.querySelectorAll('text').forEach(t => t.style.fontSize = `${13 / k}px`);
+  svg.querySelectorAll('text').forEach((t, i) => t.setAttribute('y', maxH + (i % 2 ? 36 : 18) / k));
+  const bar = 20; // km
+  document.getElementById('scalebar').style.width = `${bar * k}px`;
+  document.getElementById('scalelabel').textContent = `${bar} km`;
+  svg.setAttribute('viewBox', `0 0 ${totalW} ${maxH + labelH / k}`);
+};
+fixText(); addEventListener('resize', fixText);
+
+// county cards
+document.getElementById('cards').innerHTML = pilots.map(p => `
+  <a class="cty" href="${viewer(p)}">
+    <img src="/img/${p.fips}.jpg" alt="3D overview of ${p.name}, ${p.state}" loading="lazy">
+    <h3>${p.name}, ${p.state}</h3>
+    <div class="arch">${p.archetype}</div>
+    <dl>
+      <dt>People</dt><dd>${fmt(p.pop_2024)} in 2024, ${p.peak_decade === '2020' ? 'the most it has ever had' : `down from ${fmt(p.peak_pop)} in ${p.peak_decade}`}</dd>
+      <dt>Land</dt><dd>${fmt(p.land_area_sqmi)} square miles</dd>
+      <dt>Median income</dt><dd>$${fmt(p.median_income)}, ${p.poverty_rate}% in poverty</dd>
+      <dt>Hospital</dt><dd>${p.hospitals.split(' [')[0].replace(/\b(\w)(\w*)/g, (m, a, b) => a + b.toLowerCase())}</dd>
+    </dl>
+  </a>`).join('');
+
+// findings summary
+const groups = { met: [], not_met: [], conditional: [] };
+exps.forEach(e => groups[e.verdict].push(e));
+const li = e => `<li><a href="/experiments.html#${e.id}">${e.title}</a> <span class="dim">(${e.county.split(',')[0].replace(' County','')})</span></li>`;
+document.getElementById('findings').innerHTML = `
+  <div class="met"><b>Cleared the bar (${groups.met.length})</b><ul>${groups.met.map(li).join('')}</ul></div>
+  <div class="not"><b>Fell short (${groups.not_met.length})</b><ul>${groups.not_met.map(li).join('')}</ul></div>
+  <div><b>Conditional only (${groups.conditional.length})</b><ul>${groups.conditional.map(li).join('')}</ul></div>`;
+</script>
+</body>
+</html>

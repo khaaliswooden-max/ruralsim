@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Every county: RuralSim</title>
+<meta name="description" content="Population history, income, poverty and hospital counts for 3,163 U.S. counties, searchable and sortable.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/style.css">
+<style>
+  .head { padding: 60px 0 6px; }
+  .head h1 { font-size: clamp(36px, 4.6vw, 54px); max-width: 20ch; }
+  .head p { margin-top: 20px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 14px 20px; align-items: end; margin: 30px 0 14px; font: 14px var(--sans); }
+  .controls label { display: flex; flex-direction: column; gap: 6px; color: var(--dim); }
+  .controls input[type=search], .controls select { font: 15px var(--sans); color: var(--ink); background: var(--sheet-2);
+      border: 1px solid var(--rule); border-radius: 6px; padding: 9px 11px; min-width: 200px; }
+  .controls .check { flex-direction: row; align-items: center; gap: 8px; color: var(--ink); padding-bottom: 9px; }
+  .controls .check input { accent-color: var(--water); width: 16px; height: 16px; }
+  .controls .count { margin-left: auto; color: var(--dim); padding-bottom: 9px; }
+  .controls a { padding-bottom: 9px; }
+  .tablewrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 6px; }
+  table { border-collapse: collapse; width: 100%; font: 14px/1.35 var(--sans); font-variant-numeric: tabular-nums; }
+  th, td { padding: 8px 12px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--rule); }
+  th:nth-child(-n+2), td:nth-child(-n+2) { text-align: left; }
+  thead th { position: sticky; top: 0; background: var(--sheet-2); font-weight: 500; color: var(--dim); }
+  thead button { all: unset; cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+  thead button:focus-visible { outline: 2px solid var(--water); outline-offset: 2px; }
+  thead th[aria-sort] button { color: var(--ink); }
+  tbody tr:hover { background: rgba(27,37,46,.04); }
+  td.na { color: #8a959b; }
+  tr.pilot td:first-child a { color: var(--water); }
+  .zero { color: var(--miss); }
+  .more { margin-top: 16px; }
+  .note { margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="bar">
+    <a class="mark" href="/">RuralSim</a>
+    <nav aria-label="Site">
+      <a href="/#counties">Counties</a>
+      <a href="/experiments.html">Experiments</a>
+      <a href="/national.html" aria-current="page">Every county</a>
+      <a href="https://github.com/khaaliswooden-max/ruralsim">Source</a>
+    </nav>
+  </header>
+
+  <div class="head">
+    <h1>Every county, side by side.</h1>
+    <p>3,163 U.S. counties with population history, income, poverty and hospitals. 1,958 of them are rural. 978 counties now hold 80% or less of their historical peak population, and 719 have no hospital at all, 477 of them rural.</p>
+    <p class="small">Descriptive only: no simulation runs at this level, and differences between counties are not causes. Political data is excluded.</p>
+  </div>
+
+  <div class="controls">
+    <label>Find a county<input type="search" id="q" placeholder="Name or FIPS code" autocomplete="off"></label>
+    <label>State<select id="st"><option value="">All states</option></select></label>
+    <label class="check"><input type="checkbox" id="rural"> Rural counties only</label>
+    <label class="check"><input type="checkbox" id="nohosp"> No hospital</label>
+    <a href="/data/tier_a_county_stats.csv" download>Download all 55 columns (CSV)</a>
+    <span class="count" id="count" aria-live="polite"></span>
+  </div>
+
+  <div class="tablewrap">
+    <table>
+      <thead><tr id="hdr"></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+  <button class="btn quiet more" id="more" hidden>Show 200 more</button>
+  <p class="small note">Rural means nonmetro under USDA's 2023 Rural-Urban Continuum Codes (4 to 9). Highlighted rows are the five 3D pilot counties.</p>
+
+  <footer class="foot">
+    <p>Sources: U.S. Census Bureau population estimates and decennial counts, USDA ERS county typology and Atlas of Rural and Small-Town America, SAIPE poverty and income, CMS Hospital General Information. Column definitions and vintages are in <a href="https://github.com/khaaliswooden-max/ruralsim/blob/main/data/codebook.csv">the codebook</a>.</p>
+  </footer>
+</div>
+
+<script type="module">
+const [rows, pilots] = await Promise.all(['national', 'pilots'].map(async f => (await fetch(`/data/${f}.json`)).json()));
+const pilotDir = Object.fromEntries(pilots.map(p => [p.fips, p.dir]));
+const n = (v, d = 0) => v == null ? '' : Number(v).toLocaleString('en-US', { maximumFractionDigits: d, minimumFractionDigits: d });
+const COLS = [
+  { k: 'name', t: 'County', f: (v, r) => pilotDir[r.fips] ? `<a href="/worlds/${pilotDir[r.fips]}/viewer/">${v}</a>` : v },
+  { k: 'st', t: 'State' },
+  { k: 'pop', t: 'People (2024)', f: v => n(v) },
+  { k: 'chg', t: 'Change since 2020', f: v => v == null ? '' : `${v > 0 ? '+' : ''}${n(v, 1)}%` },
+  { k: 'peakpct', t: 'Share of peak', f: v => v == null ? '' : `${n(v)}%` },
+  { k: 'income', t: 'Median income', f: v => v == null ? '' : `$${n(v)}` },
+  { k: 'poverty', t: 'Poverty', f: v => v == null ? '' : `${n(v, 1)}%` },
+  { k: 'age65', t: 'Age 65+', f: v => v == null ? '' : `${n(v, 1)}%` },
+  { k: 'hosp', t: 'Hospitals', f: v => v === 0 ? '<span class="zero">0</span>' : n(v) },
+  { k: 'cah', t: 'Critical access', f: v => n(v) },
+  { k: 'rucc', t: 'Rural code', f: v => n(v) },
+];
+let sortK = 'pop', dir = -1, shown = 200;
+const hdr = document.getElementById('hdr');
+const renderHdr = () => hdr.innerHTML = COLS.map(c =>
+  `<th scope="col" ${c.k === sortK ? `aria-sort="${dir > 0 ? 'ascending' : 'descending'}"` : ''}><button data-k="${c.k}">${c.t}${c.k === sortK ? (dir > 0 ? ' ▲' : ' ▼') : ''}</button></th>`).join('');
+hdr.addEventListener('click', e => {
+  const k = e.target.closest('button')?.dataset.k; if (!k) return;
+  dir = k === sortK ? -dir : (k === 'name' || k === 'st' ? 1 : -1); sortK = k; shown = 200; draw();
+});
+
+const states = [...new Set(rows.map(r => r.st))].sort();
+document.getElementById('st').innerHTML += states.map(s => `<option>${s}</option>`).join('');
+const $ = id => document.getElementById(id);
+['q', 'st', 'rural', 'nohosp'].forEach(id => $(id).addEventListener('input', () => { shown = 200; draw(); }));
+$('more').addEventListener('click', () => { shown += 200; draw(); });
+
+function draw() {
+  const q = $('q').value.trim().toLowerCase(), st = $('st').value;
+  let list = rows.filter(r =>
+    (!q || r.name.toLowerCase().includes(q) || r.fips.startsWith(q)) &&
+    (!st || r.st === st) && (!$('rural').checked || r.nonmetro === 1) && (!$('nohosp').checked || r.hosp === 0));
+  list.sort((a, b) => {
+    const x = a[sortK], y = b[sortK];
+    if (x == null) return 1; if (y == null) return -1;
+    return (typeof x === 'string' ? x.localeCompare(y) : x - y) * dir;
+  });
+  $('count').textContent = `${list.length.toLocaleString('en-US')} counties`;
+  $('rows').innerHTML = list.slice(0, shown).map(r => `<tr${pilotDir[r.fips] ? ' class="pilot"' : ''}>${COLS.map(c =>
+    `<td${r[c.k] == null ? ' class="na"' : ''}>${c.f ? c.f(r[c.k], r) : (r[c.k] ?? '')}</td>`).join('')}</tr>`).join('')
+    || `<tr><td colspan="${COLS.length}" style="text-align:left">No county matches. Clear the search or a filter to see more.</td></tr>`;
+  $('more').hidden = list.length <= shown;
+  renderHdr();
+}
+draw();
+</script>
+</body>
+</html>
