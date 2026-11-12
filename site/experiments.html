@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Experiments: RuralSim</title>
+<meta name="description" content="Ten interventions tested on five simulated rural counties, 20 runs each, judged against success lines written before they ran.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/style.css">
+<style>
+  .head { padding: 60px 0 10px; }
+  .head h1 { font-size: clamp(36px, 4.6vw, 54px); max-width: 18ch; }
+  .head p { margin-top: 20px; }
+  .key { display: flex; gap: 26px; flex-wrap: wrap; font: 14px/1.4 var(--sans); color: var(--dim); margin-top: 22px; }
+  .key span { display: inline-flex; align-items: center; gap: 8px; }
+  .key i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+
+  .exp { border-top: 1px solid var(--rule); padding: 44px 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 48px; scroll-margin-top: 20px; }
+  .exp h2 { font-size: 28px; }
+  .exp .where { font: 500 14px var(--sans); margin: 8px 0 18px; }
+  .exp .where a { color: var(--dim); }
+  .verdict { display: inline-block; font: 600 14px/1 var(--sans); padding: 7px 10px; border-radius: 4px; margin-bottom: 16px; }
+  .v-met { background: rgba(63,106,58,.12); color: var(--met); }
+  .v-not_met { background: rgba(163,54,31,.10); color: var(--miss); }
+  .v-conditional { background: rgba(86,99,107,.12); color: var(--ink); }
+  .exp .hyp { font-size: 18px; line-height: 1.55; }
+  .why { font: 15px/1.55 var(--sans); }
+
+  .chart .label { font: 500 15px/1.35 var(--sans); margin-bottom: 4px; }
+  .chart .crit { font: 14px/1.45 var(--sans); color: var(--dim); margin-bottom: 10px; }
+  .chart svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .chart .ax { stroke: var(--rule); }
+  .chart .tick { font: 12px var(--sans); fill: var(--dim); }
+  .chart .band { fill: rgba(37,93,140,.13); }
+  .chart .line { stroke: var(--ink); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .chart .linelabel { font: 500 12px var(--sans); fill: var(--ink); }
+  .chart .base { stroke: var(--dim); stroke-width: 1.5; }
+  .chart .baselabel { font: 12px var(--sans); fill: var(--dim); }
+  .chart .sum { font: 14px/1.5 var(--sans); margin-top: 6px; }
+
+  details { margin-top: 22px; font: 14px/1.5 var(--sans); }
+  summary { cursor: pointer; color: var(--water); font-weight: 500; }
+  details[open] summary { margin-bottom: 12px; }
+  .cons { list-style: none; margin: 0 0 16px; padding: 0; }
+  .cons li { display: flex; gap: 10px; padding: 3px 0; }
+  .cons .ok { color: var(--met); width: 3.4em; flex: none; }
+  .cons .no { color: var(--miss); width: 3.4em; flex: none; }
+  table.rq { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+  table.rq th, table.rq td { text-align: right; padding: 5px 8px; border-bottom: 1px solid var(--rule); }
+  table.rq th:first-child, table.rq td:first-child { text-align: left; }
+  table.rq th { color: var(--dim); font-weight: 500; }
+  .risk { margin-top: 14px; }
+
+  @media (max-width: 900px) { .exp { grid-template-columns: 1fr; gap: 24px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="bar">
+    <a class="mark" href="/">RuralSim</a>
+    <nav aria-label="Site">
+      <a href="/#counties">Counties</a>
+      <a href="/experiments.html" aria-current="page">Experiments</a>
+      <a href="/national.html">Every county</a>
+      <a href="https://github.com/khaaliswooden-max/ruralsim">Source</a>
+    </nav>
+  </header>
+
+  <div class="head">
+    <h1>Ten ideas, tested before anyone pays for them.</h1>
+    <p>Each idea ran 20 times on a different set of 2,000 simulated households in one pilot county. The success line for each was written down before it ran. An idea clears the bar only if the middle 90% of its runs lands past that line and none of the six protections for residents is broken.</p>
+    <p class="small">Screening grade: simplified engines, assumed equipment numbers. Nothing here is a finding until confirmed with full-physics models.</p>
+    <div class="key">
+      <span><i style="background:var(--water)"></i>One run (20 per idea)</span>
+      <span><i style="background:rgba(37,93,140,.30);border-radius:2px;width:22px"></i>Middle 90% of runs</span>
+      <span><i style="border-top:2px dashed var(--ink);border-radius:0;width:22px;height:0"></i>Success line set in advance</span>
+    </div>
+  </div>
+
+  <main id="list"></main>
+
+  <footer class="foot">
+    <p>Full run records, all 20 seeds per idea, are in <a href="https://github.com/khaaliswooden-max/ruralsim/tree/main/experiments/ledger">experiments/ledger</a>. The resident-protection rules are defined in <a href="https://github.com/khaaliswooden-max/ruralsim/blob/main/specs/rqli_spec.yaml">the quality-of-life spec</a>.</p>
+  </footer>
+</div>
+
+<script type="module">
+const [exps, pilots] = await Promise.all(['experiments', 'pilots'].map(async f => (await fetch(`/data/${f}.json`)).json()));
+const dirOf = Object.fromEntries(pilots.map(p => [p.fips, p.dir]));
+const verdictText = { met: 'Cleared the bar', not_met: 'Fell short', conditional: 'Conditional statement only' };
+const r = (v, d = 1) => Number(v).toLocaleString('en-US', { maximumFractionDigits: d });
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const cap = s => s ? s[0].toUpperCase() + s.slice(1) : s;
+
+function chart(e) {
+  const W = 560, H = 112, padL = 6, padR = 6, y = 50;
+  const pts = [...e.values, e.threshold, ...(e.baseline_mean != null ? [e.baseline_mean] : [])];
+  let lo = Math.min(...pts), hi = Math.max(...pts);
+  const span = (hi - lo) || Math.max(Math.abs(hi), 10);
+  lo -= span * .08; hi += span * .08;
+  // never draw ticks past what the metric can physically take
+  if (e.unit === '%' && e.op === '>=') { lo = Math.max(lo, 0); hi = Math.min(hi, 100); }
+  if (e.unit === '%' && /^Change in/.test(e.label)) lo = Math.max(lo, -100);
+  const X = v => padL + (v - lo) / (hi - lo) * (W - padL - padR);
+  // deterministic vertical jitter so stacked runs stay visible
+  const dots = e.values.map((v, i) => `<circle cx="${X(v).toFixed(1)}" cy="${(y + ((i * 7) % 11 - 5) * 2.2).toFixed(1)}" r="4.2" fill="var(--water)" fill-opacity=".85"><title>Run ${i + 1}: ${r(v, 2)}${e.unit}</title></circle>`).join('');
+  const [a, b] = e.interval90;
+  const ticks = 5, tk = [];
+  for (let i = 0; i <= ticks; i++) { const v = lo + (hi - lo) * i / ticks; tk.push(`<text class="tick" x="${X(v)}" y="${H - 4}" text-anchor="middle">${r(v, Math.abs(hi - lo) < 5 ? 1 : 0)}${e.unit}</text>`); }
+  const base = e.baseline_mean != null
+    ? `<line class="base" x1="${X(e.baseline_mean)}" x2="${X(e.baseline_mean)}" y1="26" y2="74"/><text class="baselabel" x="${X(e.baseline_mean)}" y="88" text-anchor="middle">${r(e.baseline_mean)}% ${e.baseline_label}</text>` : '';
+  const tx = X(e.threshold), anchor = tx > W * .75 ? 'end' : tx < W * .25 ? 'start' : 'middle';
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(e.label)}: 20 runs, middle 90% from ${r(a)} to ${r(b)}${e.unit}; success line ${e.op === '<=' ? 'at or below' : 'at or above'} ${e.threshold}${e.unit}">
+    <rect class="band" x="${X(a)}" y="30" width="${Math.max(X(b) - X(a), 2)}" height="40" rx="3"/>
+    <line class="ax" x1="${padL}" x2="${W - padR}" y1="${y}" y2="${y}"/>
+    ${base}
+    <line class="line" x1="${tx}" x2="${tx}" y1="12" y2="80"/>
+    <text class="linelabel" x="${tx}" y="8" text-anchor="${anchor}">Success line ${e.op === '<=' ? '≤' : '≥'} ${e.threshold}${e.unit}</text>
+    ${dots}${tk.join('')}
+  </svg>`;
+}
+
+function why(e) {
+  if (e.verdict === 'conditional') return '';
+  const failed = e.constraints.filter(c => !c.passed).map(c => c.name.toLowerCase());
+  const [a, b] = e.interval90;
+  const range = a === b ? `Every run landed at ${r(a)}${e.unit}`
+                        : `The middle 90% of runs fell between ${r(a)}${e.unit} and ${r(b)}${e.unit}`;
+  if (e.verdict === 'met') return `${range}, ${a === b ? 'past' : 'entirely past'} the success line, and every protection for residents held.`;
+  const parts = [];
+  if (!e.criterion_cleared) parts.push(`${range}, which does not clear the success line`);
+  if (failed.length) parts.push(`${e.criterion_cleared ? range + ', but ' : ''}it broke ${failed.length > 1 ? 'these protections' : 'this protection'} for residents: ${failed.join('; ')}`);
+  return cap(parts.join('. And ')) + '.';
+}
+
+document.getElementById('list').innerHTML = exps.map(e => `
+  <article class="exp" id="${e.id}">
+    <div>
+      <span class="verdict v-${e.verdict}">${verdictText[e.verdict]}</span>
+      <h2>${esc(e.title)}</h2>
+      <div class="where"><a href="/worlds/${dirOf[e.fips]}/viewer/">${esc(e.county)}</a></div>
+      <p class="hyp">${esc(e.hypothesis)}</p>
+      <p class="why">${e.verdict === 'conditional' ? esc(e.statement) : why(e)}</p>
+    </div>
+    <div class="chart">
+      ${e.verdict === 'conditional'
+        ? `<div class="label">No pass or fail</div><p class="crit">This card describes a device that does not exist, so it can only say what would follow if it did. It is never promoted to a result.</p>`
+        : `<div class="label">${esc(e.label)}</div><div class="crit">Written in advance: ${esc(e.criterion)}</div>${chart(e)}<div class="sum">Average across runs: ${r(e.mean, 2)}${e.unit}</div>`}
+      <details>
+        <summary>Protections for residents and quality-of-life scores</summary>
+        <ul class="cons">${e.constraints.map(c => `<li><span class="${c.passed ? 'ok' : 'no'}">${c.passed ? 'Held' : 'Broken'}</span><span>${esc(c.name)}${c.passed ? '' : ` (in ${c.seeds_failed} of 20 runs)`}</span></li>`).join('')}</ul>
+        <table class="rq">
+          <thead><tr><th>Quality-of-life score</th><th>Low (10th pct.)</th><th>Median</th><th>High (90th pct.)</th><th>Worst-off tenth</th></tr></thead>
+          <tbody>
+            <tr><td>Before</td><td>${e.rqli.rqli_baseline.p10}</td><td>${e.rqli.rqli_baseline.p50}</td><td>${e.rqli.rqli_baseline.p90}</td><td>${e.rqli.rqli_baseline.worst_off_decile_mean}</td></tr>
+            <tr><td>After</td><td>${e.rqli.rqli_intervention.p10}</td><td>${e.rqli.rqli_intervention.p50}</td><td>${e.rqli.rqli_intervention.p90}</td><td>${e.rqli.rqli_intervention.worst_off_decile_mean}</td></tr>
+          </tbody>
+        </table>
+        <p class="risk"><b>Risk to residents, stated in advance:</b> ${esc(e.risks)}</p>
+      </details>
+    </div>
+  </article>`).join('');
+if (location.hash) document.querySelector(location.hash)?.scrollIntoView();
+</script>
+</body>
+</html>
