@@ -178,8 +178,10 @@ def build_boundaries(stage):
                     "rings": [[list(p) for p in enu_coords(list(poly.exterior.coords))]
                               for poly in ([r.geometry] if r.geometry.geom_type == "Polygon" else list(r.geometry.geoms))]}
                    for _, r in gpd.read_file(RAW / "tribal" / f"tribal_{FIPS}.geojson").iterrows()]}))
-register("boundaries", "Census 2023 cartographic county polygon + TIGER AIANNH (via USFS EDW)",
-         "observed", "public domain", "2023/2024", "tribal jurisdiction marked per guardrails")
+register("boundaries",
+         ("Census 2023 cartographic county polygon" if C.is_pilot else "Census TIGERweb county polygon (current TIGER/Line)")
+         + " + TIGER AIANNH (via USFS EDW)",
+         "observed", "public domain", "2023/2024" if C.is_pilot else "current/2024", "tribal jurisdiction marked per guardrails")
 
 # ---------------- generic line/point/polygon loaders ----------------
 def lines_from_geojson(path, key_filter=None):
@@ -559,7 +561,7 @@ import shutil
 tpl = (REPO / "tools" / "viewer_template.html").read_text()
 vdir = W / "viewer"; vdir.mkdir(parents=True, exist_ok=True)
 html = (tpl.replace("{{COUNTY_NAME}}", C.county_name).replace("{{ST}}", C.st)
-           .replace("{{FIPS}}", FIPS).replace("{{UTM}}", UTM.replace("EPSG:", "EPSG:")))
+           .replace("{{FIPS}}", FIPS).replace("{{KIND}}", "pilot" if C.is_pilot else "county").replace("{{UTM}}", UTM.replace("EPSG:", "EPSG:")))
 (vdir / "index.html").write_text(html)
 vendor_src = REPO / "worlds" / "31173_thurston_ne" / "viewer" / "vendor"
 vendor_dst = vdir / "vendor"
