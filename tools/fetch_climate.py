@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Climate layer for Thurston County NE, v0.1.
+"""Climate layer for one county (fips5 argument), v0.1.
 
 Source: Open-Meteo historical archive (ERA5 reanalysis), county centroid point.
 NOAA NCEI 1991-2020 station normals were the manifest source; NCEI per-station
@@ -7,14 +7,14 @@ PDFs need station-id wrangling that is deferred (DECISIONS D-010). This layer is
 tagged "observed (modelled reanalysis)" per the manifest's solar_wind_resource
 precedent. Daily 1991-2020 -> climate normals; 2015-2025 retained for extremes.
 """
-import json, pathlib, urllib.request, urllib.parse, datetime, sys
+import json, pathlib, urllib.error, urllib.request, urllib.parse, datetime, sys, time
 import pandas as pd
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from county_config import get
 C = get(sys.argv[1] if len(sys.argv) > 1 else None)
 FIPS = C.fips
-LON, LAT = C.centroid   # county centroid from pilot_counties.csv
+LON, LAT = C.centroid   # county centroid from county_config
 REPO = pathlib.Path(__file__).resolve().parent.parent
 OUT = C.world / "layers_raw" / "climate"
 OUT.mkdir(parents=True, exist_ok=True)
@@ -27,13 +27,26 @@ params = {
     "start_date": "1991-01-01", "end_date": "2020-12-31",
     "daily": "temperature_2m_max,temperature_2m_min,precipitation_sum,snowfall_sum,wind_speed_10m_max",
     "temperature_unit": "fahrenheit", "precipitation_unit": "inch", "wind_speed_unit": "mph",
+    # continental zones unchanged from v0.1 (pilot results depend on them); Alaska, Hawaii
+    # and territories fall back to Open-Meteo's own coordinate-based zone
     "timezone": {-5: "America/New_York", -6: "America/Chicago",
-                 -7: "America/Denver", -8: "America/Los_Angeles"}[round(LON / 15)],
+                 -7: "America/Denver", -8: "America/Los_Angeles"}.get(round(LON / 15), "auto"),
 }
 url = "https://archive-api.open-meteo.com/v1/archive?" + urllib.parse.urlencode(params)
 req = urllib.request.Request(url, headers={"User-Agent": "RuralSim-research/0.1"})
-with urllib.request.urlopen(req, timeout=600) as r:
-    d = json.load(r)
+# Open-Meteo rate-limits per address (HTTP 429). Back off and retry, honouring Retry-After,
+# for up to ~20 minutes in total before giving up; the step is resumable either way.
+for attempt in range(7):
+    try:
+        with urllib.request.urlopen(req, timeout=600) as r:
+            d = json.load(r)
+        break
+    except urllib.error.HTTPError as e:
+        if e.code not in (429, 502, 503, 504) or attempt == 6:
+            raise
+        wait = int(e.headers.get("Retry-After") or 0) or min(30 * 2 ** attempt, 600)
+        print(f"  Open-Meteo HTTP {e.code}; retrying in {wait}s (attempt {attempt + 1}/6)", flush=True)
+        time.sleep(wait)
 
 df = pd.DataFrame(d["daily"])
 df["date"] = pd.to_datetime(df["time"])

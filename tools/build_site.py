@@ -69,10 +69,73 @@ def mean(xs):
     return sum(xs) / len(xs)
 
 
+# ---- viewer data slimming (site copy only; repo data is untouched) ----
+# Lines are draped on the terrain by sampling height at each vertex, so points are only
+# dropped when they sit within EPS metres of the simplified line AND no resulting segment
+# exceeds LMAX metres (keeps the drape following the ~130 m terrain grid). Coordinates are
+# rounded to whole metres: <= 0.5 m error, invisible at county scale.
+SLIM_EPS, SLIM_LMAX = 2.0, 150.0
+LINE_FILES = ("roads.json", "hydrology.json", "rail.json", "power_lines.json")
+
+
+def simplify_line(pts):
+    n = len(pts)
+    if n < 3:
+        return pts
+    keep = [False] * n
+    keep[0] = keep[-1] = True
+    stack = [(0, n - 1)]
+    while stack:
+        a, b = stack.pop()
+        if b <= a + 1:
+            continue
+        ax, ay = pts[a][0], pts[a][1]
+        dx, dy = pts[b][0] - ax, pts[b][1] - ay
+        seg = math.hypot(dx, dy)
+        best, bi = -1.0, -1
+        for i in range(a + 1, b):
+            px, py = pts[i][0] - ax, pts[i][1] - ay
+            d = abs(dx * py - dy * px) / seg if seg > 0 else math.hypot(px, py)
+            if d > best:
+                best, bi = d, i
+        if best > SLIM_EPS or seg > SLIM_LMAX:
+            keep[bi] = True
+            stack += [(a, bi), (bi, b)]
+    return [p for p, k in zip(pts, keep) if k]
+
+
+def slim_viewer_data(vd):
+    """Rewrite line and building files in a copied viewer_data dir. Returns (before, after) bytes."""
+    before = after = 0
+    for f in sorted(vd.iterdir()):
+        if f.suffix != ".json":
+            continue
+        raw = f.read_bytes()
+        before += len(raw)
+        if f.name in LINE_FILES:
+            d = json.loads(raw)
+            for e in d:
+                e["pts"] = [[round(p[0]), round(p[1])] + [round(v, 1) for v in p[2:]]
+                            for p in simplify_line(e["pts"])]
+            raw = json.dumps(d, separators=(",", ":")).encode()
+        elif f.name == "buildings.json":
+            d = json.loads(raw)
+            for e in d:
+                e["c"] = [round(v) for v in e["c"]]
+            raw = json.dumps(d, separators=(",", ":")).encode()
+        f.write_bytes(raw)
+        after += len(raw)
+    return before, after
+
+
 def county_dirs():
+    """World dirs to publish: the pilot counties only, and only once their viewer is built.
+    Other counties built with tools/build_county.py stay local until added to pilots/."""
+    with open(ROOT / "pilots" / "pilot_counties.csv") as fh:
+        pilots = {r["fips5"] for r in csv.DictReader(fh)}
     out = {}
     for d in sorted((ROOT / "worlds").iterdir()):
-        if d.is_dir():
+        if d.is_dir() and d.name[:5] in pilots and (d / "viewer" / "index.html").exists():
             out[d.name[:5]] = d.name
     return out
 
@@ -230,7 +293,13 @@ def main():
         # the build-time note box sits bottom-left; nudge it above the link
         html = html.replace("#note { position:fixed; left:12px; bottom:12px;",
                             "#note { position:fixed; left:12px; bottom:56px;", 1)
+        osm = ('<a href="https://www.openstreetmap.org/copyright" id="osmcredit" style="position:fixed;z-index:10;'
+               'right:12px;bottom:10px;font:12px/1.3 \'Public Sans\',system-ui,sans-serif;color:#9aa4ad;'
+               'text-decoration:none">Map data © OpenStreetMap contributors</a>')
+        html = html.replace("<body>", "<body>\n" + osm, 1)
         idx.write_text(html)
+        b0, b1 = slim_viewer_data(dst / "viewer_data")
+        print(f"  {name}: viewer data {b0/1e6:.1f} -> {b1/1e6:.1f} MB")
 
     data = OUT / "data"
     data.mkdir(exist_ok=True)

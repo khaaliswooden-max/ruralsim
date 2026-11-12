@@ -175,8 +175,7 @@ for a, t in zip(win_arrays, win_transforms):
     mos[r0:r0 + a.shape[0], c0:c0 + a.shape[1]] = np.where(np.isnan(sub), a, np.fmax(sub, a))
 transform = rasterio.Affine(res, 0, x0, 0, -abs(res), y1)
 
-county = gpd.read_file(REPO / "pilots" / "pilot_county_boundaries.geojson")
-geom = county[county["fips5"] == FIPS].geometry.iloc[0].buffer(0.062)
+geom = C.geom.buffer(0.062)  # pilot or any county, from county_config
 m = geometry_mask([mapping(geom)], out_shape=(H, Wd), transform=transform, invert=True)
 clip = np.where(m, mos, np.nan).astype("float32")
 

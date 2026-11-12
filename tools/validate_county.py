@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validation sheet: world (stage/viewer) vs dataset for one pilot county.
+"""Validation sheet: world (stage/viewer) vs dataset for one county.
 
 Manifest rules: every comparison world-vs-dataset; any mismatch >5% is FLAGGED,
 not silently passed. Output: validation/<fips>_<county>_validation.md + .json.
@@ -126,8 +126,7 @@ from rasterio.features import geometry_mask as _gmask
 with rasterio.open(next((W / "layers" / "terrain").glob("dem_*_*.tif"))) as src:
     valid = ~np.isnan(src.read(1))
     tf, shp = src.transform, (src.height, src.width)
-cpoly = gpd.read_file(REPO / "pilots" / "pilot_county_boundaries.geojson")
-cpoly = cpoly[cpoly["fips5"] == FIPS].geometry.iloc[0]
+cpoly = C.geom  # pilot or any county, from county_config
 inside = cpoly.intersection(_box(*dem_bounds))
 cov_bbox = inside.area / cpoly.area * 100
 # finer: rasterize the county onto the DEM grid and test valid cells

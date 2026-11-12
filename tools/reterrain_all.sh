@@ -18,8 +18,7 @@ dem = glob.glob(f"worlds/{C.fips}_*/layers/terrain/dem_{C.fips}_*.tif")
 if not dem: sys.exit(1)
 with rasterio.open(dem[0]) as src:
     valid = ~np.isnan(src.read(1)); tf, shp = src.transform, (src.height, src.width); b = src.bounds
-cp = gpd.read_file("pilots/pilot_county_boundaries.geojson")
-cp = cp[cp["fips5"] == C.fips].geometry.iloc[0]
+cp = C.geom  # pilot or any county, from county_config
 cov_bbox = cp.intersection(box(*b)).area / cp.area * 100
 cmask = geometry_mask([mapping(cp)], out_shape=shp, transform=tf, invert=True)
 cov = min(cov_bbox, float((valid & cmask).sum() / max(cmask.sum(), 1) * 100))

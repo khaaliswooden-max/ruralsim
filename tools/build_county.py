@@ -7,8 +7,8 @@ Fetch tools are idempotent (skip-existing), so a rebuild only re-fetches what
 is missing. Delete a layer's raw file to force re-fetch of that layer.
 
 Every tool takes the fips5 argument; county-specific settings (UTM zone, EPA
-region, bbox, world directory) come from tools/county_config.py, which reads
-pilots/pilot_counties.csv. Only counties listed there can be built.
+region, bbox, boundary, world directory) come from tools/county_config.py. Any
+current U.S. county can be built; non-pilot boundaries are cached in counties/.
 """
 import pathlib, subprocess, sys
 
