@@ -1,0 +1,9 @@
+{
+  "retrieved_utc": "2026-11-11T04:11:58.661799+00:00",
+  "sources": {
+    "generation": "EIA Form 860 (2024 annual, plant level)",
+    "territory": "EIA Form 861 (2024, service territory by county)"
+  },
+  "license": "public domain (US EIA)",
+  "provenance": "observed"
+}

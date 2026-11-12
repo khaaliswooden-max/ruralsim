@@ -1,0 +1,84 @@
+# Rural Quality of Life Index (RQLI) v0.1: objective for the learning loop.
+# Computed per synthetic household, per simulated year. Always report the distribution
+# (p10, p50, p90, mean) and the worst-off decile separately. Never a mean alone.
+#
+# STATUS: thresholds and weights below are starting values chosen by the designer, not
+# empirically derived and not validated with rural residents. Treat them as assumed.
+# Baselines marked "from dataset" exist in this bundle; those marked "from simulation"
+# must be computed by the baseline run before any experiment.
+version: 0.1
+unit_of_analysis: synthetic household
+scoring: each indicator is mapped to 0-1 by linear interpolation between `floor` (score 0) and `target` (score 1), clipped
+aggregation: weighted geometric mean across domains (a zero in one domain cannot be bought back by another)
+
+domains:
+  - id: care_access
+    weight: 0.18
+    indicators:
+      - {id: minutes_to_emergency_care, unit: minutes, floor: 60, target: 15, baseline: from simulation}
+      - {id: minutes_to_primary_care, unit: minutes, floor: 45, target: 15, baseline: from simulation}
+      - {id: minutes_to_obstetric_care, unit: minutes, floor: 90, target: 30, baseline: from simulation}
+      - {id: ems_response_minutes_p90, unit: minutes, floor: 40, target: 14, baseline: from simulation}
+  - id: power_reliability
+    weight: 0.12
+    indicators:
+      - {id: outage_hours_per_year, unit: hours, floor: 24, target: 2, baseline: from simulation}
+      - {id: longest_outage_hours, unit: hours, floor: 72, target: 4, baseline: from simulation}
+  - id: connectivity
+    weight: 0.12
+    indicators:
+      - {id: usable_download_mbps, unit: Mbps, floor: 10, target: 100, baseline: from simulation (FCC BDC layer)}
+      - {id: usable_upload_mbps, unit: Mbps, floor: 1, target: 20, baseline: from simulation (FCC BDC layer)}
+      - {id: broadband_cost_share_of_income, unit: fraction, floor: 0.05, target: 0.02, baseline: from simulation}
+  - id: economic_security
+    weight: 0.20
+    indicators:
+      - {id: income_after_essentials, unit: USD per year, floor: 0, target: 15000, baseline: calibrate to median_hh_income_2023 and poverty_rate_2023 in data/county_master.csv}
+      - {id: jobs_reachable_within_45_min, unit: count per working-age adult, floor: 0.3, target: 1.0, baseline: from simulation}
+      - {id: energy_cost_share_of_income, unit: fraction, floor: 0.10, target: 0.04, baseline: from simulation}
+  - id: water
+    weight: 0.10
+    indicators:
+      - {id: days_under_health_based_violation, unit: days per year, floor: 30, target: 0, baseline: from simulation (SDWIS layer)}
+      - {id: supply_interruption_hours, unit: hours per year, floor: 48, target: 0, baseline: from simulation}
+  - id: mobility
+    weight: 0.08
+    indicators:
+      - {id: minutes_to_grocery, unit: minutes, floor: 40, target: 10, baseline: from simulation}
+      - {id: detour_minutes_from_closed_or_posted_bridges, unit: minutes per trip, floor: 20, target: 0, baseline: from simulation (NBI layer)}
+  - id: education_access
+    weight: 0.08
+    indicators:
+      - {id: school_travel_minutes_one_way, unit: minutes, floor: 60, target: 20, baseline: from simulation}
+      - {id: household_can_do_remote_learning, unit: boolean, floor: 0, target: 1, baseline: from simulation}
+  - id: environment
+    weight: 0.07
+    indicators:
+      - {id: night_noise_dba_at_dwelling, unit: dBA, floor: 55, target: 35, baseline: from simulation}
+      - {id: pm25_annual, unit: ug/m3, floor: 12, target: 5, baseline: from simulation}
+  - id: cost_burden
+    weight: 0.05
+    indicators:
+      - {id: change_in_utility_rates_and_local_taxes, unit: percent vs baseline, floor: 10, target: -5, baseline: 0 by definition}
+
+hard_constraints:   # an intervention portfolio that violates any of these is rejected, whatever its score
+  - id: no_loss_of_essential_service
+    rule: no household's care_access, power_reliability or water domain score falls below its baseline value
+  - id: protect_lowest_income_quintile
+    rule: change_in_utility_rates_and_local_taxes <= 2 percent for households in the lowest income quintile
+  - id: water_within_recharge
+    rule: total county withdrawals including new compute or industrial load <= modelled sustainable yield
+  - id: no_displacement
+    rule: no intervention removes, relocates or prices out a resident household (housing cost share may not rise above 0.30 because of the intervention)
+  - id: worst_off_decile_must_gain
+    rule: p10 of RQLI after intervention >= p10 at baseline, with 90 percent confidence across seeds
+  - id: political_variables_excluded
+    rule: no column from data/county_election.csv, data/state_decade_power.csv or pres_margin_rd_* may enter the objective, the optimizer features or agent targeting
+
+promotion_rule:  # when a result may be reported as a finding
+  min_seeds: 20
+  requires: full-physics confirmation of any surrogate-screened portfolio, effect size with 90 percent interval excluding zero, all hard constraints met, fidelity tier and provenance tags printed with the result
+
+open_questions_for_owner:
+  - domain weights are the designer's judgment; they should be set with residents of the places modelled
+  - no mental-health, social-connection or cultural indicator is included because none can be simulated credibly at this fidelity

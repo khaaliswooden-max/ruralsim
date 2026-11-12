@@ -1,0 +1,8 @@
+{
+  "retrieved_utc": "2026-11-10T22:19:48.099336+00:00",
+  "source": "USGS PAD-US 3.0 Fee Manager (AGOL, owner sboyer@usgs.gov_USGS)",
+  "license": "public domain (USGS), see DOI 10.5066/P9Q9LQ4B",
+  "provenance": "observed",
+  "endpoint": "https://services.arcgis.com/v01gqwM5QqNysAAi/arcgis/rest/services/Fee_Manager/FeatureServer/0/query",
+  "features": 26
+}

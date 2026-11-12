@@ -1,0 +1,32 @@
+{
+  "retrieved_utc": "2026-11-11T22:03:37.240367+00:00",
+  "source": "USDA NASS Cropland Data Layer 2021 via Microsoft Planetary Computer (STAC: usda-cdl, 'cropland' asset)",
+  "license": "public domain (USDA)",
+  "provenance": "observed",
+  "also_serves": "land_cover (NLCD deferred - MRLC unreachable; CDL includes all non-crop classes; DECISIONS D-011)",
+  "output": {
+    "file": "layers/land_cover/cdl_20019_2021.tif",
+    "year": 2021,
+    "crs": "EPSG:5070",
+    "resolution_m": 30,
+    "shape": [
+      1301,
+      1192
+    ]
+  },
+  "top_classes": {
+    "176": "grass/pasture",
+    "141": "deciduous forest",
+    "5": "soybeans",
+    "121": "developed/open",
+    "1": "corn",
+    "26": "dbl crop winwht/soybeans",
+    "111": "open water",
+    "122": "developed/low",
+    "37": "other hay",
+    "143": "mixed forest",
+    "24": "winter wheat",
+    "123": "class 123"
+  },
+  "label_correction": "CDL class-name map corrected 2026-11-12 (26=dbl crop winwht/soybeans not oats; 24=winter wheat not durum wheat); pixel values unchanged"
+}

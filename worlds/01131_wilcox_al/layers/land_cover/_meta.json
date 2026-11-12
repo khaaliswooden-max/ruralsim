@@ -1,0 +1,31 @@
+{
+  "retrieved_utc": "2026-11-11T22:42:25.285397+00:00",
+  "source": "USDA NASS Cropland Data Layer 2021 via Microsoft Planetary Computer (STAC: usda-cdl, 'cropland' asset)",
+  "license": "public domain (USDA)",
+  "provenance": "observed",
+  "also_serves": "land_cover (NLCD deferred - MRLC unreachable; CDL includes all non-crop classes; DECISIONS D-011)",
+  "output": {
+    "file": "layers/land_cover/cdl_01131_2021.tif",
+    "year": 2021,
+    "crs": "EPSG:5070",
+    "resolution_m": 30,
+    "shape": [
+      1926,
+      2229
+    ]
+  },
+  "top_classes": {
+    "142": "evergreen forest",
+    "190": "woody wetlands",
+    "143": "mixed forest",
+    "176": "grass/pasture",
+    "141": "deciduous forest",
+    "152": "shrubland",
+    "37": "other hay",
+    "121": "developed/open",
+    "111": "open water",
+    "2": "cotton",
+    "1": "corn",
+    "61": "fallow/idle"
+  }
+}

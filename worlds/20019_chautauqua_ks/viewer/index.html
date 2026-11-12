@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>RuralSim — Chautauqua County KS (20019) pilot twin v0.1</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root { --bg:#101418; --panel:#1a2027; --fg:#e8e4da; --dim:#8a94a0; --accent:#d9a441; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:14px/1.45 Georgia, serif; overflow:hidden; }
+  #scene { position:fixed; inset:0; }
+  #hud { position:fixed; top:0; left:0; right:0; padding:10px 16px; display:flex; justify-content:space-between;
+         background:linear-gradient(rgba(16,20,24,.92), rgba(16,20,24,0)); pointer-events:none; }
+  #hud h1 { font-size:17px; margin:0; font-weight:normal; letter-spacing:.02em; }
+  #hud .sub { color:var(--dim); font-size:12px; }
+  #layers { position:fixed; top:64px; right:12px; width:280px; background:var(--panel); border:1px solid #2c3540;
+            border-radius:8px; padding:10px 12px; max-height:70vh; overflow:auto; }
+  #layers h2 { font-size:12px; text-transform:uppercase; letter-spacing:.12em; color:var(--dim); margin:4px 0 8px; }
+  .layer { display:flex; align-items:flex-start; gap:8px; padding:4px 0; cursor:pointer; }
+  .layer input { margin-top:3px; accent-color:var(--accent); }
+  .layer .nm { flex:1; }
+  .layer .prov { display:block; font-size:11px; color:var(--dim); }
+  .layer .tag { font-size:10px; border:1px solid #3a4450; border-radius:3px; padding:0 4px; color:var(--accent);
+                white-space:nowrap; margin-top:2px; }
+  #scrub { position:fixed; left:50%; transform:translateX(-50%); bottom:14px; width:min(560px,80vw);
+           background:var(--panel); border:1px solid #2c3540; border-radius:8px; padding:8px 16px; }
+  #scrub label { font-size:12px; color:var(--dim); display:flex; justify-content:space-between; }
+  #scrub input { width:100%; accent-color:var(--accent); }
+  #note { position:fixed; left:12px; bottom:12px; max-width:300px; font-size:11px; color:var(--dim);
+          background:rgba(26,32,39,.85); padding:8px 10px; border-radius:6px; }
+  #selinfo { position:fixed; left:12px; top:64px; max-width:320px; background:var(--panel); border:1px solid #2c3540;
+             border-radius:8px; padding:10px 12px; font-size:12px; display:none; }
+</style>
+</head>
+<body>
+<div id="scene"></div>
+<div id="hud">
+  <div>
+    <h1>RuralSim pilot twin — Chautauqua County, KS (FIPS 20019)</h1>
+    <div class="sub">T1 geometry build · observed layers only · ENU metres, EPSG:32614 origin at county centroid · no real-person data</div>
+  </div>
+</div>
+<div id="selinfo"></div>
+<div id="layers"><h2>Layers — provenance</h2></div>
+<div id="scrub">
+  <label><span>Year (population context, Census estimates)</span><span id="yrval"></span></label>
+  <input id="yr" type="range" min="2010" max="2024" value="2024" step="1">
+</div>
+<div id="note">Synthetic-world prototype. Device and network parameters marked <i>assumed</i> are placeholders.
+Real deployment requires community consent, engineering review, and regulatory approval.</div>
+<script type="importmap">
+{"imports": {"three": "./vendor/three.module.js"}}
+</script>
+<script type="module">
+import * as THREE from './vendor/three.module.js';
+import { OrbitControls } from './vendor/OrbitControls.js';
+
+const DATA = '../viewer_data/';
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x101418);
+scene.fog = new THREE.Fog(0x101418, 60000, 140000);
+const camera = new THREE.PerspectiveCamera(55, innerWidth/innerHeight, 10, 300000);
+const CAPTURE = new URLSearchParams(location.search).has('capture');
+const renderer = new THREE.WebGLRenderer({antialias:true, preserveDrawingBuffer: CAPTURE});
+renderer.setSize(innerWidth, innerHeight);
+document.getElementById('scene').appendChild(renderer.domElement);
+const controls = new OrbitControls(camera, renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xf5f0e0, 0x2a3038, 0.85));
+const sun = new THREE.DirectionalLight(0xfff2d8, 0.95); sun.position.set(40000, 60000, 20000); scene.add(sun);
+
+const groups = {};
+function grp(name){ const g = new THREE.Group(); g.name = name; scene.add(g); groups[name] = g; return g; }
+const fetchJ = async f => (await fetch(DATA + f)).json();
+
+// terrain
+const tm = await fetchJ('terrain_meta.json');
+const buf = await (await fetch(DATA + 'terrain_grid.f32')).arrayBuffer();
+const grid = new Float32Array(buf);
+const [TH, TW] = tm.shape;
+// vertical exaggeration (viewer aid; stage geometry is 1:1): adaptive per county,
+// capped so exaggerated relief stays under ~15% of county span, at most x4
+const span = Math.max(tm.enu_x[TW-1]-tm.enu_x[0], tm.enu_y[0]-tm.enu_y[TH-1]);
+let terrMin = 1e9, terrMax = -1e9;
+for (let i = 0; i < grid.length; i++){ const z = grid[i]; if(z<terrMin)terrMin=z; if(z>terrMax)terrMax=z; }
+const EXAG = Math.min(4.0, Math.max(1.0, 0.15 * span / Math.max(terrMax - terrMin, 1)));
+// bilinear terrain height (with exaggeration) at ENU (x, z); drapes every overlay
+function terrH(x, z){
+  const xs = tm.enu_x, ys = tm.enu_y;  // ys decreases with row (row 0 = north)
+  const fx = (x - xs[0]) / (xs[1] - xs[0]);
+  const fy = (z - ys[0]) / (ys[1] - ys[0]);
+  const cx = Math.min(Math.max(fx, 0), TW - 1.001), cy = Math.min(Math.max(fy, 0), TH - 1.001);
+  const x0 = Math.floor(cx), y0 = Math.floor(cy), tx = cx - x0, ty = cy - y0;
+  const h = grid[y0*TW+x0]*(1-tx)*(1-ty) + grid[y0*TW+x0+1]*tx*(1-ty)
+          + grid[(y0+1)*TW+x0]*(1-tx)*ty + grid[(y0+1)*TW+x0+1]*tx*ty;
+  return (h - terrMin) * EXAG;
+}
+// inside the terrain grid (with margin)? overlays are clipped to what the DEM covers
+function inGrid(x, z, margin=250){
+  return x >= tm.enu_x[0]-margin && x <= tm.enu_x[TW-1]+margin &&
+         z >= tm.enu_y[TH-1]-margin && z <= tm.enu_y[0]+margin;
+}
+function lineGroup(name, segs, colorFn, opacity=1.0){
+  const g = grp(name); const buckets = {};
+  for (const s of segs){
+    const col = colorFn(s); const key = col.getHexString();
+    (buckets[key] ??= {col, pts: []});
+    for (let i=0;i<s.pts.length-1;i++){
+      const [x0, z0] = s.pts[i], [x1, z1] = s.pts[i+1];
+      if (!inGrid(x0, z0) && !inGrid(x1, z1)) continue;
+      buckets[key].pts.push(x0, terrH(x0, z0)+2, z0, x1, terrH(x1, z1)+2, z1);
+    }
+  }
+  for (const k in buckets){
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(buckets[k].pts, 3));
+    g.add(new THREE.LineSegments(geo, new THREE.LineBasicMaterial({color: buckets[k].col, transparent: opacity<1, opacity})));
+  }
+  return g;
+}
+{
+  const geo = new THREE.BufferGeometry();
+  const verts = new Float32Array(TW*TH*3), idx = [];
+  for (let r=0; r<TH; r++) for (let c=0; c<TW; c++){
+    const i = r*TW+c, z = grid[i];
+    verts[i*3] = tm.enu_x[c]; verts[i*3+1] = (z-terrMin)*EXAG; verts[i*3+2] = tm.enu_y[r];
+  }
+  // raster row 0 = north => enu_y decreases with r; wind CCW so front faces point +y
+  for (let r=0; r<TH-1; r++) for (let c=0; c<TW-1; c++){
+    const i=r*TW+c; idx.push(i, i+1, i+TW, i+1, i+TW+1, i+TW);
+  }
+  geo.setAttribute('position', new THREE.BufferAttribute(verts, 3));
+  geo.setIndex(idx);
+  const cols = new Float32Array(TW*TH*3);
+  const c0 = new THREE.Color(0x55654a), c1 = new THREE.Color(0x8a7d5a), c2 = new THREE.Color(0x9aa5b0);
+  for (let i=0;i<TW*TH;i++){
+    const t = (grid[i]-terrMin)/(terrMax-terrMin+1e-6);
+    const col = t<0.55 ? c0.clone().lerp(c1, t/0.55) : c1.clone().lerp(c2, (t-0.55)/0.45);
+    cols[i*3]=col.r; cols[i*3+1]=col.g; cols[i*3+2]=col.b;
+  }
+  geo.setAttribute('color', new THREE.BufferAttribute(cols, 3));
+  geo.computeVertexNormals();
+  const mesh = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({vertexColors:true}));
+  grp('terrain').add(mesh);
+}
+
+// boundaries + tribal
+{
+  const b = await fetchJ('boundaries.json');
+  const g = grp('boundaries');
+  const mk = (ring, color, lift) => {
+    const pts = ring.map(p => new THREE.Vector3(p[0], terrH(p[0], p[1]) + lift, p[1]));
+    g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),
+          new THREE.LineBasicMaterial({color})));
+  };
+  mk(b.county, 0xe8e4da, 4);
+  for (const t of b.tribal) for (const r of t.rings) mk(r, 0xd9a441, 5);
+}
+
+// roads
+{
+  const roads = await fetchJ('roads.json');
+  const colors = {motorway:0xd9604a, trunk:0xd9604a, primary:0xe08a3c, secondary:0xd9b84a, tertiary:0xb8b87a};
+  lineGroup('roads', roads, s => new THREE.Color(colors[s.hwy] ?? 0x8a8a8a));
+}
+// rail
+lineGroup('rail', await fetchJ('rail.json'), () => new THREE.Color(0x555566));
+// hydrology
+lineGroup('hydrology', await fetchJ('hydrology.json'), () => new THREE.Color(0x4a73c8));
+// power lines
+lineGroup('grid_lines', await fetchJ('power_lines.json'),
+  s => new THREE.Color(s.kind === 'line' ? 0xe04ab0 : 0x9a6ab0));
+
+// buildings (instanced boxes)
+{
+  const bl = await fetchJ('buildings.json');
+  const g = grp('buildings');
+  const geo = new THREE.BoxGeometry(1,1,1); geo.translate(0,0.5,0);
+  const mat = new THREE.MeshLambertMaterial({color:0xbfb8ac});
+  const blv = bl.filter(b => inGrid(b.c[0], b.c[1], 0));
+  const inst = new THREE.InstancedMesh(geo, mat, blv.length);
+  const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), s = new THREE.Vector3(), p = new THREE.Vector3();
+  blv.forEach((b,i)=>{ p.set(b.c[0], terrH(b.c[0], b.c[1]), b.c[1]); s.set(Math.max(b.w,3), b.h, Math.max(b.d,3));
+    m4.compose(p,q,s); inst.setMatrixAt(i,m4); });
+  g.add(inst);
+}
+// bridges
+{
+  const br = await fetchJ('bridges.json');
+  const g = grp('bridges');
+  const colors = {G:0x33b033, F:0xd9b81a, P:0xe02626};
+  for (const k of ['G','F','P','?']){
+    const sub = br.filter(b=>(b.cond||'?')===k);
+    if (!sub.length) continue;
+    const geo = new THREE.BoxGeometry(18,18,18);
+    const inst = new THREE.InstancedMesh(geo, new THREE.MeshLambertMaterial({color:colors[k]??0x888888}), sub.length);
+    const m4=new THREE.Matrix4();
+    sub.forEach((b,i)=> m4.makeTranslation(b.pos[0], terrH(b.pos[0], b.pos[1]) + 9, b.pos[1]) && inst.setMatrixAt(i,m4));
+    g.add(inst);
+  }
+}
+// facilities
+{
+  const f = await fetchJ('facilities.json');
+  const g = grp('facilities');
+  const add = (arr, geo, color, lift=0) => {
+    if(!arr.length) return;
+    const inst = new THREE.InstancedMesh(geo, new THREE.MeshLambertMaterial({color}), arr.length);
+    const m4=new THREE.Matrix4();
+    arr.forEach((o,i)=>{ m4.makeTranslation(o.pos[0], terrH(o.pos[0], o.pos[1]) + lift, o.pos[1]); inst.setMatrixAt(i,m4); });
+    g.add(inst);
+  };
+  add(f.hospitals, new THREE.CylinderGeometry(35,35,50), 0xe02626, 25);
+  add(f.schools, new THREE.ConeGeometry(28,32), 0x3a7ae0, 16);
+  add(f.water_systems, new THREE.SphereGeometry(20), 0x33bfc0, 20);
+}
+// power points
+{
+  const pp = await fetchJ('power_points.json');
+  const g = grp('grid_assets');
+  if (pp.substations.length){
+    const subs = pp.substations.filter(s => inGrid(s[0], s[1], 0));
+    const inst = new THREE.InstancedMesh(new THREE.BoxGeometry(28,22,28), new THREE.MeshLambertMaterial({color:0xe04ab0}), subs.length);
+    const m4=new THREE.Matrix4();
+    subs.forEach((s,i)=>{ m4.makeTranslation(s[0], terrH(s[0], s[1]) + 11, s[1]); inst.setMatrixAt(i,m4); });
+    g.add(inst);
+  }
+  if (pp.generators.length){
+    const geo = new THREE.CylinderGeometry(2.5,2.5,85); geo.translate(0,42,0);
+    const gens = pp.generators.filter(s => inGrid(s[0], s[1], 0));
+    const inst = new THREE.InstancedMesh(geo, new THREE.MeshLambertMaterial({color:0xf2f2ee}), gens.length);
+    const m4=new THREE.Matrix4();
+    gens.forEach((s,i)=>{ m4.makeTranslation(s[0], terrH(s[0], s[1]), s[1]); inst.setMatrixAt(i,m4); });
+    g.add(inst);
+  }
+}
+
+// layer toggles with provenance
+const meta = await fetchJ('layer_meta.json');
+const LAYERS = [
+  ['terrain','Terrain (USGS 3DEP)'],['boundaries','Boundaries + tribal (Census/TIGER)'],
+  ['roads','Roads (OSM)'],['rail','Rail (BTS NTAD)'],['hydrology','Hydrology (USGS NHD)'],
+  ['grid_lines','Power lines (OSM)'],['grid_assets','Substations + generators (OSM/EIA)'],
+  ['buildings','Buildings (OSM, heights derived)'],['bridges','Bridges (FHWA NBI 2024)'],
+  ['facilities','Hospitals / schools / water systems'],
+];
+const panel = document.getElementById('layers');
+for (const [id, label] of LAYERS){
+  const m = meta[id.replace('grid_lines','grid').replace('grid_assets','grid')] || {};
+  const div = document.createElement('div'); div.className='layer';
+  div.innerHTML = `<input type="checkbox" checked id="ck_${id}">
+    <span class="nm">${label}<span class="prov">${m.source ?? ''} · ${m.vintage ?? ''}</span></span>
+    <span class="tag">${m.provenance ?? ''}</span>`;
+  div.querySelector('input').onchange = e => { groups[id].visible = e.target.checked; };
+  panel.appendChild(div);
+}
+
+// population scrubber
+const pop = await fetchJ('population_series.json');
+const yr = document.getElementById('yr'), yv = document.getElementById('yrval');
+const upd = () => { const r = pop.find(p=>p.year==yr.value);
+  yv.textContent = r ? `${r.year}: ${r.population.toLocaleString()} residents (vintage ${r.vintage})` : yr.value; };
+yr.oninput = upd; upd();
+
+// camera fit to county extent (or ?cam=x,z,h for a named framing)
+{
+  const b = await fetchJ('boundaries.json');
+  const xs = b.county.map(p=>p[0]), ys = b.county.map(p=>p[1]);
+  const cx = (Math.min(...xs)+Math.max(...xs))/2, cy=(Math.min(...ys)+Math.max(...ys))/2;
+  const span = Math.max(Math.max(...xs)-Math.min(...xs), Math.max(...ys)-Math.min(...ys));
+  const camP = new URLSearchParams(location.search).get('cam');
+  if (camP){
+    const [tx, tz, h] = camP.split(',').map(Number);
+    camera.position.set(tx + h*0.6, h, tz + h*0.9);
+    controls.target.set(tx, 0, tz);
+  } else {
+    // fit whole county: distance from FOV, oblique from the south-east
+    const dist = span / (2 * Math.tan(camera.fov * Math.PI / 360)) * 1.12;
+    camera.position.set(cx + dist*0.25, dist*0.85, cy + dist*0.75);
+    controls.target.set(cx, 0, cy - span*0.04);
+  }
+  controls.update();
+}
+
+addEventListener('resize', ()=>{ camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight); });
+if (CAPTURE){
+  // capture mode: no animation loop; render one explicit frame, then flatten the
+  // WebGL surface into a 2D image so headless screenshots composite it.
+  controls.update(); renderer.render(scene, camera);
+  const img = new Image();
+  img.onload = () => {
+    const c2 = document.createElement('canvas');
+    c2.width = innerWidth; c2.height = innerHeight;
+    c2.style.cssText = 'position:fixed;inset:0;z-index:5';
+    c2.getContext('2d').drawImage(img, 0, 0);
+    document.getElementById('scene').appendChild(c2);
+    window.__RURALSIM_READY = true;
+  };
+  img.src = renderer.domElement.toDataURL('image/png');
+} else {
+  renderer.setAnimationLoop(()=>{ controls.update(); renderer.render(scene, camera); });
+  window.__RURALSIM_READY = true;
+}
+</script>
+</body>
+</html>

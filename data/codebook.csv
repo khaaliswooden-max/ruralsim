@@ -1,0 +1,376 @@
+table,column,description,source,vintage,provenance
+county_master,fips5,"5-character county FIPS, zero-padded string. Primary join key.",Census Gazetteer 2024 + ERS RUCC legacy codes,2024,observed
+county_master,state_abbr,state abbr,see column,,observed
+county_master,county_name,county name,see column,,observed
+county_master,land_area_sqmi,"Land area, square miles.",Census Gazetteer,2024,observed
+county_master,water_area_sqmi,water area sqmi,see column,,observed
+county_master,centroid_lat,Internal point latitude.,Census Gazetteer,2024,observed
+county_master,centroid_lon,Internal point longitude.,Census Gazetteer,2024,observed
+county_master,state_fips,state fips,see column,,observed
+county_master,geography_vintage,'2024' = current county-equivalent; 'legacy' = retired code kept for history (e.g. pre-2022 Connecticut counties).,derived,2024,derived
+county_master,is_ct_planning_region,is ct planning region,see column,,observed
+county_master,is_ak_borough_or_census_area,is ak borough or census area,see column,,observed
+county_master,is_va_independent_city,is va independent city,see column,,observed
+county_master,rucc_2023,"Rural-Urban Continuum Code, 2023 edition (1-3 metro, 4-9 nonmetro). 2023 raised the urban floor to 5,000; do not read 2013->2023 changes as real change.",USDA ERS,2023,observed
+county_master,pop_2020_census,pop 2020 census,see column,,observed
+county_master,rucc_2013,"Rural-Urban Continuum Code, 2013 edition (1-3 metro, 4-9 nonmetro). 2023 raised the urban floor to 5,000; do not read 2013->2023 changes as real change.",USDA ERS,2013,observed
+county_master,pop_2010_census,pop 2010 census,see column,,observed
+county_master,rucc_2003,"Rural-Urban Continuum Code, 2003 edition (1-3 metro, 4-9 nonmetro). 2023 raised the urban floor to 5,000; do not read 2013->2023 changes as real change.",USDA ERS,2003,observed
+county_master,pop_2000_census,pop 2000 census,see column,,observed
+county_master,rucc_1983,"Rural-Urban Continuum Code, 1983 edition (1-3 metro, 4-9 nonmetro). 2023 raised the urban floor to 5,000; do not read 2013->2023 changes as real change.",USDA ERS,1983,observed
+county_master,rucc_1993,"Rural-Urban Continuum Code, 1993 edition (1-3 metro, 4-9 nonmetro). 2023 raised the urban floor to 5,000; do not read 2013->2023 changes as real change.",USDA ERS,1993,observed
+county_master,rucc_1974,"Rural-Urban Continuum Code, 1974 edition (1-3 metro, 4-9 nonmetro). 2023 raised the urban floor to 5,000; do not read 2013->2023 changes as real change.",USDA ERS,1974,observed
+county_master,nonmetro_2023,Default rural flag: RUCC 2023 code 4-9.,USDA ERS RUCC 2023,2023,derived
+county_master,housing_units_2020,housing units 2020,see column,,observed
+county_master,pop_rural_2020,pop rural 2020,see column,,observed
+county_master,pop_urban_2020,pop urban 2020,see column,,observed
+county_master,pop_density_2020_per_sqmi,pop density 2020 per sqmi,see column,,observed
+county_master,housing_density_2020_per_sqmi,housing density 2020 per sqmi,see column,,observed
+county_master,census_rural_share_2020,Share of 2020 population living in Census-defined rural blocks (continuous rural measure).,Census 2020 Urban Area county file,2020,observed
+county_master,typ_high_farming_2025,ERS County Typology flag: high_farming_2025,"USDA ERS County Typology Codes, 2025 edition",2025,observed
+county_master,typ_high_government_2025,ERS County Typology flag: high_government_2025,"USDA ERS County Typology Codes, 2025 edition",2025,observed
+county_master,typ_high_manufacturing_2025,ERS County Typology flag: high_manufacturing_2025,"USDA ERS County Typology Codes, 2025 edition",2025,observed
+county_master,typ_high_mining_2025,ERS County Typology flag: high_mining_2025,"USDA ERS County Typology Codes, 2025 edition",2025,observed
+county_master,typ_high_recreation_2025,ERS County Typology flag: high_recreation_2025,"USDA ERS County Typology Codes, 2025 edition",2025,observed
+county_master,typ_housing_stress_2025,ERS County Typology flag: housing_stress_2025,"USDA ERS County Typology Codes, 2025 edition",2025,observed
+county_master,typ_industry_dependence_2025,ERS County Typology flag: industry_dependence_2025,"USDA ERS County Typology Codes, 2025 edition",2025,observed
+county_master,typ_low_employment_2025,ERS County Typology flag: low_employment_2025,"USDA ERS County Typology Codes, 2025 edition",2025,observed
+county_master,typ_low_postsecondary_ed_2025,ERS County Typology flag: low_postsecondary_ed_2025,"USDA ERS County Typology Codes, 2025 edition",2025,observed
+county_master,typ_nonspecialized_2025,ERS County Typology flag: nonspecialized_2025,"USDA ERS County Typology Codes, 2025 edition",2025,observed
+county_master,typ_persistent_poverty_1721,ERS County Typology flag: persistent_poverty_1721,"USDA ERS County Typology Codes, 2025 edition",2025,observed
+county_master,typ_population_loss_2025,ERS County Typology flag: population_loss_2025,"USDA ERS County Typology Codes, 2025 edition",2025,observed
+county_master,typ_retirement_destination_2025,ERS County Typology flag: retirement_destination_2025,"USDA ERS County Typology Codes, 2025 edition",2025,observed
+county_master,n_hospitals,Medicare-registered hospitals located in county.,CMS Hospital General Information,2026 snapshot,observed
+county_master,n_critical_access_hospitals,Critical Access Hospitals in county.,CMS Hospital General Information,2026 snapshot,observed
+county_master,n_rural_emergency_hospitals,Rural Emergency Hospitals in county.,CMS Hospital General Information,2026 snapshot,observed
+county_master,n_acute_care_hospitals,n acute care hospitals,see column,,observed
+county_master,n_hospitals_with_emergency,n hospitals with emergency,see column,,observed
+county_master,poverty_rate_2023,"All-ages poverty rate, %; model-based, with 90% CI columns.",Census SAIPE,2023,observed (model-based estimate)
+county_master,poverty_rate_2023_ci90_lo,poverty rate 2023 ci90 lo,see column,,observed
+county_master,poverty_rate_2023_ci90_hi,poverty rate 2023 ci90 hi,see column,,observed
+county_master,child_poverty_rate_2023,child poverty rate 2023,see column,,observed
+county_master,median_hh_income_2023,"Median household income, USD; with 90% CI columns.",Census SAIPE,2023,observed (model-based estimate)
+county_master,median_hh_income_2023_ci90_lo,median hh income 2023 ci90 lo,see column,,observed
+county_master,median_hh_income_2023_ci90_hi,median hh income 2023 ci90 hi,see column,,observed
+county_master,pop_2024_estimate,pop 2024 estimate,see column,,observed
+county_master,pop_change_2020_2024_pct,pop change 2020 2024 pct,see column,,derived
+county_master,peak_pop_decade,"Census year of maximum population, 1900-2020.",derived from county_decade,1900-2020,derived
+county_master,peak_pop,peak pop,see column,,derived
+county_master,pop_2020_pct_of_peak,2020 population as % of historical peak; below 100 means the county has shrunk.,derived,1900-2020,derived
+county_master,pop_1900_census,pop 1900 census,see column,,observed
+county_master,pres_margin_rd_2016,Presidential margin_rd in 2016.,county_election,2016,observed
+county_master,pres_margin_rd_2020,Presidential margin_rd in 2020.,county_election,2020,observed
+county_master,pres_margin_rd_2024,Presidential margin_rd in 2024.,county_election,2024,observed
+county_year,fips5,"5-character county FIPS, zero-padded string. Primary join key.",Census Gazetteer 2024 + ERS RUCC legacy codes,2024,observed
+county_year,year,year,"Census Population Estimates (Vintage 2020 for 2010-19, Vintage 2024 for 2020-24)",2010-2024,observed (model-based estimate)
+county_year,population,population,"Census Population Estimates (Vintage 2020 for 2010-19, Vintage 2024 for 2020-24)",2010-2024,observed (model-based estimate)
+county_year,births,births,"Census Population Estimates (Vintage 2020 for 2010-19, Vintage 2024 for 2020-24)",2010-2024,observed (model-based estimate)
+county_year,deaths,deaths,"Census Population Estimates (Vintage 2020 for 2010-19, Vintage 2024 for 2020-24)",2010-2024,observed (model-based estimate)
+county_year,natural_change,"Births minus deaths, July-to-July year. Blank for 2010 and 2020 (partial-year values removed).",Census Population Estimates,V2020 / V2024,observed (model-based estimate)
+county_year,international_migration,international migration,"Census Population Estimates (Vintage 2020 for 2010-19, Vintage 2024 for 2020-24)",2010-2024,observed (model-based estimate)
+county_year,domestic_migration,domestic migration,"Census Population Estimates (Vintage 2020 for 2010-19, Vintage 2024 for 2020-24)",2010-2024,observed (model-based estimate)
+county_year,net_migration,net migration,"Census Population Estimates (Vintage 2020 for 2010-19, Vintage 2024 for 2020-24)",2010-2024,observed (model-based estimate)
+county_year,popest_vintage,popest vintage,"Census Population Estimates (Vintage 2020 for 2010-19, Vintage 2024 for 2020-24)",2010-2024,observed (model-based estimate)
+county_year,pop_change_pct,"Year-over-year population change, %. Blank at 2020 because the estimate vintage changes.",derived,,derived
+county_profile,fips5,"5-character county FIPS, zero-padded string. Primary join key.",Census Gazetteer 2024 + ERS RUCC legacy codes,2024,observed
+county_profile,Age65AndOlderNum2020,"Population 65 years or older, 2020",USDA ERS Atlas of Rural and Small-Town America,2020,observed
+county_profile,Age65AndOlderPct2020,"Percent of population 65 or older, 2020",USDA ERS Atlas of Rural and Small-Town America,2020,observed
+county_profile,AsianNonHispanicNum2020,"Population size Non-Hispanic Asian, 2020",USDA ERS Atlas of Rural and Small-Town America,2020,observed
+county_profile,AsianNonHispanicPct2020,"Percent Non-Hispanic Asian, 2020",USDA ERS Atlas of Rural and Small-Town America,2020,observed
+county_profile,AvgHHSize,"Average household size, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,BlackNonHispanicNum2020,"Population size Non-Hispanic African American, 2020",USDA ERS Atlas of Rural and Small-Town America,2020,observed
+county_profile,BlackNonHispanicPct2020,"Percent Non-Hispanic African American, 2020",USDA ERS Atlas of Rural and Small-Town America,2020,observed
+county_profile,BlackVetsPct,"Percent of veterans that are Black or African American alone, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,CLFVets18to64Num,"Number of veterans age 18 to 64 in the civilian labor force, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,CivPop18ONum,"Civilian population 18 years and over, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,CivPopVets18to64Num,"Civilian population age 18 to 64 that are veterans, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,CollegeDegreeVetsPct,"Percent of veterans 25 and over with a Bachelor's degree or higher, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,Deep_Pov_All,"Deep poverty, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,Deep_Pov_Children,"Deep poverty for children, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,ESTIMATESBASE2020,County Population estimate base 4/1/2020,USDA ERS Atlas of Rural and Small-Town America,2020,observed
+county_profile,EconomicDependence2000,"Economic dependence, 1998-00",USDA ERS Atlas of Rural and Small-Town America,2000,observed
+county_profile,Ed1LessThanHSNum,"No high school, adults 25 and over, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,Ed1LessThanHSPct,"Percent of persons with no high school diploma or GED, adults 25 and over, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,Ed2HSDiplomaOnlyNum,"High school only, adults 25 and over, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,Ed2HSDiplomaOnlyPct,"Percent of persons with a high school diploma or GED only, adults 25 and over, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,Ed3SomeCollegeNum,"Some college experience, adults 25 and over, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,Ed3SomeCollegePct,"Percent of persons with some college experience, adults 25 and over, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,Ed4AssocDegreeNum,"Number of persons with an associate's degree, adults 25 and over, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,Ed4AssocDegreePct,"Percent of persons with an associate's degree, adults 25 and over, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,Ed5CollegePlusNum,"College degree 4-years or more, adults 25 and over, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,Ed5CollegePlusPct,"Percent of persons with a 4-year college degree or more, adults 25 and over, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,FarmDependent2003,"Farm-dependent, 1998-00",USDA ERS Atlas of Rural and Small-Town America,2003,observed
+county_profile,FemaleHHNum,"Number of female headed family households, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,FemaleHHPct,"Percent of female headed family households of total households, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,FemaleVetsPct,"Percent of veterans that are female, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,ForeignBornAfricaNum,"Number of persons born in Africa, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,ForeignBornAfricaPct,"Percent of persons born in Africa, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,ForeignBornAsiaNum,"Number of persons born in Asia, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,ForeignBornAsiaPct,"Percent of persons born in Asia, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,ForeignBornCaribNum,"Number of persons born in the Caribbean, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,ForeignBornCaribPct,"Percent of persons born in the Caribbean, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,ForeignBornCentralSouthAmNum,"Number of persons born in Central or South America, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,ForeignBornCentralSouthAmPct,"Percent of persons born in Central or South America, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,ForeignBornEuropeNum,"Number of persons born in Europe, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,ForeignBornEuropePct,"Percent of persons born in Europe, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,ForeignBornMexNum,"Number of persons born in Mexico, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,ForeignBornMexPct,"Percent of persons born in Mexico, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,ForeignBornNum,"Number of people foreign born, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,ForeignBornPct,"Percent of total population foreign born, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,Gas_Change,"Change in the value of onshore natural gas production, 2000-11",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,GulfWar1VetsPct,"Percent of veterans that served in the Gulf War period (08/90-08/01), 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,GulfWar2VetsPct,"Percent of veterans that served in the Gulf War period (09/01 or later), 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,HH65PlusAloneNum,"Number of persons 65 years or older living alone, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,HH65PlusAlonePct,"Percent of persons 65 or older living alone, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,HiAmenity,High natural amenities,USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,HiCreativeClass2000,"Creative class, 2000",USDA ERS Atlas of Rural and Small-Town America,2000,observed
+county_profile,HighSchOnlyVetsPct,"Percent of veterans 25 and over with a high school diploma or GED only, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,Hipov,Hipov,USDA ERS Atlas of Rural and Small-Town America,see column name suffix,observed
+county_profile,HispanicNum2020,"Population size Hispanic, 2020",USDA ERS Atlas of Rural and Small-Town America,2020,observed
+county_profile,HispanicPct2020,"Percent Hispanic, 2020",USDA ERS Atlas of Rural and Small-Town America,2020,observed
+county_profile,HispanicPopChangeRate1020,"Population change rate Hispanic, 2010-20",USDA ERS Atlas of Rural and Small-Town America,1020,observed
+county_profile,HispanicVetsPct,"Percent of veterans that are Hispanic or Latino, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,KoreanWarVetsPct,"Percent of veterans that served in the Korean War period, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,LFPVetsRate,"Labor force participation rate for veterans age 18 to 64, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,LandAreaSQMiles2020,"Land area in square miles, 2020",USDA ERS Atlas of Rural and Small-Town America,2020,observed
+county_profile,LessThanHSVetsPct,"Percent of veterans 25 years and over with less than high school diploma, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,LowEducation2000,"Low education, 2000",USDA ERS Atlas of Rural and Small-Town America,2000,observed
+county_profile,Low_Education_2015_update,"Low education counties, 2015 edition",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,Low_Employment_2015_update,"Low employment counties, 2015 edition",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,MaleVetsPct,"Percent of veterans that are male, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,ManufacturingDependent2000,"Manufacturing-dependent, 1998-00",USDA ERS Atlas of Rural and Small-Town America,2000,observed
+county_profile,MedHHInc,"Median household income (In 2021 dollars), 2021",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,MedianNonVetsInc,"Median income (In 2021 dollars) of nonveterans with income in the past 12 months, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,MedianVetsInc,"Median income (In 2021 dollars) of veterans with income in the past 12 months, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,Median_HH_Inc_ACS,"Median household income (In 2021 dollars), 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,Metro2003,"Metro, 2003",USDA ERS Atlas of Rural and Small-Town America,2003,observed
+county_profile,Metro2013,"Metro, 2013",USDA ERS Atlas of Rural and Small-Town America,2013,observed
+county_profile,Metro_Adjacent2013,"Nonmetro, adjacent to metro area, 2013",USDA ERS Atlas of Rural and Small-Town America,2013,observed
+county_profile,Micropolitan2003,"Micropolitan, 2003",USDA ERS Atlas of Rural and Small-Town America,2003,observed
+county_profile,Micropolitan2013,"Micropolitan, 2013",USDA ERS Atlas of Rural and Small-Town America,2013,observed
+county_profile,MultipleRaceNum2020,"Population size multiple race, 2020",USDA ERS Atlas of Rural and Small-Town America,2020,observed
+county_profile,MultipleRacePct2020,"Percent multiple race, 2020",USDA ERS Atlas of Rural and Small-Town America,2020,observed
+county_profile,MultipleRacePopChangeRate1020,"Population change rate multiple race, 2010-20",USDA ERS Atlas of Rural and Small-Town America,1020,observed
+county_profile,NativeAmericanNonHispanicNum2020,"Population size Non-Hispanic Native American, 2020",USDA ERS Atlas of Rural and Small-Town America,2020,observed
+county_profile,NativeAmericanNonHispanicPct2020,"Percent Non-Hispanic Native American, 2020",USDA ERS Atlas of Rural and Small-Town America,2020,observed
+county_profile,NaturalChange1019,"Natural population change, 2010-19",USDA ERS Atlas of Rural and Small-Town America,1019,observed
+county_profile,NaturalChangeRate1019,"Natural population change rate, 2010-19",USDA ERS Atlas of Rural and Small-Town America,1019,observed
+county_profile,NaturalChg2020_2021,"Natural population change, 2020-21",USDA ERS Atlas of Rural and Small-Town America,2021,observed
+county_profile,Natural_Change_Rate_2020_2021,"Natural population change rate, 2020-21",USDA ERS Atlas of Rural and Small-Town America,2021,observed
+county_profile,NetMigration1019,"Net Migration, 2010-19",USDA ERS Atlas of Rural and Small-Town America,1019,observed
+county_profile,NetMigrationRate1019,"Net migration rate, 2010-19",USDA ERS Atlas of Rural and Small-Town America,1019,observed
+county_profile,Net_InterMigrationRate_2020_2021,"Net international migration rate, 2020-21",USDA ERS Atlas of Rural and Small-Town America,2021,observed
+county_profile,Net_InterMigration_2020_2021,"Net international migration, 2020-21",USDA ERS Atlas of Rural and Small-Town America,2021,observed
+county_profile,Net_International_Migration_2010_2019,"Net international migration, 2010-19",USDA ERS Atlas of Rural and Small-Town America,2019,observed
+county_profile,Net_International_Migration_Rate_2010_2019,"Net international migration rate, 2010-19",USDA ERS Atlas of Rural and Small-Town America,2019,observed
+county_profile,Net_Migration_2020_2021,"Net Migration, 2020-21",USDA ERS Atlas of Rural and Small-Town America,2021,observed
+county_profile,Net_Migration_Rate_2020_2021,"Net migration rate, 2020-21",USDA ERS Atlas of Rural and Small-Town America,2021,observed
+county_profile,NonEnglishHHNum,"Number of non-English speaking households, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,NonEnglishHHPct,"Percent of non-English speaking households of total households, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,NonHispAsianPopChangeRate1020,"Population change rate Non-Hispanic Asian, 2010-20",USDA ERS Atlas of Rural and Small-Town America,1020,observed
+county_profile,NonHispBlackPopChangeRate1020,"Population change rate Non-Hispanic African American, 2010-20",USDA ERS Atlas of Rural and Small-Town America,1020,observed
+county_profile,NonHispNatAmerPopChangeRate1020,"Population change rate Non-Hispanic Native American, 2010-20",USDA ERS Atlas of Rural and Small-Town America,1020,observed
+county_profile,NonHispWhitePopChangeRate1020,"Population change rate Non-Hispanic White, 2010-20",USDA ERS Atlas of Rural and Small-Town America,1020,observed
+county_profile,NonVetsDisabilty,"Number of nonveterans age 18 to 64 with a disability, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,NonVetsPoor,"Number of nonveterans age 18 to 64 with income in the past 12 months at or below poverty level, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,Noncore2003,"Nonmetro noncore, outside Micropolitan and Metropolitan, 2003",USDA ERS Atlas of Rural and Small-Town America,2003,observed
+county_profile,Noncore2013,"Nonmetro noncore, outside Micropolitan and Metropolitan, 2013",USDA ERS Atlas of Rural and Small-Town America,2013,observed
+county_profile,Nonmetro2003,"Nonmetro, 2003",USDA ERS Atlas of Rural and Small-Town America,2003,observed
+county_profile,Nonmetro2013,"Nonmetro, 2013",USDA ERS Atlas of Rural and Small-Town America,2013,observed
+county_profile,NonmetroAdj2003,"Nonmetro, adjacent to metro area, 2003",USDA ERS Atlas of Rural and Small-Town America,2003,observed
+county_profile,NonmetroNotAdj2003,"Nonmetro, nonadjacent to metro area, 2003",USDA ERS Atlas of Rural and Small-Town America,2003,observed
+county_profile,NumAll_inPOV_ACS,"Number of people of all ages in poverty , 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,NumCivEmployed,"Civilian employed population 16 years and over, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,NumCivLaborForce2008,"Civilian labor force, 2008",USDA ERS Atlas of Rural and Small-Town America,2008,observed
+county_profile,NumCivLaborForce2009,"Civilian labor force, 2009",USDA ERS Atlas of Rural and Small-Town America,2009,observed
+county_profile,NumCivLaborForce2011,"Civilian labor force, 2011",USDA ERS Atlas of Rural and Small-Town America,2011,observed
+county_profile,NumCivLaborForce2012,"Civilian labor force, 2012",USDA ERS Atlas of Rural and Small-Town America,2012,observed
+county_profile,NumCivLaborForce2020,"Civilian labor force, 2020",USDA ERS Atlas of Rural and Small-Town America,2020,observed
+county_profile,NumCivLaborforce2007,"Civilian labor force, 2007",USDA ERS Atlas of Rural and Small-Town America,2007,observed
+county_profile,NumCivLaborforce2010,"Civilian labor force, 2010",USDA ERS Atlas of Rural and Small-Town America,2010,observed
+county_profile,NumCivLaborforce2013,"Civilian labor force, 2013",USDA ERS Atlas of Rural and Small-Town America,2013,observed
+county_profile,NumCivLaborforce2014,"Civilian labor force, 2014",USDA ERS Atlas of Rural and Small-Town America,2014,observed
+county_profile,NumCivLaborforce2015,"Civilian labor force, 2015",USDA ERS Atlas of Rural and Small-Town America,2015,observed
+county_profile,NumCivLaborforce2016,"Civilian labor force, 2016",USDA ERS Atlas of Rural and Small-Town America,2016,observed
+county_profile,NumCivLaborforce2017,"Civilian labor force, 2017",USDA ERS Atlas of Rural and Small-Town America,2017,observed
+county_profile,NumCivLaborforce2018,"Civilian labor force, 2018",USDA ERS Atlas of Rural and Small-Town America,2018,observed
+county_profile,NumCivLaborforce2019,"Civilian labor force, 2019",USDA ERS Atlas of Rural and Small-Town America,2019,observed
+county_profile,NumCivLaborforce2021,"Civilian labor force, 2021",USDA ERS Atlas of Rural and Small-Town America,2021,observed
+county_profile,NumEmployed2007,"Employed, 2007",USDA ERS Atlas of Rural and Small-Town America,2007,observed
+county_profile,NumEmployed2008,"Employed, 2008",USDA ERS Atlas of Rural and Small-Town America,2008,observed
+county_profile,NumEmployed2009,"Employed, 2009",USDA ERS Atlas of Rural and Small-Town America,2009,observed
+county_profile,NumEmployed2010,"Employed, 2010",USDA ERS Atlas of Rural and Small-Town America,2010,observed
+county_profile,NumEmployed2011,"Employed, 2011",USDA ERS Atlas of Rural and Small-Town America,2011,observed
+county_profile,NumEmployed2012,"Employed, 2012",USDA ERS Atlas of Rural and Small-Town America,2012,observed
+county_profile,NumEmployed2013,"Employed, 2013",USDA ERS Atlas of Rural and Small-Town America,2013,observed
+county_profile,NumEmployed2014,"Employed, 2014",USDA ERS Atlas of Rural and Small-Town America,2014,observed
+county_profile,NumEmployed2015,"Employed, 2015",USDA ERS Atlas of Rural and Small-Town America,2015,observed
+county_profile,NumEmployed2016,"Employed, 2016",USDA ERS Atlas of Rural and Small-Town America,2016,observed
+county_profile,NumEmployed2017,"Employed, 2017",USDA ERS Atlas of Rural and Small-Town America,2017,observed
+county_profile,NumEmployed2018,"Employed, 2018",USDA ERS Atlas of Rural and Small-Town America,2018,observed
+county_profile,NumEmployed2019,"Employed, 2019",USDA ERS Atlas of Rural and Small-Town America,2019,observed
+county_profile,NumEmployed2020,"Employed, 2020",USDA ERS Atlas of Rural and Small-Town America,2020,observed
+county_profile,NumEmployed2021,"Employed, 2021",USDA ERS Atlas of Rural and Small-Town America,2021,observed
+county_profile,NumUnemployed2007,"Unemployed, 2007",USDA ERS Atlas of Rural and Small-Town America,2007,observed
+county_profile,NumUnemployed2008,"Unemployed, 2008",USDA ERS Atlas of Rural and Small-Town America,2008,observed
+county_profile,NumUnemployed2009,"Unemployed, 2009",USDA ERS Atlas of Rural and Small-Town America,2009,observed
+county_profile,NumUnemployed2010,"Unemployed, 2010",USDA ERS Atlas of Rural and Small-Town America,2010,observed
+county_profile,NumUnemployed2011,"Unemployed, 2011",USDA ERS Atlas of Rural and Small-Town America,2011,observed
+county_profile,NumUnemployed2012,"Unemployed, 2012",USDA ERS Atlas of Rural and Small-Town America,2012,observed
+county_profile,NumUnemployed2013,"Unemployed, 2013",USDA ERS Atlas of Rural and Small-Town America,2013,observed
+county_profile,NumUnemployed2014,"Unemployed, 2014",USDA ERS Atlas of Rural and Small-Town America,2014,observed
+county_profile,NumUnemployed2015,"Unemployed, 2015",USDA ERS Atlas of Rural and Small-Town America,2015,observed
+county_profile,NumUnemployed2016,"Unemployed, 2016",USDA ERS Atlas of Rural and Small-Town America,2016,observed
+county_profile,NumUnemployed2017,"Unemployed, 2017",USDA ERS Atlas of Rural and Small-Town America,2017,observed
+county_profile,NumUnemployed2018,"Unemployed, 2018",USDA ERS Atlas of Rural and Small-Town America,2018,observed
+county_profile,NumUnemployed2019,"Unemployed, 2019",USDA ERS Atlas of Rural and Small-Town America,2019,observed
+county_profile,NumUnemployed2020,"Unemployed, 2020",USDA ERS Atlas of Rural and Small-Town America,2020,observed
+county_profile,NumUnemployed2021,"Unemployed, 2021",USDA ERS Atlas of Rural and Small-Town America,2021,observed
+county_profile,Num_inPOV_0_17_ACS,"Number of people age 0-17 in poverty, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,Oil_Change,"Change in the value of onshore oil production, 2000-11",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,Oil_Gas_Change,"Change in the value of onshore oil and natural gas production, 2000-11",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,OtherRaceVetsPct,"Percent of veterans that are of another race or two or more races, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,OwnHomeNum,"Number of owner occupied housing units, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,OwnHomePct,"Percent of owner occupied housing units, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,PCTPOV017,"Poverty rate for children age 0-17, 2021",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,PCTPOVALL,"Poverty rate, 2021",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,POPESTIMATE2020,Population size 7/1/2020,USDA ERS Atlas of Rural and Small-Town America,2020,observed
+county_profile,POPESTIMATE2021,Population size 7/1/2021,USDA ERS Atlas of Rural and Small-Town America,2021,observed
+county_profile,POV017,"Number of people age 0-17 in poverty, 2021",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,POVALL,"Number of people of all ages in poverty , 2021",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,PctEmpAgriculture,"Percent of the civilian labor force 16 and over employed in agriculture, forestry, fishing, and hunting, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,PctEmpChange0710,"Percent employment change, 2007-10",USDA ERS Atlas of Rural and Small-Town America,0710,observed
+county_profile,PctEmpChange0721,"Percent employment change, 2007-21",USDA ERS Atlas of Rural and Small-Town America,0721,observed
+county_profile,PctEmpChange1021,"Percent employment change, 2010-21",USDA ERS Atlas of Rural and Small-Town America,1021,observed
+county_profile,PctEmpChange1920,"Percent employment change, 2019-20",USDA ERS Atlas of Rural and Small-Town America,1920,observed
+county_profile,PctEmpChange2021,"Percent employment change, 2020-21",USDA ERS Atlas of Rural and Small-Town America,2021,observed
+county_profile,PctEmpConstruction,"Percent of the civilian labor force 16 and over employed in construction, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,PctEmpFIRE,"Percent of the civilian labor force 16 and over employed in finance and insurance, and real estate and rental and leasing, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,PctEmpGovt,"Percent of the civilian labor force 16 and over employed in public administration, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,PctEmpInformation,"Percent of the civilian labor force 16 and over employed in information services, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,PctEmpManufacturing,"Percent of the civilian labor force 16 and over employed in manufacturing, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,PctEmpMining,"Percent of the civilian labor force 16 and over employed in mining, quarrying, oil and gas extraction, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,PctEmpServices,"Percent of the civilian labor force 16 and over employed in services, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,PctEmpTrade,"Percent of the civilian labor force 16 and over employed in wholesale and retail trade, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,PctEmpTrans,"Percent of the civilian labor force 16 and over employed in transportation, warehousing and utilities, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,PctNonVetsDisabilty,"Percent of nonveterans age 18 to 64 with a disability, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,PctNonVetsPoor,"Percent of nonveterans age 18 to 64 with income in the past 12 months at or below poverty level, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,PctVetsDisabilty,"Percent of veterans age 18 to 64 with a disability, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,PctVetsPoor,"Percent of veterans age 18 to 64 with income in the past 12 months at or below poverty level, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,PerCapitaInc,"Per capita Income in the past 12 months (In 2021 inflation adjusted dollars), 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,Perpov_1980_0711,Perpov 1980 0711,USDA ERS Atlas of Rural and Small-Town America,see column name suffix,observed
+county_profile,PersistentChildPoverty2004,PersistentChildPoverty2004,USDA ERS Atlas of Rural and Small-Town America,see column name suffix,observed
+county_profile,PersistentChildPoverty_1980_2011,PersistentChildPoverty 1980 2011,USDA ERS Atlas of Rural and Small-Town America,see column name suffix,observed
+county_profile,PersistentPoverty2000,PersistentPoverty2000,USDA ERS Atlas of Rural and Small-Town America,see column name suffix,observed
+county_profile,PopChangeRate1019,"Population change rate, 2010-19",USDA ERS Atlas of Rural and Small-Town America,1019,observed
+county_profile,PopChangeRate1020,"Population change rate, 2010-20",USDA ERS Atlas of Rural and Small-Town America,1020,observed
+county_profile,PopDensity2020,"Population density, 2020",USDA ERS Atlas of Rural and Small-Town America,2020,observed
+county_profile,Pop_change_Rate_2020_2021,"Population change rate, 2020-21",USDA ERS Atlas of Rural and Small-Town America,2021,observed
+county_profile,Population_loss_2015_update,"Population loss counties, 2015 edition",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,Poverty_Rate_0_17_ACS,"Poverty rate for children age 0-17, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,Poverty_Rate_ACS,"Poverty rate, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,RecreationDependent2000,"Nonmetro recreation-dependent, 1997-00",USDA ERS Atlas of Rural and Small-Town America,2000,observed
+county_profile,RetirementDestination2000,"Retirement destination, 1990-00",USDA ERS Atlas of Rural and Small-Town America,2000,observed
+county_profile,Retirement_Destination_2015_Update,"Retirement destination counties, 2015 edition",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,RuralUrbanContinuumCode2003,"Rural-urban continuum code, 2003",USDA ERS Atlas of Rural and Small-Town America,2003,observed
+county_profile,RuralUrbanContinuumCode2013,"Rural-urban continuum code, 2013",USDA ERS Atlas of Rural and Small-Town America,2013,observed
+county_profile,SomeCollegeVetsPct,"Percent of veterans 25 and over with some college or Associate's degree, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,TotalHH,"Total number of households, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,TotalOccHU,"Total number of occupied housing units, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,TotalPop2020,Population size 4/1/2020 Census,USDA ERS Atlas of Rural and Small-Town America,2020,observed
+county_profile,TotalPop25Plus,"Total population 25 and older, 2017-21 - 5-year average",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,TotalPopACS,"Total population, 2017-21 - 5-year average",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,TotalPopEst2010,Population size 7/1/2010,USDA ERS Atlas of Rural and Small-Town America,2010,observed
+county_profile,TotalPopEst2011,Population size 7/1/2011,USDA ERS Atlas of Rural and Small-Town America,2011,observed
+county_profile,TotalPopEst2012,Population size 7/1/2012,USDA ERS Atlas of Rural and Small-Town America,2012,observed
+county_profile,TotalPopEst2013,Population size 7/1/2013,USDA ERS Atlas of Rural and Small-Town America,2013,observed
+county_profile,TotalPopEst2014,Population size 7/1/2014,USDA ERS Atlas of Rural and Small-Town America,2014,observed
+county_profile,TotalPopEst2015,Population size 7/1/2015,USDA ERS Atlas of Rural and Small-Town America,2015,observed
+county_profile,TotalPopEst2016,Population size 7/1/2016,USDA ERS Atlas of Rural and Small-Town America,2016,observed
+county_profile,TotalPopEst2017,Population size 7/1/2017,USDA ERS Atlas of Rural and Small-Town America,2017,observed
+county_profile,TotalPopEst2018,Population size 7/1/2018,USDA ERS Atlas of Rural and Small-Town America,2018,observed
+county_profile,TotalPopEst2019,Population size 7/1/2019,USDA ERS Atlas of Rural and Small-Town America,2019,observed
+county_profile,TotalPopEstBase2010,County Population estimate base 4/1/2010,USDA ERS Atlas of Rural and Small-Town America,2010,observed
+county_profile,Type_2015_Farming_NO,"Farming-dependent counties, 2015 edition",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,Type_2015_Government_NO,"Federal/State government-dependent counties, 2015 edition",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,Type_2015_Manufacturing_NO,"Manufacturing-dependent counties, 2015 edition",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,Type_2015_Mining_NO,"Mining-dependent counties, 2015 edition",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,Type_2015_Nonspecialized_NO,"Nonspecialized counties, 2015 edition",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,Type_2015_Recreation_NO,"Recreation counties, 2015 edition",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,Type_2015_Update,"County typology economic types, 2015 edition",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,UEVetsRate,"Unemployment rate for veterans age 18 to 64, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,Under18Num2020,"Population under age 18, 2020",USDA ERS Atlas of Rural and Small-Town America,2020,observed
+county_profile,Under18Pct2020,"Percent of population under age 18, 2020",USDA ERS Atlas of Rural and Small-Town America,2020,observed
+county_profile,UnempRate2007,"Unemployment rate, 2007",USDA ERS Atlas of Rural and Small-Town America,2007,observed
+county_profile,UnempRate2008,"Unemployment rate, 2008",USDA ERS Atlas of Rural and Small-Town America,2008,observed
+county_profile,UnempRate2009,"Unemployment rate, 2009",USDA ERS Atlas of Rural and Small-Town America,2009,observed
+county_profile,UnempRate2010,"Unemployment rate, 2010",USDA ERS Atlas of Rural and Small-Town America,2010,observed
+county_profile,UnempRate2011,"Unemployment rate, 2011",USDA ERS Atlas of Rural and Small-Town America,2011,observed
+county_profile,UnempRate2012,"Unemployment rate, 2012",USDA ERS Atlas of Rural and Small-Town America,2012,observed
+county_profile,UnempRate2013,"Unemployment rate, 2013",USDA ERS Atlas of Rural and Small-Town America,2013,observed
+county_profile,UnempRate2014,"Unemployment rate, 2014",USDA ERS Atlas of Rural and Small-Town America,2014,observed
+county_profile,UnempRate2015,"Unemployment rate, 2015",USDA ERS Atlas of Rural and Small-Town America,2015,observed
+county_profile,UnempRate2016,"Unemployment rate, 2016",USDA ERS Atlas of Rural and Small-Town America,2016,observed
+county_profile,UnempRate2017,"Unemployment rate, 2017",USDA ERS Atlas of Rural and Small-Town America,2017,observed
+county_profile,UnempRate2018,"Unemployment rate, 2018",USDA ERS Atlas of Rural and Small-Town America,2018,observed
+county_profile,UnempRate2019,"Unemployment rate, 2019",USDA ERS Atlas of Rural and Small-Town America,2019,observed
+county_profile,UnempRate2020,"Unemployment rate, 2020",USDA ERS Atlas of Rural and Small-Town America,2020,observed
+county_profile,UnempRate2021,"Unemployment rate, 2021",USDA ERS Atlas of Rural and Small-Town America,2021,observed
+county_profile,UrbanInfluenceCode2003,"Urban influence code, 2003",USDA ERS Atlas of Rural and Small-Town America,2003,observed
+county_profile,UrbanInfluenceCode2013,"Urban influence code, 2013",USDA ERS Atlas of Rural and Small-Town America,2013,observed
+county_profile,Vets18ONum,"Civilian population 18 years and over that are veterans, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,Vets18OPct,"Percent of the population that are veterans, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,VetsDisabilty,"Number of veterans age 18 to 64 with a disability, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,VetsPoor,"Number of veterans age 18 to 64 with income in the past 12 months at or below poverty level, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,VietnamEraVetsPct,"Percent of veterans that served in the Vietnam Era, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,WW2VetsPct,"Percent of veterans that served in the World War II period, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,WhiteNonHispVetsPct,"Percent of veterans that are White not Hispanic alone, 2017-21",USDA ERS Atlas of Rural and Small-Town America,,observed
+county_profile,WhiteNonHispanicNum2020,"Population size Non-Hispanic White, 2020",USDA ERS Atlas of Rural and Small-Town America,2020,observed
+county_profile,WhiteNonHispanicPct2020,"Percent Non-Hispanic White, 2020",USDA ERS Atlas of Rural and Small-Town America,2020,observed
+county_decade,fips5,"5-character county FIPS, zero-padded string. Primary join key.",Census Gazetteer 2024 + ERS RUCC legacy codes,2024,observed
+county_decade,year,year,Census decennial counts,1900-2020,observed
+county_decade,population,population,Census decennial counts,1900-2020,observed
+county_decade,source,source,Census decennial counts,1900-2020,observed
+county_decade,pop_change_pct_decade,pop change pct decade,Census decennial counts,1900-2020,derived
+county_election,fips5,"5-character county FIPS, zero-padded string. Primary join key.",Census Gazetteer 2024 + ERS RUCC legacy codes,2024,observed
+county_election,year,year,Algara & Amlani 1868-2020; tonmcg GitHub compilation for 2024,1868-2024,observed
+county_election,office,office,Algara & Amlani 1868-2020; tonmcg GitHub compilation for 2024,1868-2024,observed
+county_election,dem_votes,dem votes,Algara & Amlani 1868-2020; tonmcg GitHub compilation for 2024,1868-2024,observed
+county_election,rep_votes,rep votes,Algara & Amlani 1868-2020; tonmcg GitHub compilation for 2024,1868-2024,observed
+county_election,total_votes,total votes,Algara & Amlani 1868-2020; tonmcg GitHub compilation for 2024,1868-2024,observed
+county_election,dem_nominee,dem nominee,Algara & Amlani 1868-2020; tonmcg GitHub compilation for 2024,1868-2024,observed
+county_election,rep_nominee,rep nominee,Algara & Amlani 1868-2020; tonmcg GitHub compilation for 2024,1868-2024,observed
+county_election,source,source,Algara & Amlani 1868-2020; tonmcg GitHub compilation for 2024,1868-2024,observed
+county_election,other_votes,other votes,Algara & Amlani 1868-2020; tonmcg GitHub compilation for 2024,1868-2024,derived
+county_election,two_party_dem_share,Democratic share of the two-party vote.,derived,,derived
+county_election,margin_rd,(Republican - Democratic votes) / total votes. Positive = Republican lead.,derived,,derived
+county_election,lean_vs_nation,County two-party Democratic share minus the national two-party share that year (computed from the counties present).,derived,,derived
+county_election,swing_vs_prev,Change in margin_rd from the previous presidential election in the same county.,derived,,derived
+county_election,in_current_spine,in current spine,Algara & Amlani 1868-2020; tonmcg GitHub compilation for 2024,1868-2024,observed
+state_decade_power,state_name,state name,Census apportionment tables,1910-2020,observed
+state_decade_power,year,year,Census apportionment tables,1910-2020,observed
+state_decade_power,resident_pop,resident pop,Census apportionment tables,1910-2020,observed
+state_decade_power,house_seats,house seats,Census apportionment tables,1910-2020,observed
+state_decade_power,electoral_votes,electoral votes,Census apportionment tables,1910-2020,derived
+state_decade_power,pop_share,pop share,Census apportionment tables,1910-2020,derived
+state_decade_power,n_states,n states,Census apportionment tables,1910-2020,observed
+state_decade_power,senate_weight_index,State's share of Senate seats divided by its share of apportioned population. 1.0 = proportional.,derived from Census apportionment,1910-2020,derived
+state_decade_power,house_weight_index,Share of House seats divided by population share.,derived,1910-2020,derived
+state_decade_power,ec_weight_index,Share of electoral votes (House seats + 2) divided by population share. DC excluded.,derived,1910-2020,derived
+state_decade_power,persons_per_senator,persons per senator,Census apportionment tables,1910-2020,derived
+state_decade_power,persons_per_house_seat,persons per house seat,Census apportionment tables,1910-2020,derived
+state_decade_power,state_abbr,state abbr,Census apportionment tables,1910-2020,observed
+state_decade_power,census_rural_share,Share of state 2020 population in Census rural blocks.,derived,2020,derived
+state_decade_power,nonmetro_share,Share of state 2020 population in RUCC 4-9 counties.,derived,2020,derived
+national_power_summary,year,year,derived from state_decade_power,1910-2020,derived
+national_power_summary,n_states,n states,derived from state_decade_power,1910-2020,derived
+national_power_summary,us_apportioned_pop,us apportioned pop,derived from state_decade_power,1910-2020,derived
+national_power_summary,senate_malapportionment_loosemore_hanby,0.5 * sum |seat share - population share| across states.,derived,1910-2020,derived
+national_power_summary,house_malapportionment_loosemore_hanby,house malapportionment loosemore hanby,derived from state_decade_power,1910-2020,derived
+national_power_summary,ec_malapportionment_loosemore_hanby,ec malapportionment loosemore hanby,derived from state_decade_power,1910-2020,derived
+national_power_summary,pop_share_of_smallest_states_electing_senate_majority,pop share of smallest states electing senate majority,derived from state_decade_power,1910-2020,derived
+national_power_summary,max_min_persons_per_senator_ratio,max min persons per senator ratio,derived from state_decade_power,1910-2020,derived
+national_power_summary,nonmetro_weighted_senate_index,Average Senate weight index experienced by a nonmetro resident (population-weighted).,derived,2020,derived
+national_power_summary,metro_weighted_senate_index,metro weighted senate index,derived from state_decade_power,1910-2020,derived
+national_power_summary,nonmetro_weighted_ec_index,nonmetro weighted ec index,derived from state_decade_power,1910-2020,derived
+national_power_summary,metro_weighted_ec_index,metro weighted ec index,derived from state_decade_power,1910-2020,derived

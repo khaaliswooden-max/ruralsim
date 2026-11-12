@@ -1,0 +1,10 @@
+{
+  "retrieved_utc": "2026-11-11T22:01:22.054535+00:00",
+  "source": "EPA SDWIS via Envirofacts REST (data.epa.gov/efservice)",
+  "license": "public domain",
+  "provenance": "observed",
+  "method_note": "county_served is name-matched ('Chautauqua' may collide with other states) - restricted to primacy KS; tribal-primacy (EPA R07) systems assigned by city match to county towns",
+  "state_primacy_systems": 11,
+  "tribal_primacy_systems": 0,
+  "violations_all_time": 184
+}

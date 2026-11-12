@@ -1,0 +1,9 @@
+{
+  "retrieved_utc": "2026-11-11T04:06:27.719088+00:00",
+  "source": "USGS National Hydrography Dataset waterbodies via hydro.nationalmap.gov ArcGIS REST",
+  "license": "public domain",
+  "provenance": "observed",
+  "endpoint": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/12/query",
+  "features_total": 6372,
+  "features": 415
+}

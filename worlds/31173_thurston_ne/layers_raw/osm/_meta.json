@@ -1,0 +1,17 @@
+{
+  "retrieved_utc": "2026-11-10T21:32:40.796470Z",
+  "source": "OpenStreetMap via Overpass API",
+  "license": "ODbL 1.0",
+  "provenance": "observed",
+  "bbox_buffered": "41.95319,-96.88567,42.34001,-96.20459",
+  "themes": {
+    "buildings": {
+      "features": 1228,
+      "file": "buildings.geojson"
+    },
+    "bridges": {
+      "features": 255,
+      "file": "bridges.geojson"
+    }
+  }
+}

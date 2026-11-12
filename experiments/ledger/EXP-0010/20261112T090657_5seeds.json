@@ -1,0 +1,7 @@
+{
+ "card_id": "EXP-0010",
+ "title": "Hypothetical storage chemistry",
+ "run_date": "2026-11-12T09:06:57",
+ "status": "engine_pending",
+ "note": "domain engine for this card is not yet implemented; card is registered in the ledger as pending rather than silently skipped"
+}

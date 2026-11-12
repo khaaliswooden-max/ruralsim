@@ -1,0 +1,161 @@
+# Ten seed experiment cards. Parameter values marked "assumed" are placeholders for the
+# owner or a vendor spec sheet to replace; they are not measured facts.
+- id: EXP-0001
+  title: "EMS dispatch re-optimization"
+  category: software
+  hypothesis: "A dispatch policy that pre-positions ambulances by time-of-day demand cuts p90 EMS response time by at least 15 percent in McDowell County WV without adding vehicles."
+  counties: ["54047"]
+  intervention: {description: replace nearest-available dispatch with demand-forecast pre-positioning, parameters: {ambulances: baseline count, reposition_interval_min: 30}, parameter_sources: {ambulances: derive from state EMS registry or assumed, reposition_interval_min: assumed}}
+  duration: 1 year
+  time_step: 1 min
+  engines: [mobility, population]
+  seeds: 20
+  metrics: {primary: ems_response_minutes_p90 (minutes), secondary: [vehicle_miles, crew_hours], rqli_domains_affected: [care_access]}
+  success_criterion: "p90 response time falls >= 15 percent, 90 percent interval excludes zero"
+  fidelity_tier: B_pilot_3d
+  provenance_floor: assumed
+  risks_to_residents: "coverage could worsen for the most remote hollows while the average improves; report by road-distance decile"
+
+- id: EXP-0002
+  title: "Telehealth triage routing under real connectivity"
+  category: software
+  hypothesis: "Routing low-acuity visits to telehealth reduces mean travel minutes to primary care by 30 percent in Wilcox County AL, but only for households with usable upload >= 3 Mbps."
+  counties: ["01131"]
+  intervention: {description: triage rule sends eligible visits to video; households below the bandwidth threshold fall back to in-person, parameters: {eligible_visit_share: 0.35, min_upload_mbps: 3}, parameter_sources: {eligible_visit_share: assumed, min_upload_mbps: assumed}}
+  duration: 1 year
+  time_step: 15 min
+  engines: [network, mobility, population]
+  seeds: 20
+  metrics: {primary: minutes_to_primary_care (minutes), secondary: [share_of_households_excluded_by_bandwidth], rqli_domains_affected: [care_access, connectivity]}
+  success_criterion: "mean travel minutes fall >= 30 percent and the excluded share is reported by income quintile"
+  fidelity_tier: B_pilot_3d
+  provenance_floor: assumed
+  risks_to_residents: "widens the gap for households without broadband; in-person capacity must not be cut on the strength of this result"
+
+- id: EXP-0003
+  title: "Feeder battery storage for outage ride-through"
+  category: hardware
+  hypothesis: "A 2 MW / 8 MWh battery at the substation serving the county seat halves outage hours for the hospital feeder in Chautauqua County KS."
+  counties: ["20019"]
+  intervention: {description: grid-forming battery at the substation feeding Sedan City Hospital, parameters: {power_mw: 2, energy_mwh: 8, round_trip_efficiency: 0.86}, parameter_sources: {power_mw: assumed, energy_mwh: assumed, round_trip_efficiency: assumed; replace with the vendor spec sheet}}
+  duration: 5 years with historical storm forcing
+  time_step: 15 min (1 s during fault events)
+  engines: [power, water_environment]
+  seeds: 20
+  metrics: {primary: outage_hours_per_year (hours) on the hospital feeder, secondary: [longest_outage_hours, levelized_cost], rqli_domains_affected: [power_reliability, care_access]}
+  success_criterion: "outage hours fall >= 50 percent on the hospital feeder"
+  fidelity_tier: B_pilot_3d
+  provenance_floor: assumed
+  risks_to_residents: "cost recovery through cooperative rates; test the lowest-income-quintile rate constraint"
+
+- id: EXP-0004
+  title: "Fixed wireless versus fiber for the last unserved households"
+  category: hardware
+  hypothesis: "In Thurston County NE, fixed wireless from three tower sites reaches 95 percent of unserved households at 100/20 Mbps for under half the capital cost of fiber to the same households."
+  counties: ["31173"]
+  intervention: {description: compare two builds over real terrain and clutter, parameters: {tower_sites: 3, band_ghz: 3.5, fiber_cost_per_mile_usd: 60000}, parameter_sources: {tower_sites: assumed, band_ghz: assumed, fiber_cost_per_mile_usd: assumed}}
+  duration: 1 year (seasonal foliage and weather)
+  time_step: 1 hour
+  engines: [network, economy]
+  seeds: 20
+  metrics: {primary: share of unserved households reaching 100/20 Mbps (percent), secondary: [capital_cost_per_household, usable_upload_mbps], rqli_domains_affected: [connectivity, education_access]}
+  success_criterion: "wireless reaches >= 95 percent at <= 50 percent of fiber capital cost"
+  fidelity_tier: B_pilot_3d
+  provenance_floor: assumed
+  risks_to_residents: "tribal jurisdiction over siting and spectrum; mark every asset on Omaha and Winnebago land and treat consent as a precondition"
+
+- id: EXP-0005
+  title: "Autonomous field robot under connectivity loss"
+  category: robotics
+  hypothesis: "A row-crop scouting robot completes 90 percent of a 160-acre mission when the network link drops for up to 10 minutes at a time."
+  counties: ["20019"]
+  intervention: {description: ground robot with onboard autonomy and store-and-forward telemetry, parameters: {mission_area_acres: 160, link_dropout_max_min: 10, speed_m_s: 1.5}, parameter_sources: {all: assumed; replace with the platform spec sheet}}
+  duration: 6 hours per mission, 200 missions
+  time_step: 2 ms control, 100 ms perception
+  engines: [robotics, network]
+  seeds: 20
+  metrics: {primary: mission_completion_rate (percent), secondary: [interventions_per_mission, energy_kwh], rqli_domains_affected: [economic_security]}
+  success_criterion: "completion >= 90 percent with domain randomization over weather, soil and terrain"
+  fidelity_tier: B_pilot_3d
+  provenance_floor: assumed
+  risks_to_residents: "labor displacement for farm workers; report hours of work changed, not only yield"
+
+- id: EXP-0006
+  title: "Drone delivery of medication in mountain terrain"
+  category: robotics
+  hypothesis: "Drone delivery from the county hospital reaches 80 percent of McDowell County WV households within 30 minutes, against a road baseline of under 40 percent."
+  counties: ["54047"]
+  intervention: {description: fixed-wing VTOL from one hub, parameters: {range_km: 40, payload_kg: 2, max_wind_m_s: 12}, parameter_sources: {all: assumed; replace with the platform spec sheet}}
+  duration: 1 year of weather
+  time_step: 20 ms flight dynamics
+  engines: [robotics, mobility, water_environment]
+  seeds: 20
+  metrics: {primary: share of households reachable within 30 minutes (percent), secondary: [weather_grounded_days, simulated_safety_incidents], rqli_domains_affected: [care_access]}
+  success_criterion: ">= 80 percent reachable, with grounded days reported"
+  fidelity_tier: B_pilot_3d
+  provenance_floor: assumed
+  risks_to_residents: "noise and privacy over homes; every simulated incident is logged"
+
+- id: EXP-0007
+  title: "20 MW data center on a rural cooperative feeder"
+  category: energy_compute
+  hypothesis: "A 20 MW compute site in Wilcox County AL can be served without raising residential rates if paired with 30 MW of on-site solar and storage, but not otherwise."
+  counties: ["01131"]
+  intervention: {description: two builds, grid-only versus grid plus on-site generation, parameters: {it_load_mw: 20, pue: 1.25, solar_mw: 30, storage_mwh: 60, water_m3_per_day: 0 (dry cooling)}, parameter_sources: {all: assumed}}
+  duration: 10 years
+  time_step: 15 min
+  engines: [power, compute, water_environment, economy]
+  seeds: 20
+  metrics: {primary: change_in_utility_rates_and_local_taxes (percent) for the lowest income quintile, secondary: [feeder_voltage_violations, local_jobs, property_tax_revenue, water_draw], rqli_domains_affected: [cost_burden, power_reliability, economic_security, environment]}
+  success_criterion: "lowest-quintile rate change <= 2 percent and zero voltage violations"
+  fidelity_tier: B_pilot_3d
+  provenance_floor: assumed
+  risks_to_residents: "rate shifting, land use, few permanent jobs; this is the experiment most likely to look good on technical metrics and bad on RQLI"
+
+- id: EXP-0008
+  title: "Hospital and school microgrid"
+  category: energy_compute
+  hypothesis: "A solar-plus-storage microgrid islanding the hospital and the school keeps both powered through a 72-hour winter outage in Teton County ID."
+  counties: ["16081"]
+  intervention: {description: islandable microgrid with winter solar resource, parameters: {solar_mw: 1.5, storage_mwh: 6, backup_generator_mw: 0.5}, parameter_sources: {all: assumed}}
+  duration: 20 winters of historical weather
+  time_step: 15 min
+  engines: [power, water_environment]
+  seeds: 20
+  metrics: {primary: hours of critical load served during a 72-hour outage (hours), secondary: [fuel_used, levelized_cost], rqli_domains_affected: [power_reliability, care_access, education_access]}
+  success_criterion: "72 of 72 hours served in >= 95 percent of simulated events"
+  fidelity_tier: B_pilot_3d
+  provenance_floor: assumed
+  risks_to_residents: "low; cost allocation"
+
+- id: EXP-0009
+  title: "Edge compute at the clinic for offline AI triage"
+  category: energy_compute
+  hypothesis: "A 10 kW edge node at the clinic keeps AI-assisted triage available during 99 percent of backhaul outages in Thurston County NE."
+  counties: ["31173"]
+  intervention: {description: local inference node with battery backup, parameters: {it_load_kw: 10, battery_kwh: 40}, parameter_sources: {all: assumed}}
+  duration: 3 years
+  time_step: 1 min
+  engines: [compute, network, power]
+  seeds: 20
+  metrics: {primary: service availability during backhaul outages (percent), secondary: [energy_cost, latency_ms], rqli_domains_affected: [care_access, connectivity]}
+  success_criterion: "availability >= 99 percent"
+  fidelity_tier: B_pilot_3d
+  provenance_floor: assumed
+  risks_to_residents: "health data stays on site; tribal data sovereignty governs any deployment"
+
+- id: EXP-0010
+  title: "Hypothetical storage chemistry"
+  category: hypothesis_sandbox
+  hypothesis: "IF a storage chemistry with 2x the energy density and half the cost of the EXP-0003 battery existed, a county-wide microgrid in Chautauqua County KS would become cheaper than the existing feeder upgrade path."
+  counties: ["20019"]
+  intervention: {description: parameterized device, not a real product, parameters: {energy_density_multiplier: 2.0, cost_multiplier: 0.5, cycle_life: 10000}, parameter_sources: {all: hypothetical}}
+  duration: 20 years
+  time_step: 15 min
+  engines: [power, economy]
+  seeds: 20
+  metrics: {primary: net present cost versus feeder upgrade (USD), secondary: [outage_hours_per_year], rqli_domains_affected: [power_reliability, cost_burden]}
+  success_criterion: "reported as a conditional statement only; no pass or fail"
+  fidelity_tier: B_pilot_3d
+  provenance_floor: hypothetical
+  risks_to_residents: "none in simulation; the result says nothing about whether such a device can be built"

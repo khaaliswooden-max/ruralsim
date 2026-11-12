@@ -1,0 +1,106 @@
+[
+  {
+    "check": "county polygon area (sq mi)",
+    "world": 396.3,
+    "dataset": 396.1,
+    "diff_pct": 0.1,
+    "status": "PASS",
+    "note": "Census 2023 cartographic polygon vs master land+water area"
+  },
+  {
+    "check": "buildings vs housing_units_2020",
+    "world": 1225,
+    "dataset": 2283,
+    "diff_pct": -46.3,
+    "status": "FLAG",
+    "note": "OSM footprints 1225 vs 2283 housing units (54%); manifest floor is 80% - OSM building completeness in rural counties is partial"
+  },
+  {
+    "check": "hospitals placed",
+    "world": 2,
+    "dataset": 2,
+    "diff_pct": 0.0,
+    "status": "PASS",
+    "note": "CMS bundle names geocoded via OSM name match, else town centroid (tagged)"
+  },
+  {
+    "check": "bridges placed",
+    "world": 152,
+    "dataset": 152,
+    "diff_pct": 0.0,
+    "status": "PASS",
+    "note": "FHWA NBI 2024, DMS-parsed coordinates, bounds-checked"
+  },
+  {
+    "check": "road network in county (miles, baseline)",
+    "world": 912.7,
+    "dataset": null,
+    "diff_pct": null,
+    "status": "INFO",
+    "note": "OSM, clipped to county; no TIGER cross-check yet (Census blocked from build network)"
+  },
+  {
+    "check": "rail network in county (miles, baseline)",
+    "world": 19.0,
+    "dataset": null,
+    "diff_pct": null,
+    "status": "INFO",
+    "note": "BTS NTAD lines intersecting county"
+  },
+  {
+    "check": "flowline network in county (miles, baseline)",
+    "world": 990.7,
+    "dataset": null,
+    "diff_pct": null,
+    "status": "INFO",
+    "note": "USGS NHD flowlines clipped to county envelope"
+  },
+  {
+    "check": "terrain min elevation (m)",
+    "world": 313.5,
+    "dataset": 313.5,
+    "diff_pct": 0.0,
+    "status": "PASS",
+    "note": "vs DEM at matched ~160 m sampling (raw 20 m min 313.5); nodata outside clip polygon filled by interpolation in mesh; payload keeps nodata"
+  },
+  {
+    "check": "terrain max elevation (m)",
+    "world": 486.7,
+    "dataset": 486.7,
+    "diff_pct": 0.0,
+    "status": "PASS",
+    "note": "vs DEM at matched ~160 m sampling (raw 20 m max 486.8); extremes smooth under mesh resolution"
+  },
+  {
+    "check": "terrain coverage of county polygon (%)",
+    "world": 100.0,
+    "dataset": 100.0,
+    "diff_pct": 0.0,
+    "status": "PASS",
+    "note": "DEM valid cells over county polygon; a crop at a 1-degree tile edge fails this"
+  },
+  {
+    "check": "population series 2010-2024 vs county_year",
+    "world": 15,
+    "dataset": 15,
+    "diff_pct": 0,
+    "status": "PASS",
+    "note": "all years match county_year exactly"
+  },
+  {
+    "check": "water systems placed",
+    "world": 9,
+    "dataset": 37,
+    "diff_pct": 75.7,
+    "status": "FLAG",
+    "note": "EPA SDWIS has no coordinates; markers placed at served-town centroids - systems whose town name did not match OSM places are unplaced (see DECISIONS)"
+  },
+  {
+    "check": "OSM generators vs EIA-860 plants",
+    "world": 186,
+    "dataset": 1,
+    "diff_pct": null,
+    "status": "INFO",
+    "note": "OSM counts individual wind turbines; EIA-860 counts plant-level records - different granularity, not an error; flagged for reader awareness"
+  }
+]

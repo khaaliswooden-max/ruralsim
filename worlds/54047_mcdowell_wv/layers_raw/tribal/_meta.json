@@ -1,0 +1,8 @@
+{
+  "retrieved_utc": "2026-11-11T18:36:25.509383+00:00",
+  "source": "USFS EDW_EDW_TribalIndianLands_01 (Census TIGER/Line AIANNH 2024 republication)",
+  "license": "USDA public domain / Census public domain",
+  "provenance": "observed",
+  "endpoint": "https://apps.fs.usda.gov/arcx/rest/services/EDW/EDW_TribalIndianLands_01/MapServer/0/query",
+  "features": 0
+}

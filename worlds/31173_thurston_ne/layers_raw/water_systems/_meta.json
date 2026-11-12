@@ -1,0 +1,10 @@
+{
+  "retrieved_utc": "2026-11-10T23:37:10.940377+00:00",
+  "source": "EPA SDWIS via Envirofacts REST (data.epa.gov/efservice)",
+  "license": "public domain",
+  "provenance": "observed",
+  "method_note": "county_served filter matches WA too - restricted to primacy NE; tribal-primacy (EPA R7) systems assigned by city match to county towns",
+  "ne_primacy_systems": 20,
+  "tribal_primacy_systems": 17,
+  "violations_all_time": 197
+}
