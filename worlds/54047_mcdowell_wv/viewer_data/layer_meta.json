@@ -1,0 +1,72 @@
+{
+  "terrain": {
+    "source": "USGS 3DEP National Elevation Dataset 1/3 arc-second (~10 m)",
+    "provenance": "observed",
+    "license": "public domain",
+    "vintage": "2012-2024 tile vintages",
+    "notes": "Stage/viewer mesh at ~160 m; cells outside county-buffer clip filled by GDAL fillnodata interpolation (derived); interior cells observed; 20 m GeoTIFF payload retains nodata"
+  },
+  "boundaries": {
+    "source": "Census 2023 cartographic county polygon + TIGER AIANNH (via USFS EDW)",
+    "provenance": "observed",
+    "license": "public domain",
+    "vintage": "2023/2024",
+    "notes": "tribal jurisdiction marked per guardrails"
+  },
+  "roads": {
+    "source": "OpenStreetMap via Overpass",
+    "provenance": "observed",
+    "license": "ODbL 1.0",
+    "vintage": "retrieved 2026-11-11",
+    "notes": "TIGER cross-check deferred (Census www2 blocked from build network)"
+  },
+  "rail": {
+    "source": "BTS NTAD North American Rail Network",
+    "provenance": "observed",
+    "license": "public domain",
+    "vintage": "NTAD current",
+    "notes": ""
+  },
+  "hydrology": {
+    "source": "USGS NHD flowlines+waterbodies (ArcGIS REST)",
+    "provenance": "observed",
+    "license": "public domain",
+    "vintage": "current",
+    "notes": "flowlines clipped to county envelope; buffer-zone flowlines partial"
+  },
+  "grid": {
+    "source": "OSM power=* (cross-check per manifest); EIA-860/861 tabular in layers_raw/grid",
+    "provenance": "observed",
+    "license": "ODbL 1.0 / public domain",
+    "vintage": "2024-2026",
+    "notes": "EIA Atlas transmission REST deferred; feeders NOT public - to be synthesized as 'assumed'"
+  },
+  "buildings": {
+    "source": "OpenStreetMap building footprints",
+    "provenance": "observed (footprint), derived (height)",
+    "license": "ODbL 1.0",
+    "vintage": "retrieved 2026-11-11",
+    "notes": "heights inferred from footprint class per manifest rule; MS footprints fallback not needed"
+  },
+  "facilities": {
+    "source": "CMS Hospital General Information (bundle) + OSM schools + EPA SDWIS",
+    "provenance": "observed (facility attrs); derived (some positions)",
+    "license": "public domain / ODbL",
+    "vintage": "2024-2026",
+    "notes": "NCES EDGE school layer deferred (nces.ed.gov blocked); OSM schools interim"
+  },
+  "bridges": {
+    "source": "FHWA National Bridge Inventory 2024",
+    "provenance": "observed",
+    "license": "public domain",
+    "vintage": "2024",
+    "notes": "condition codes G/F/P from NBI BRIDGE_CONDITION"
+  },
+  "land_tenure": {
+    "source": "USGS PAD-US 3.0 Fee Manager",
+    "provenance": "observed",
+    "license": "public domain",
+    "vintage": "3.0",
+    "notes": "tribal fee parcels overlap tribal_boundaries; jurisdiction marker authoritative there"
+  }
+}

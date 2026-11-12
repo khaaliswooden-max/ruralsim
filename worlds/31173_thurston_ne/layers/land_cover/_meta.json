@@ -1,0 +1,25 @@
+{
+  "retrieved_utc": "2026-11-10T22:47:39.317406+00:00",
+  "source": "USDA NASS Cropland Data Layer 2023 via CropScape GetCDLFile (nassgeodata.gmu.edu)",
+  "license": "public domain (USDA)",
+  "provenance": "observed",
+  "also_serves": "land_cover (NLCD deferred - MRLC unreachable; CDL includes all non-crop classes; DECISIONS D-011)",
+  "output": {
+    "file": "layers/land_cover/cdl_31173_2023.tif",
+    "year": 2023,
+    "crs": "EPSG:5070",
+    "resolution_m": 30
+  },
+  "top_classes": {
+    "1": "corn",
+    "5": "soybeans",
+    "176": "grass/pasture",
+    "141": "deciduous forest",
+    "36": "alfalfa",
+    "121": "developed/open",
+    "122": "developed/low",
+    "195": "herbaceous wetlands",
+    "190": "woody wetlands",
+    "111": "open water"
+  }
+}

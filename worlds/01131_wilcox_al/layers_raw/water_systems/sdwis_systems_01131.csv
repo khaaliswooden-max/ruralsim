@@ -1,0 +1,35 @@
+pwsid,geo_id,primacy_agency_code,epa_region,pws_activity_code,pws_type_code,tribal_code,state_served,ansi_entity_code,zip_code_served,city_served,area_type_code,county_served
+AL0001370,,AL,04,I,TNCWS,,,,,,CN,Wilcox
+AL0001371,,AL,04,A,CWS,,AL,,,CAMDEN,"CN,CT",Wilcox
+AL0001372,,AL,04,I,TNCWS,,AL,,,BOYKIN,"CN,CT",Wilcox
+AL0001374,,AL,04,A,CWS,,AL,,,CAMDEN,"CN,CT",Wilcox
+AL0001376,,AL,04,I,CWS,,,,,,CN,Wilcox
+AL0001379,,AL,04,I,TNCWS,,,,,,CN,Wilcox
+AL0001383,,AL,04,I,NTNCWS,,,,,,CN,Wilcox
+AL0001386,,AL,04,I,CWS,,,,,,CN,Wilcox
+AL0001387,,AL,04,I,CWS,,,,,,CN,Wilcox
+AL0001390,,AL,04,I,TNCWS,,,,,,CN,Wilcox
+AL0001391,,AL,04,A,CWS,,AL,,,"GEORGIANA,PINE APPLE","CN,CT",Wilcox
+AL0001392,,AL,04,I,TNCWS,,,,,,CN,Wilcox
+AL0001393,,AL,04,A,CWS,,AL,,,PINE HILL,"CN,CT",Wilcox
+AL0001395,,AL,04,N,TNCWS,,AL,,,CAMDEN,"CN,CT",Wilcox
+AL0001396,,AL,04,I,CWS,,,,,,CN,Wilcox
+AL0001398,,AL,04,I,NTNCWS,,,,,,CN,Wilcox
+AL0001399,,AL,04,I,NTNCWS,,,,,,CN,Wilcox
+AL0001400,,AL,04,I,TNCWS,,,,,,CN,Wilcox
+AL0001401,,AL,04,I,NTNCWS,,,,,,CN,Wilcox
+AL0001585,,AL,04,I,TNCWS,,,,,,CN,Wilcox
+AL0001587,,AL,04,N,TNCWS,,AL,,,SELMA,"CN,CT",Wilcox
+AL0001588,,AL,04,I,TNCWS,,,,,,CN,Wilcox
+AL0001589,,AL,04,I,TNCWS,,,,,,CN,Wilcox
+AL0001590,,AL,04,I,TNCWS,,,,,,CN,Wilcox
+AL0001592,,AL,04,I,TNCWS,,,,,,CN,Wilcox
+AL0001593,,AL,04,I,TNCWS,,,,,,CN,Wilcox
+AL0001597,,AL,04,I,TNCWS,,,,,,CN,Wilcox
+AL0001598,,AL,04,I,TNCWS,,,,,,CN,Wilcox
+AL0001599,,AL,04,I,TNCWS,,,,,,CN,Wilcox
+AL0001601,,AL,04,I,TNCWS,,,,,,CN,Wilcox
+AL0001602,,AL,04,I,TNCWS,,,,,,CN,Wilcox
+AL0001609,,AL,04,I,TNCWS,,,,,,CN,Wilcox
+AL0001760,,AL,04,A,CWS,,AL,,,MILLERS FERRY,"CN,CT",Wilcox
+AL0001764,,AL,04,A,CWS,,AL,,,DICKINSON,"CN,CT",Wilcox

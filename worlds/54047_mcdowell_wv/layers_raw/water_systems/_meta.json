@@ -1,0 +1,10 @@
+{
+  "retrieved_utc": "2026-11-11T19:44:12.101244+00:00",
+  "source": "EPA SDWIS via Envirofacts REST (data.epa.gov/efservice)",
+  "license": "public domain",
+  "provenance": "observed",
+  "method_note": "county_served name match restricted to primacy WV; no tribal lands, tribal-primacy query skipped",
+  "state_primacy_systems": 183,
+  "tribal_primacy_systems": 0,
+  "violations_all_time": 6028
+}

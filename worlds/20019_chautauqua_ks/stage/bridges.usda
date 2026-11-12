@@ -1,0 +1,3242 @@
+#usda 1.0
+(
+    customLayerData = {
+        dictionary ruralsim = {
+            string layer = "bridges"
+            string license = "public domain"
+            string notes = "condition codes G/F/P from NBI BRIDGE_CONDITION"
+            string provenance = "observed"
+            string source = "FHWA National Bridge Inventory 2024"
+            string vintage = "2024"
+        }
+    }
+)
+
+def "Bridges"
+{
+    def Cube "b0" (
+        customData = {
+            string adt = "33"
+            string bridge_condition = "F"
+            string carries = "'TRIB TO CANEY RIVER'"
+            string crosses = "'Road 8   RS 95'"
+            string culvert_cond = "6"
+            string deck_cond = "N"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "31.5"
+            string scour_critical = "8"
+            string structural_eval = "5"
+            string structure_number = "000000000100005"
+            string substructure_cond = "N"
+            string superstructure_cond = "N"
+            string year_built = "1995"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (-13996.854658665718, 262.77227783203125, -14642.883284883108)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b1" (
+        customData = {
+            string adt = "38"
+            string bridge_condition = "G"
+            string carries = "'CANEY RIVER'"
+            string crosses = "'RS 95 Road 8'"
+            string culvert_cond = "N"
+            string deck_cond = "8"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "78.1"
+            string scour_critical = "5"
+            string structural_eval = "7"
+            string structure_number = "000000000100010"
+            string substructure_cond = "7"
+            string superstructure_cond = "8"
+            string year_built = "2001"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (-13956.187779307831, 255.26158142089844, -14356.443486859556)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b2" (
+        customData = {
+            string adt = "33"
+            string bridge_condition = "F"
+            string carries = "'STREAM'"
+            string crosses = "'RS 95 Road 8'"
+            string culvert_cond = "6"
+            string deck_cond = "N"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "53.2"
+            string scour_critical = "8"
+            string structural_eval = "6"
+            string structure_number = "000000000100014"
+            string substructure_cond = "N"
+            string superstructure_cond = "N"
+            string year_built = "1989"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (-14097.989237657632, 261.8792419433594, -13654.848401382565)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b3" (
+        customData = {
+            string adt = "20"
+            string bridge_condition = "F"
+            string carries = "'CANEY RIVER'"
+            string crosses = "'RS 95'"
+            string culvert_cond = "N"
+            string deck_cond = "5"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "20"
+            string scour_critical = "4"
+            string structural_eval = "4"
+            string structure_number = "000000000100030"
+            string substructure_cond = "5"
+            string superstructure_cond = "6"
+            string year_built = "1915"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (-15317.754123583203, 256.82908630371094, -12513.6950090928)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b4" (
+        customData = {
+            string adt = "20"
+            string bridge_condition = "F"
+            string carries = "'ROCK CREEK'"
+            string crosses = "'RS 95'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "27.8"
+            string scour_critical = "5"
+            string structural_eval = "5"
+            string structure_number = "000000000100040"
+            string substructure_cond = "6"
+            string superstructure_cond = "6"
+            string year_built = "1957"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (-16401.604647619417, 259.4396514892578, -12566.470886585768)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b5" (
+        customData = {
+            string adt = "100"
+            string bridge_condition = "G"
+            string carries = "'CEDAR CREEK'"
+            string crosses = "'RS 95 Road 2'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "30.5"
+            string scour_critical = "5"
+            string structural_eval = "5"
+            string structure_number = "000000000100050"
+            string substructure_cond = "7"
+            string superstructure_cond = "7"
+            string year_built = "1963"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (-23116.328095521196, 279.2642822265625, -6278.873189471196)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b6" (
+        customData = {
+            string adt = "45"
+            string bridge_condition = "F"
+            string carries = "'STREAM'"
+            string crosses = "'RS 95'"
+            string culvert_cond = "N"
+            string deck_cond = "5"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "10.9"
+            string scour_critical = "5"
+            string structural_eval = "3"
+            string structure_number = "000000000100070"
+            string substructure_cond = "6"
+            string superstructure_cond = "5"
+            string year_built = "1936"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (-22514.976135453908, 284.66412353515625, -37.634117177687585)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b7" (
+        customData = {
+            string adt = "45"
+            string bridge_condition = "F"
+            string carries = "'STREAM'"
+            string crosses = "'RS 95 Road 3'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "31.6"
+            string scour_critical = "5"
+            string structural_eval = "5"
+            string structure_number = "000000000100080"
+            string substructure_cond = "7"
+            string superstructure_cond = "6"
+            string year_built = "1964"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (-22633.69149127649, 298.93304443359375, 5758.13103265129)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b8" (
+        customData = {
+            string adt = "45"
+            string bridge_condition = "G"
+            string carries = "'STREAM'"
+            string crosses = "'Road 2 RS 95'"
+            string culvert_cond = "7"
+            string deck_cond = "N"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "22.3"
+            string scour_critical = "8"
+            string structural_eval = "4"
+            string structure_number = "000000000100090"
+            string substructure_cond = "N"
+            string superstructure_cond = "N"
+            string year_built = "1900"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (-21949.009131643455, 323.75091552734375, 10731.913190728053)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b9" (
+        customData = {
+            string adt = "40"
+            string bridge_condition = "G"
+            string carries = "'STREAM'"
+            string crosses = "'Valley Rd RS 95'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "48"
+            string scour_critical = "5"
+            string structural_eval = "7"
+            string structure_number = "000000000100100"
+            string substructure_cond = "7"
+            string superstructure_cond = "7"
+            string year_built = "1985"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (-21640.672813672223, 325.35333251953125, 14694.25098681543)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b10" (
+        customData = {
+            string adt = "60"
+            string bridge_condition = "F"
+            string carries = "'GRANT CREEK'"
+            string crosses = "'RS 96'"
+            string culvert_cond = "N"
+            string deck_cond = "6"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "21.6"
+            string scour_critical = "4"
+            string structural_eval = "5"
+            string structure_number = "000000000100110"
+            string substructure_cond = "6"
+            string superstructure_cond = "6"
+            string year_built = "1930"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (-13503.556994592887, 280.9728088378906, -4873.140050313901)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b11" (
+        customData = {
+            string adt = "60"
+            string bridge_condition = "F"
+            string carries = "'STREAM'"
+            string crosses = "'RS 96'"
+            string culvert_cond = "6"
+            string deck_cond = "N"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "32.4"
+            string scour_critical = "8"
+            string structural_eval = "6"
+            string structure_number = "000000000100120"
+            string substructure_cond = "N"
+            string superstructure_cond = "N"
+            string year_built = "1945"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (-13474.405667217565, 282.4610900878906, -6378.6097648395225)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b12" (
+        customData = {
+            string adt = "20"
+            string bridge_condition = "G"
+            string carries = "'CANEY RIVER'"
+            string crosses = "'Dalton Rd RS 96'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "64.1"
+            string scour_critical = "5"
+            string structural_eval = "7"
+            string structure_number = "000000000100130"
+            string substructure_cond = "7"
+            string superstructure_cond = "7"
+            string year_built = "1989"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (-11073.867520180764, 246.64004516601562, -12928.077842592727)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b13" (
+        customData = {
+            string adt = "20"
+            string bridge_condition = "F"
+            string carries = "'CANEY RIVER'"
+            string crosses = "'RS 96 Dalton Road'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "33.1"
+            string scour_critical = "7"
+            string structural_eval = "5"
+            string structure_number = "000000000100150"
+            string substructure_cond = "5"
+            string superstructure_cond = "7"
+            string year_built = "1963"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (-5822.720634291647, 240.67503356933594, -16410.128171483055)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b14" (
+        customData = {
+            string adt = "120"
+            string bridge_condition = "F"
+            string carries = "'STREAM'"
+            string crosses = "'RS 96'"
+            string culvert_cond = "N"
+            string deck_cond = "6"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "30.6"
+            string scour_critical = "4"
+            string structural_eval = "5"
+            string structure_number = "000000000100160"
+            string substructure_cond = "5"
+            string superstructure_cond = "6"
+            string year_built = "1925"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (-1859.492890425725, 246.16629028320312, -16229.819173217751)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b15" (
+        customData = {
+            string adt = "120"
+            string bridge_condition = "F"
+            string carries = "'CEDAR CREEK'"
+            string crosses = "'RS 96'"
+            string culvert_cond = "N"
+            string deck_cond = "5"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "33.3"
+            string scour_critical = "4"
+            string structural_eval = "5"
+            string structure_number = "000000000100170"
+            string substructure_cond = "6"
+            string superstructure_cond = "6"
+            string year_built = "1927"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (-464.4787237367127, 237.73243713378906, -15622.044558905996)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b16" (
+        customData = {
+            string adt = "120"
+            string bridge_condition = "F"
+            string carries = "'COON CREEK'"
+            string crosses = "'RS 96'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "27.2"
+            string scour_critical = "4"
+            string structural_eval = "5"
+            string structure_number = "000000000100180"
+            string substructure_cond = "7"
+            string superstructure_cond = "6"
+            string year_built = "1956"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (1987.9508576389635, 248.1104736328125, -15361.192645386327)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b17" (
+        customData = {
+            string adt = "219"
+            string bridge_condition = "G"
+            string carries = "'STREAM'"
+            string crosses = "'Independence Rd'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "28.8"
+            string scour_critical = "4"
+            string structural_eval = "6"
+            string structure_number = "000000000100190"
+            string substructure_cond = "7"
+            string superstructure_cond = "7"
+            string year_built = "1930"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (11466.90033769526, 254.40621948242188, -1459.2957853581756)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b18" (
+        customData = {
+            string adt = "145"
+            string bridge_condition = "G"
+            string carries = "'CANEY RIVER'"
+            string crosses = "'RS 97'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "32.8"
+            string scour_critical = "8"
+            string structural_eval = "5"
+            string structure_number = "000000000100200"
+            string substructure_cond = "7"
+            string superstructure_cond = "7"
+            string year_built = "1956"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (13539.352068370092, 243.49472045898438, -614.4675512206741)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b19" (
+        customData = {
+            string adt = "145"
+            string bridge_condition = "F"
+            string carries = "'STREAM'"
+            string crosses = "'RS 97'"
+            string culvert_cond = "6"
+            string deck_cond = "N"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "32.4"
+            string scour_critical = "8"
+            string structural_eval = "6"
+            string structure_number = "000000000100210"
+            string substructure_cond = "N"
+            string superstructure_cond = "N"
+            string year_built = "1956"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (13778.667333538178, 243.80133056640625, -612.9900266146287)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b20" (
+        customData = {
+            string adt = "145"
+            string bridge_condition = "F"
+            string carries = "'BEE CREEK'"
+            string crosses = "'RS 97'"
+            string culvert_cond = "N"
+            string deck_cond = "6"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "34.9"
+            string scour_critical = "5"
+            string structural_eval = "6"
+            string structure_number = "000000000100220"
+            string substructure_cond = "7"
+            string superstructure_cond = "7"
+            string year_built = "1976"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (21443.146950590424, 257.25120544433594, 3977.583359850105)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b21" (
+        customData = {
+            string adt = "145"
+            string bridge_condition = "P"
+            string carries = "'STREAM'"
+            string crosses = "'RS 97'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "60.1"
+            string scour_critical = "5"
+            string structural_eval = "4"
+            string structure_number = "000000000100231"
+            string substructure_cond = "4"
+            string superstructure_cond = "6"
+            string year_built = "1983"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.9, 0.15, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (23008.751613918343, 255.18655395507812, 4010.9125978229567)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b22" (
+        customData = {
+            string adt = "105"
+            string bridge_condition = "F"
+            string carries = "'N. BRANCH OF CANEY CREEK'"
+            string crosses = "'RS 98'"
+            string culvert_cond = "N"
+            string deck_cond = "6"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "31.8"
+            string scour_critical = "5"
+            string structural_eval = "5"
+            string structure_number = "000000000100240"
+            string substructure_cond = "7"
+            string superstructure_cond = "5"
+            string year_built = "1958"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (8330.524534495082, 251.73516845703125, 5753.989695311058)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b23" (
+        customData = {
+            string adt = "35"
+            string bridge_condition = "F"
+            string carries = "'STREAM'"
+            string crosses = "'Road 23'"
+            string culvert_cond = "N"
+            string deck_cond = "6"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "17.6"
+            string scour_critical = "7"
+            string structural_eval = "2"
+            string structure_number = "000000000100250"
+            string substructure_cond = "7"
+            string superstructure_cond = "7"
+            string year_built = "1947"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (10800.863230573596, 289.2093505859375, 15188.614677788224)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b24" (
+        customData = {
+            string adt = "35"
+            string bridge_condition = "F"
+            string carries = "'SALT CREEK'"
+            string crosses = "'RS 98'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "33.5"
+            string scour_critical = "5"
+            string structural_eval = "5"
+            string structure_number = "000000000100260"
+            string substructure_cond = "7"
+            string superstructure_cond = "6"
+            string year_built = "1980"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (11992.852222103742, 282.98138427734375, 16454.336211139336)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b25" (
+        customData = {
+            string adt = "98"
+            string bridge_condition = "F"
+            string carries = "'STREAM'"
+            string crosses = "'RS 804 Road 8'"
+            string culvert_cond = "6"
+            string deck_cond = "N"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "38.6"
+            string scour_critical = "8"
+            string structural_eval = "6"
+            string structure_number = "000000000100270"
+            string substructure_cond = "N"
+            string superstructure_cond = "N"
+            string year_built = "1954"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (-13606.544949462404, 298.03887939453125, -1531.4984828722663)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b26" (
+        customData = {
+            string adt = "70"
+            string bridge_condition = "G"
+            string carries = "'STREAM'"
+            string crosses = "'Road 8 RS 804'"
+            string culvert_cond = "7"
+            string deck_cond = "N"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "22.1"
+            string scour_critical = "8"
+            string structural_eval = "4"
+            string structure_number = "000000000100280"
+            string substructure_cond = "N"
+            string superstructure_cond = "N"
+            string year_built = "1954"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (-13755.61713241029, 329.30999755859375, 3307.1597049362026)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b27" (
+        customData = {
+            string adt = "30"
+            string bridge_condition = "F"
+            string carries = "'STREAM'"
+            string crosses = "'RS 804'"
+            string culvert_cond = "N"
+            string deck_cond = "6"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "14.8"
+            string scour_critical = "4"
+            string structural_eval = "4"
+            string structure_number = "000000000100290"
+            string substructure_cond = "5"
+            string superstructure_cond = "6"
+            string year_built = "1938"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (-13977.734628989128, 343.75439453125, 10727.352411910426)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b28" (
+        customData = {
+            string adt = "30"
+            string bridge_condition = "F"
+            string carries = "'STREAM'"
+            string crosses = "'RS 804'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "26.1"
+            string scour_critical = "4"
+            string structural_eval = "5"
+            string structure_number = "000000000100300"
+            string substructure_cond = "5"
+            string superstructure_cond = "7"
+            string year_built = "1937"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (-14054.739216894028, 345.65087890625, 13607.982303588185)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b29" (
+        customData = {
+            string adt = "85"
+            string bridge_condition = "F"
+            string carries = "'STREAM'"
+            string crosses = "'RS 808 Road 27'"
+            string culvert_cond = "6"
+            string deck_cond = "N"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "90.6"
+            string scour_critical = "8"
+            string structural_eval = "6"
+            string structure_number = "000000000100310"
+            string substructure_cond = "N"
+            string superstructure_cond = "N"
+            string year_built = "1988"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (15167.210421913653, 261.3945007324219, 4784.171522471122)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b30" (
+        customData = {
+            string adt = "85"
+            string bridge_condition = "F"
+            string carries = "'FLY CREEK'"
+            string crosses = "'RS 808 Road 27'"
+            string culvert_cond = "6"
+            string deck_cond = "N"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "55.8"
+            string scour_critical = "8"
+            string structural_eval = "6"
+            string structure_number = "000000000100320"
+            string substructure_cond = "N"
+            string superstructure_cond = "N"
+            string year_built = "1968"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (15118.823902219418, 267.48272705078125, 5838.573817846365)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b31" (
+        customData = {
+            string adt = "85"
+            string bridge_condition = "F"
+            string carries = "'STREAM'"
+            string crosses = "'RS 808'"
+            string culvert_cond = "6"
+            string deck_cond = "N"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "29.4"
+            string scour_critical = "8"
+            string structural_eval = "5"
+            string structure_number = "000000000100330"
+            string substructure_cond = "N"
+            string superstructure_cond = "N"
+            string year_built = "1948"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (17259.84581516625, 282.8975524902344, 12515.527293936815)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b32" (
+        customData = {
+            string adt = "85"
+            string bridge_condition = "G"
+            string carries = "'SALT CREEK'"
+            string crosses = "'RS 808'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "73.7"
+            string scour_critical = "5"
+            string structural_eval = "7"
+            string structure_number = "000000000100340"
+            string substructure_cond = "7"
+            string superstructure_cond = "7"
+            string year_built = "1988"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (19510.646608605864, 267.38232421875, 14703.292867478915)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b33" (
+        customData = {
+            string adt = "60"
+            string bridge_condition = "F"
+            string carries = "'TURKEY CREEK'"
+            string crosses = "'Bronco Rd'"
+            string culvert_cond = "6"
+            string deck_cond = "N"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "30.7"
+            string scour_critical = "8"
+            string structural_eval = "5"
+            string structure_number = "000000000100350"
+            string substructure_cond = "N"
+            string superstructure_cond = "N"
+            string year_built = "1968"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (7378.265371448244, 253.24560546875, -15230.135176037438)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b34" (
+        customData = {
+            string adt = "60"
+            string bridge_condition = "G"
+            string carries = "'W HICKORY CREEK'"
+            string crosses = "'Bronco Rd RS 809'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "7.2"
+            string scour_critical = "5"
+            string structural_eval = "2"
+            string structure_number = "000000000100360"
+            string substructure_cond = "7"
+            string superstructure_cond = "7"
+            string year_built = "1988"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (11874.611545235151, 243.4020538330078, -15133.280634247698)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b35" (
+        customData = {
+            string adt = "60"
+            string bridge_condition = "G"
+            string carries = "'EAST HICKORY CREEK'"
+            string crosses = "'RS 809 Bronco Rd'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "61.1"
+            string scour_critical = "4"
+            string structural_eval = "7"
+            string structure_number = "000000000100370"
+            string substructure_cond = "7"
+            string superstructure_cond = "7"
+            string year_built = "1994"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (12986.249336052337, 244.94338989257812, -15105.678712148685)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b36" (
+        customData = {
+            string adt = "130"
+            string bridge_condition = "G"
+            string carries = "'STREAM'"
+            string crosses = "'RS 809 Bronco Road'"
+            string culvert_cond = "7"
+            string deck_cond = "N"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "34.4"
+            string scour_critical = "7"
+            string structural_eval = "5"
+            string structure_number = "000000000100380"
+            string substructure_cond = "N"
+            string superstructure_cond = "N"
+            string year_built = "1959"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (23657.75017924176, 236.35519409179688, -14440.453784900717)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b37" (
+        customData = {
+            string adt = "45"
+            string bridge_condition = "F"
+            string carries = "'MIDDLE CANEY CREEK'"
+            string crosses = "'RS 1564 Road 25'"
+            string culvert_cond = "N"
+            string deck_cond = "6"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "55.7"
+            string scour_critical = "5"
+            string structural_eval = "6"
+            string structure_number = "000000000100390"
+            string substructure_cond = "7"
+            string superstructure_cond = "6"
+            string year_built = "1984"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (13496.604786807788, 239.3995361328125, -6124.967120676767)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b38" (
+        customData = {
+            string adt = "45"
+            string bridge_condition = "G"
+            string carries = "'STREAM'"
+            string crosses = "'RS 1564'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "25.3"
+            string scour_critical = "4"
+            string structural_eval = "4"
+            string structure_number = "000000000100400"
+            string substructure_cond = "7"
+            string superstructure_cond = "7"
+            string year_built = "1963"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (13874.889675640617, 243.2301025390625, -2436.6755012115464)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b39" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "F"
+            string carries = "'POOL CREEK'"
+            string crosses = "'RS 1565 Marshal Rd'"
+            string culvert_cond = "N"
+            string deck_cond = "6"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "19.1"
+            string scour_critical = "5"
+            string structural_eval = "5"
+            string structure_number = "000000000100410"
+            string substructure_cond = "5"
+            string superstructure_cond = "6"
+            string year_built = "1930"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (-5356.177301019779, 285.37982177734375, 2184.2504092296585)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b40" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "F"
+            string carries = "'POOL CREEK'"
+            string crosses = "'RS 1565'"
+            string culvert_cond = "N"
+            string deck_cond = "6"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "18"
+            string scour_critical = "4"
+            string structural_eval = "4"
+            string structure_number = "000000000100420"
+            string substructure_cond = "7"
+            string superstructure_cond = "6"
+            string year_built = "1962"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (-2506.2854144789744, 270.07501220703125, -61.58516907552257)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b41" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "G"
+            string carries = "'MIDDLE CANEY CREEK'"
+            string crosses = "'RS 1565 Kansas Rd'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "46"
+            string scour_critical = "7"
+            string structural_eval = "6"
+            string structure_number = "000000000100430"
+            string substructure_cond = "7"
+            string superstructure_cond = "8"
+            string year_built = "1991"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (-1031.2789662656141, 259.5791015625, -444.4720796411857)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b42" (
+        customData = {
+            string adt = "45"
+            string bridge_condition = "F"
+            string carries = "'MIDDLE CANEY CREEK'"
+            string crosses = "'RS 1566'"
+            string culvert_cond = "N"
+            string deck_cond = "6"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "28.5"
+            string scour_critical = "5"
+            string structural_eval = "5"
+            string structure_number = "000000000100440"
+            string substructure_cond = "7"
+            string superstructure_cond = "6"
+            string year_built = "1959"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (-9067.228686574963, 301.27374267578125, 8456.940732468851)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b43" (
+        customData = {
+            string adt = "45"
+            string bridge_condition = "G"
+            string carries = "'BAKERS CREEK'"
+            string crosses = "'RS 1566'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "31.6"
+            string scour_critical = "5"
+            string structural_eval = "5"
+            string structure_number = "000000000100450"
+            string substructure_cond = "7"
+            string superstructure_cond = "7"
+            string year_built = "1959"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (-7460.964037049096, 323.26812744140625, 13355.142198563088)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b44" (
+        customData = {
+            string adt = "30"
+            string bridge_condition = "G"
+            string carries = "'SOUTH SALT CREEK'"
+            string crosses = "'Road 22   RS 1624'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "50.6"
+            string scour_critical = "4"
+            string structural_eval = "7"
+            string structure_number = "000000000100460"
+            string substructure_cond = "7"
+            string superstructure_cond = "7"
+            string year_built = "1997"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (8435.109261136386, 300.42584228515625, 14623.146107729524)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b45" (
+        customData = {
+            string adt = "60"
+            string bridge_condition = "G"
+            string carries = "'UNION CREEK'"
+            string crosses = "'OLD K-38 Ranch Rd'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "31.8"
+            string scour_critical = "5"
+            string structural_eval = "5"
+            string structure_number = "000000000100510"
+            string substructure_cond = "7"
+            string superstructure_cond = "7"
+            string year_built = "1941"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (-24906.39972855756, 332.06201171875, 9781.944529303815)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b46" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "P"
+            string carries = "'STREAM'"
+            string crosses = "'LOCAL     A.0-16.5'"
+            string culvert_cond = "N"
+            string deck_cond = "6"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "5.5"
+            string scour_critical = "4"
+            string structural_eval = "2"
+            string structure_number = "000100907007025"
+            string substructure_cond = "4"
+            string superstructure_cond = "5"
+            string year_built = "1940"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.9, 0.15, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (-24672.756622647517, 315.88067626953125, -8728.216069145594)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b47" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "G"
+            string carries = "'STREAM'"
+            string crosses = "'LOCAL     A.0-18.0'"
+            string culvert_cond = "7"
+            string deck_cond = "N"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "62.6"
+            string scour_critical = "8"
+            string structural_eval = "7"
+            string structure_number = "000100907007060"
+            string substructure_cond = "N"
+            string superstructure_cond = "N"
+            string year_built = "2001"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (-24628.505401390605, 303.7460632324219, -11024.93989579333)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b48" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "F"
+            string carries = "'STREAM'"
+            string crosses = "'Frontier Rd'"
+            string culvert_cond = "N"
+            string deck_cond = "5"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "5.4"
+            string scour_critical = "4"
+            string structural_eval = "2"
+            string structure_number = "000100907307040"
+            string substructure_cond = "6"
+            string superstructure_cond = "5"
+            string year_built = "1970"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (-23863.264005482313, 308.50164794921875, -9488.987686611246)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b49" (
+        customData = {
+            string adt = "50"
+            string bridge_condition = "P"
+            string carries = "'CEDAR CREEK'"
+            string crosses = "'A8150 Heritage Rd'"
+            string culvert_cond = "N"
+            string deck_cond = "6"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "22.7"
+            string scour_critical = "5"
+            string structural_eval = "4"
+            string structure_number = "000100907807000"
+            string substructure_cond = "4"
+            string superstructure_cond = "6"
+            string year_built = "1930"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.9, 0.15, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (-23376.249730813666, 280.39239501953125, -6240.970030138269)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b50" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "F"
+            string carries = "'UNION CREEK'"
+            string crosses = "'B.0-7.1 Road 2'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "17.2"
+            string scour_critical = "4"
+            string structural_eval = "5"
+            string structure_number = "000100909006842"
+            string substructure_cond = "5"
+            string superstructure_cond = "7"
+            string year_built = "1930"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (-23434.815768194036, 308.03460693359375, 6509.05780730769)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b51" (
+        customData = {
+            string adt = "50"
+            string bridge_condition = "F"
+            string carries = "'CEDAR CREEK'"
+            string crosses = "'Road 3'"
+            string culvert_cond = "N"
+            string deck_cond = "5"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "14.4"
+            string scour_critical = "4"
+            string structural_eval = "4"
+            string structure_number = "000100911007008"
+            string substructure_cond = "5"
+            string superstructure_cond = "5"
+            string year_built = "1930"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (-21504.10647775547, 273.6263427734375, -7496.708403327037)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b52" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "F"
+            string carries = "'ROCK CREEK'"
+            string crosses = "'LOCAL     C.0-18.8'"
+            string culvert_cond = "N"
+            string deck_cond = "5"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "8.2"
+            string scour_critical = "7"
+            string structural_eval = "2"
+            string structure_number = "000100911007068"
+            string substructure_cond = "6"
+            string superstructure_cond = "5"
+            string year_built = "1930"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (-21377.125058935257, 272.49658203125, -12273.68325931998)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b53" (
+        customData = {
+            string adt = "1095"
+            string bridge_condition = "P"
+            string carries = "'CANEY RIVER OVERFLOW'"
+            string crosses = "'OL US166 C.1-14'"
+            string culvert_cond = "N"
+            string deck_cond = "5"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "36.3"
+            string scour_critical = "5"
+            string structural_eval = "4"
+            string structure_number = "000100911106985"
+            string substructure_cond = "4"
+            string superstructure_cond = "4"
+            string year_built = "1930"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.9, 0.15, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (-21424.818588503404, 277.41461181640625, -5440.950849217363)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b54" (
+        customData = {
+            string adt = "1095"
+            string bridge_condition = "F"
+            string carries = "'CANEY RIVER'"
+            string crosses = "'OL US166 C.3-14'"
+            string culvert_cond = "N"
+            string deck_cond = "5"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "36.3"
+            string scour_critical = "4"
+            string structural_eval = "5"
+            string structure_number = "000100911306985"
+            string substructure_cond = "6"
+            string superstructure_cond = "5"
+            string year_built = "1930"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (-21077.31382272148, 272.9327392578125, -5465.367501558736)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b55" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "G"
+            string carries = "'CANEY RIVER'"
+            string crosses = "'D.0-7.0 Prairie Rd'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "47.4"
+            string scour_critical = "7"
+            string structural_eval = "6"
+            string structure_number = "000100913006840"
+            string substructure_cond = "7"
+            string superstructure_cond = "8"
+            string year_built = "1993"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (-20218.852846500115, 296.8270263671875, 6721.4402049197815)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b56" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "G"
+            string carries = "'CANEY RIVER'"
+            string crosses = "'RANCH RD'"
+            string culvert_cond = "N"
+            string deck_cond = "8"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "58.3"
+            string scour_critical = "5"
+            string structural_eval = "8"
+            string structure_number = "000100913306800"
+            string substructure_cond = "8"
+            string superstructure_cond = "8"
+            string year_built = "2016"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (-19974.210401249817, 300.90570068359375, 9913.774750771467)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b57" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "P"
+            string carries = "'STREAM'"
+            string crosses = "'LOCAL     D.4-15.5'"
+            string culvert_cond = "N"
+            string deck_cond = "6"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "8.2"
+            string scour_critical = "5"
+            string structural_eval = "2"
+            string structure_number = "000100913407005"
+            string substructure_cond = "5"
+            string superstructure_cond = "4"
+            string year_built = "1940"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.9, 0.15, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (-19046.380965176853, 278.7604064941406, -7004.773556017317)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b58" (
+        customData = {
+            string adt = "40"
+            string bridge_condition = "F"
+            string carries = "'WOLF CREEK'"
+            string crosses = "'LOCAL      E.5-2.1'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "35.5"
+            string scour_critical = "5"
+            string structural_eval = "5"
+            string structure_number = "000100915506741"
+            string substructure_cond = "5"
+            string superstructure_cond = "6"
+            string year_built = "1981"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (-18119.937715525157, 319.9293518066406, 14594.361670414917)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b59" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "F"
+            string carries = "'SHANGHI CREEK'"
+            string crosses = "'Rd 9'"
+            string culvert_cond = "N"
+            string deck_cond = "6"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "7.8"
+            string scour_critical = "3"
+            string structural_eval = "2"
+            string structure_number = "000100923006968"
+            string substructure_cond = "6"
+            string superstructure_cond = "6"
+            string year_built = "1940"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (-11930.226674913545, 290.6116638183594, -3837.1884438125417)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b60" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "P"
+            string carries = "'SHANGHI CREEK'"
+            string crosses = "'Junction Rd'"
+            string culvert_cond = "N"
+            string deck_cond = "4"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "4.2"
+            string scour_critical = "7"
+            string structural_eval = "3"
+            string structure_number = "000100923206960"
+            string substructure_cond = "5"
+            string superstructure_cond = "5"
+            string year_built = "1940"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.9, 0.15, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (-11433.96933824278, 298.1839294433594, -2818.449782250449)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b61" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "F"
+            string carries = "'STREAM'"
+            string crosses = "'LOCAL      I.5-2.0'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "11.2"
+            string scour_critical = "5"
+            string structural_eval = "2"
+            string structure_number = "000100923506740"
+            string substructure_cond = "6"
+            string superstructure_cond = "6"
+            string year_built = "1960"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (-11700.581243943423, 329.7187194824219, 14923.378377223387)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b62" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "F"
+            string carries = "'STREAM'"
+            string crosses = "'MINOR      J.4-5.0'"
+            string culvert_cond = "N"
+            string deck_cond = "6"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "25.2"
+            string scour_critical = "4"
+            string structural_eval = "5"
+            string structure_number = "000100925406800"
+            string substructure_cond = "5"
+            string superstructure_cond = "6"
+            string year_built = "1930"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (-10086.18212949927, 308.3557434082031, 10113.691295880359)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b63" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "F"
+            string carries = "'STREAM'"
+            string crosses = "'MINOR      J.8-5.0'"
+            string culvert_cond = "N"
+            string deck_cond = "5"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "13"
+            string scour_critical = "4"
+            string structural_eval = "2"
+            string structure_number = "000100925806800"
+            string substructure_cond = "5"
+            string superstructure_cond = "5"
+            string year_built = "1940"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (-9680.207580009941, 309.5260925292969, 10121.655408916995)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b64" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "F"
+            string carries = "'STREAM'"
+            string crosses = "'12th Rd'"
+            string culvert_cond = "N"
+            string deck_cond = "6"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "18.8"
+            string scour_critical = "4"
+            string structural_eval = "4"
+            string structure_number = "000100929006909"
+            string substructure_cond = "5"
+            string superstructure_cond = "6"
+            string year_built = "1940"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (-7257.46134895517, 311.79547119140625, 797.0830606892705)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b65" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "F"
+            string carries = "'BERRYS CREEK'"
+            string crosses = "'LOCAL      M.4-7.8'"
+            string culvert_cond = "N"
+            string deck_cond = "5"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "18"
+            string scour_critical = "7"
+            string structural_eval = "4"
+            string structure_number = "000100931406848"
+            string substructure_cond = "5"
+            string superstructure_cond = "5"
+            string year_built = "1930"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (-5107.848655328504, 280.85882568359375, 5841.4970945646055)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b66" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "P"
+            string carries = "'SPRING CREEK'"
+            string crosses = "'N.8-9.5 Marshal Rd'"
+            string culvert_cond = "N"
+            string deck_cond = "6"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "13.6"
+            string scour_critical = "4"
+            string structural_eval = "4"
+            string structure_number = "000100933806885"
+            string substructure_cond = "4"
+            string superstructure_cond = "6"
+            string year_built = "1930"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.9, 0.15, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (-2857.234522634768, 274.4107360839844, 3059.045686193276)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b67" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "G"
+            string carries = "'MIDDLE CANEY CREEK'"
+            string crosses = "'Road 14   N.8-10.2'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "70.9"
+            string scour_critical = "5"
+            string structural_eval = "7"
+            string structure_number = "000100933806902"
+            string substructure_cond = "7"
+            string superstructure_cond = "7"
+            string year_built = "1989"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (-2788.2306423016125, 268.5284118652344, 1792.142490691971)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b68" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "F"
+            string carries = "'STREAM'"
+            string crosses = "'MINOR     O.2-16.0'"
+            string culvert_cond = "N"
+            string deck_cond = "6"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "4.5"
+            string scour_critical = "4"
+            string structural_eval = "2"
+            string structure_number = "000100935207020"
+            string substructure_cond = "6"
+            string superstructure_cond = "5"
+            string year_built = "1930"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (-1710.0202238574857, 276.79766845703125, -7411.945439619478)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b69" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "G"
+            string carries = "'CEDAR CREEK'"
+            string crosses = "'O.5-20.6 Road 16'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "78.1"
+            string scour_critical = "5"
+            string structural_eval = "7"
+            string structure_number = "000100935507106"
+            string substructure_cond = "7"
+            string superstructure_cond = "7"
+            string year_built = "2003"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (-1141.9287472291617, 238.91293334960938, -14760.792795397807)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b70" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "F"
+            string carries = "'LITTLE CEDAR CREEK'"
+            string crosses = "'MINOR     O.6-16.0'"
+            string culvert_cond = "N"
+            string deck_cond = "6"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "12.4"
+            string scour_critical = "4"
+            string structural_eval = "2"
+            string structure_number = "000100935607020"
+            string substructure_cond = "5"
+            string superstructure_cond = "6"
+            string year_built = "1940"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (-1187.386581147788, 279.948486328125, -7399.045322529506)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b71" (
+        customData = {
+            string adt = "50"
+            string bridge_condition = "F"
+            string carries = "'DEER CREEK'"
+            string crosses = "'LOCAL     Q.8-10.1'"
+            string culvert_cond = "N"
+            string deck_cond = "6"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "36.3"
+            string scour_critical = "7"
+            string structural_eval = "5"
+            string structure_number = "000100939806901"
+            string substructure_cond = "5"
+            string superstructure_cond = "6"
+            string year_built = "1930"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (2009.2037270024884, 287.42083740234375, 2234.0605343580246)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b72" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "F"
+            string carries = "'TURKEY CRK'"
+            string crosses = "'LOCAL      R.5-7.0'"
+            string culvert_cond = "N"
+            string deck_cond = "5"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "29"
+            string scour_critical = "4"
+            string structural_eval = "5"
+            string structure_number = "000100941506840"
+            string substructure_cond = "5"
+            string superstructure_cond = "5"
+            string year_built = "1990"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (3074.6731051203096, 276.3602294921875, 7181.089554550126)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b73" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "P"
+            string carries = "'Lake Murray Gill'"
+            string crosses = "'LOCAL      R.6-5.1'"
+            string culvert_cond = "N"
+            string deck_cond = "6"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "20.9"
+            string scour_critical = "7"
+            string structural_eval = "3"
+            string structure_number = "000100941606801"
+            string substructure_cond = "6"
+            string superstructure_cond = "3"
+            string year_built = "1965"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.9, 0.15, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (3062.070761692361, 275.28460693359375, 10250.561549300328)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b74" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "F"
+            string carries = "'STREAM'"
+            string crosses = "'Road 19'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "35.3"
+            string scour_critical = "4"
+            string structural_eval = "5"
+            string structure_number = "000100943006765"
+            string substructure_cond = "5"
+            string superstructure_cond = "6"
+            string year_built = "1909"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (3707.558815862052, 287.95880126953125, 12817.484903573524)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b75" (
+        customData = {
+            string adt = "50"
+            string bridge_condition = "G"
+            string carries = "'DEER CREEK'"
+            string crosses = "'LOCAL 18  S.0-12.8'"
+            string culvert_cond = "N"
+            string deck_cond = "8"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "52.5"
+            string scour_critical = "5"
+            string structural_eval = "8"
+            string structure_number = "000100943006949"
+            string substructure_cond = "8"
+            string superstructure_cond = "8"
+            string year_built = "2023"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (4122.704814571189, 256.42274475097656, -1921.255518161226)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b76" (
+        customData = {
+            string adt = "50"
+            string bridge_condition = "P"
+            string carries = "'DEER CREEK'"
+            string crosses = "'S3132 W County Rd'"
+            string culvert_cond = "N"
+            string deck_cond = "4"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "5.4"
+            string scour_critical = "4"
+            string structural_eval = "3"
+            string structure_number = "000100943306962"
+            string substructure_cond = "4"
+            string superstructure_cond = "5"
+            string year_built = "1930"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.9, 0.15, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (4831.745709776063, 253.04342651367188, -2799.95164151676)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b77" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "F"
+            string carries = "'STREAM'"
+            string crosses = "'U.3-7.5 Quivira Rd'"
+            string culvert_cond = "N"
+            string deck_cond = "6"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "32.7"
+            string scour_critical = "4"
+            string structural_eval = "5"
+            string structure_number = "000100947306845"
+            string substructure_cond = "5"
+            string superstructure_cond = "5"
+            string year_built = "1930"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (7534.2167696553515, 256.3995666503906, 6521.768203001004)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b78" (
+        customData = {
+            string adt = "80"
+            string bridge_condition = "G"
+            string carries = "'WOLF CREEK'"
+            string crosses = "'U.3-13.8 Indian Rd'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "64"
+            string scour_critical = "5"
+            string structural_eval = "7"
+            string structure_number = "000100947506968"
+            string substructure_cond = "7"
+            string superstructure_cond = "7"
+            string year_built = "1993"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (8129.048973310273, 249.2274932861328, -3535.359091400169)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b79" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "F"
+            string carries = "'BACHELOR CRK'"
+            string crosses = "'V.0-8.0 Road 23'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "44.9"
+            string scour_critical = "5"
+            string structural_eval = "5"
+            string structure_number = "000100949006860"
+            string substructure_cond = "5"
+            string superstructure_cond = "6"
+            string year_built = "1983"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (8595.901116449037, 250.63311767578125, 5727.733959381003)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b80" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "F"
+            string carries = "'STREAM'"
+            string crosses = "'Road 23'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "8.8"
+            string scour_critical = "4"
+            string structural_eval = "2"
+            string structure_number = "000100951007103"
+            string substructure_cond = "6"
+            string superstructure_cond = "5"
+            string year_built = "1935"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (10908.949228530633, 255.11917114257812, -13890.708385012113)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b81" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "F"
+            string carries = "'BACHELOR CREEK'"
+            string crosses = "'MINOR      W.2-5.0'"
+            string culvert_cond = "N"
+            string deck_cond = "6"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "16.8"
+            string scour_critical = "5"
+            string structural_eval = "2"
+            string structure_number = "000100951206800"
+            string substructure_cond = "5"
+            string superstructure_cond = "6"
+            string year_built = "1940"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (10649.358050240204, 276.4150390625, 10584.102508118842)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b82" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "F"
+            string carries = "'STREAM'"
+            string crosses = "'Cowboy Road'"
+            string culvert_cond = "N"
+            string deck_cond = "6"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "32.4"
+            string scour_critical = "4"
+            string structural_eval = "5"
+            string structure_number = "000100951207100"
+            string substructure_cond = "5"
+            string superstructure_cond = "5"
+            string year_built = "1940"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (10990.610429909895, 255.0849609375, -13547.614576859865)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b83" (
+        customData = {
+            string adt = "30"
+            string bridge_condition = "G"
+            string carries = "'NORTH CANEY CREEK'"
+            string crosses = "'LARIET RD'"
+            string culvert_cond = "N"
+            string deck_cond = "8"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "78.1"
+            string scour_critical = "5"
+            string structural_eval = "8"
+            string structure_number = "000100951306902"
+            string substructure_cond = "8"
+            string superstructure_cond = "8"
+            string year_built = "2023"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (10865.420369426953, 244.29620361328125, 2184.8764397362247)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b84" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "F"
+            string carries = "'STREAM'"
+            string crosses = "'County Line Road'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "46.4"
+            string scour_critical = "4"
+            string structural_eval = "5"
+            string structure_number = "000100951406720"
+            string substructure_cond = "5"
+            string superstructure_cond = "6"
+            string year_built = "1970"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (10722.512720505707, 290.6861572265625, 17070.87484242441)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b85" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "G"
+            string carries = "'FLY CREEK'"
+            string crosses = "'Lariat Rd X.3-10.2'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "62.6"
+            string scour_critical = "5"
+            string structural_eval = "7"
+            string structure_number = "000100953306902"
+            string substructure_cond = "7"
+            string superstructure_cond = "7"
+            string year_built = "2008"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (12569.388468106627, 248.15493774414062, 2196.0654161917046)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b86" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "G"
+            string carries = "'STREAM'"
+            string crosses = "'X.5-13.1 Road 25'"
+            string culvert_cond = "7"
+            string deck_cond = "N"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "40.8"
+            string scour_critical = "8"
+            string structural_eval = "6"
+            string structure_number = "000100953506960"
+            string substructure_cond = "N"
+            string superstructure_cond = "N"
+            string year_built = "2012"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (12993.494040615507, 246.33848571777344, -2328.5239502228796)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b87" (
+        customData = {
+            string adt = "20"
+            string bridge_condition = "G"
+            string carries = "'NORTH CANEY CREEK'"
+            string crosses = "'Indian Rd Z.5-13.7'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "87.9"
+            string scour_critical = "5"
+            string structural_eval = "8"
+            string structure_number = "000100957506967"
+            string substructure_cond = "8"
+            string superstructure_cond = "8"
+            string year_built = "2008"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (16245.016351190978, 237.91761779785156, -3224.513600738719)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b88" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "G"
+            string carries = "'SALT CREEK'"
+            string crosses = "'AA.0-1.6 Road 27'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "59"
+            string scour_critical = "5"
+            string structural_eval = "7"
+            string structure_number = "000100959006726"
+            string substructure_cond = "7"
+            string superstructure_cond = "7"
+            string year_built = "1996"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (16383.810887126601, 273.0466613769531, 16029.36836232245)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b89" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "F"
+            string carries = "'DAVIS CREEK'"
+            string crosses = "'Road 27  AA.0-17.0'"
+            string culvert_cond = "N"
+            string deck_cond = "6"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "11.8"
+            string scour_critical = "4"
+            string structural_eval = "2"
+            string structure_number = "000100959007040"
+            string substructure_cond = "5"
+            string superstructure_cond = "5"
+            string year_built = "1930"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (17189.908082411508, 242.82276916503906, -8591.340084523428)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b90" (
+        customData = {
+            string adt = "30"
+            string bridge_condition = "G"
+            string carries = "'LITTLE CANEY CREEK'"
+            string crosses = "'Road 29'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "59.5"
+            string scour_critical = "4"
+            string structural_eval = "7"
+            string structure_number = "000100961807001"
+            string substructure_cond = "7"
+            string superstructure_cond = "8"
+            string year_built = "1982"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (19924.57319714909, 234.3217010498047, -5543.521588251926)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b91" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "F"
+            string carries = "'STREAM'"
+            string crosses = "'MINOR      CC-11.8'"
+            string culvert_cond = "N"
+            string deck_cond = "6"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "11.8"
+            string scour_critical = "4"
+            string structural_eval = "2"
+            string structure_number = "000100963006928"
+            string substructure_cond = "5"
+            string superstructure_cond = "6"
+            string year_built = "1960"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (20169.756537271314, 252.02139282226562, -273.43084795353934)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b92" (
+        customData = {
+            string adt = "40"
+            string bridge_condition = "G"
+            string carries = "'STREAM'"
+            string crosses = "'Road 30  CC.0-12.2'"
+            string culvert_cond = "7"
+            string deck_cond = "N"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "89"
+            string scour_critical = "8"
+            string structural_eval = "7"
+            string structure_number = "000100963006942"
+            string substructure_cond = "N"
+            string superstructure_cond = "N"
+            string year_built = "1990"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (20193.178060402046, 254.56275939941406, -861.1449298956431)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b93" (
+        customData = {
+            string adt = "50"
+            string bridge_condition = "P"
+            string carries = "'LAKE CREEK'"
+            string crosses = "'Road 30'"
+            string culvert_cond = "N"
+            string deck_cond = "3"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "7.2"
+            string scour_critical = "7"
+            string structural_eval = "2"
+            string structure_number = "000100963007023"
+            string substructure_cond = "5"
+            string superstructure_cond = "5"
+            string year_built = "1940"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.9, 0.15, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (20384.17803373246, 236.1470947265625, -7514.1328724171035)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b94" (
+        customData = {
+            string adt = "50"
+            string bridge_condition = "G"
+            string carries = "'STREAM'"
+            string crosses = "'CC.114.8 Indian Rd'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "74.7"
+            string scour_critical = "8"
+            string structural_eval = "7"
+            string structure_number = "000100963106988"
+            string substructure_cond = "7"
+            string superstructure_cond = "7"
+            string year_built = "2010"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (20495.77272619761, 235.53060913085938, -4928.808435717598)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b95" (
+        customData = {
+            string adt = "5"
+            string bridge_condition = "P"
+            string carries = "'CALIFORNIA CREEK'"
+            string crosses = "'LOCAL     CC.8-9.5'"
+            string culvert_cond = "N"
+            string deck_cond = "5"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "7.3"
+            string scour_critical = "5"
+            string structural_eval = "2"
+            string structure_number = "000100963806885"
+            string substructure_cond = "5"
+            string superstructure_cond = "4"
+            string year_built = "1940"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.9, 0.15, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (21462.338017314905, 255.2161865234375, 3573.9501715088263)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b96" (
+        customData = {
+            string adt = "40"
+            string bridge_condition = "F"
+            string carries = "'LITTLE CANEY RIVER'"
+            string crosses = "'Road 30'"
+            string culvert_cond = "N"
+            string deck_cond = "6"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "22.7"
+            string scour_critical = "7"
+            string structural_eval = "4"
+            string structure_number = "000100965007022"
+            string substructure_cond = "5"
+            string superstructure_cond = "6"
+            string year_built = "1982"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (21994.612579377717, 231.275634765625, -7252.0402846005745)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b97" (
+        customData = {
+            string adt = "20"
+            string bridge_condition = "F"
+            string carries = "'STREAM'"
+            string crosses = "'Road 30'"
+            string culvert_cond = "N"
+            string deck_cond = "6"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "33.7"
+            string scour_critical = "5"
+            string structural_eval = "5"
+            string structure_number = "000100965007086"
+            string substructure_cond = "5"
+            string superstructure_cond = "6"
+            string year_built = "1980"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (22157.56685658067, 241.21746826171875, -12703.111493449658)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b98" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "P"
+            string carries = "'STREAM'"
+            string crosses = "'Prairie Road'"
+            string culvert_cond = "N"
+            string deck_cond = "6"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "7.4"
+            string scour_critical = "5"
+            string structural_eval = "3"
+            string structure_number = "000100965206840"
+            string substructure_cond = "3"
+            string superstructure_cond = "5"
+            string year_built = "1955"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.9, 0.15, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (21937.1516577109, 277.8799743652344, 7614.143758998252)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b99" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "F"
+            string carries = "'STREAM'"
+            string crosses = "'LOCAL    DD.6-18.4'"
+            string culvert_cond = "N"
+            string deck_cond = "5"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "10.5"
+            string scour_critical = "4"
+            string structural_eval = "2"
+            string structure_number = "000100965607064"
+            string substructure_cond = "5"
+            string superstructure_cond = "5"
+            string year_built = "1930"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (23033.833090346656, 233.82077026367188, -10874.254400672391)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b100" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "G"
+            string carries = "'SALT CREEK'"
+            string crosses = "'Road 31   EE.0-2.9'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "65"
+            string scour_critical = "5"
+            string structural_eval = "7"
+            string structure_number = "000100967006749"
+            string substructure_cond = "7"
+            string superstructure_cond = "7"
+            string year_built = "2004"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (22896.042050427524, 260.13206481933594, 14374.961789978668)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b101" (
+        customData = {
+            string adt = "50"
+            string bridge_condition = "P"
+            string carries = "'STREAM'"
+            string crosses = "'31st Road'"
+            string culvert_cond = "N"
+            string deck_cond = "5"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "11.7"
+            string scour_critical = "4"
+            string structural_eval = "3"
+            string structure_number = "000100967006847"
+            string substructure_cond = "4"
+            string superstructure_cond = "3"
+            string year_built = "1930"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.9, 0.15, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (23189.077798501705, 259.15362548828125, 6619.584112469107)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b102" (
+        customData = {
+            string adt = "30"
+            string bridge_condition = "F"
+            string carries = "'BEE CREEK'"
+            string crosses = "'EE.0-10.1 Road 31'"
+            string culvert_cond = "N"
+            string deck_cond = "6"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "51.3"
+            string scour_critical = "U"
+            string structural_eval = "6"
+            string structure_number = "000100967006901"
+            string substructure_cond = "6"
+            string superstructure_cond = "6"
+            string year_built = "1930"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (23320.281723742024, 249.05838012695312, 2532.831509262789)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b103" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "P"
+            string carries = "'BEE CREEK'"
+            string crosses = "'EE5120 Washington'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "45.3"
+            string scour_critical = "7"
+            string structural_eval = "4"
+            string structure_number = "000100967506940"
+            string substructure_cond = "4"
+            string superstructure_cond = "6"
+            string year_built = "1982"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.9, 0.15, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (24267.971734673367, 245.19349670410156, -385.18016203679144)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b104" (
+        customData = {
+            string adt = "75"
+            string bridge_condition = "F"
+            string carries = "'STREAM'"
+            string crosses = "'LOCAL    EE.5-21.4'"
+            string culvert_cond = "6"
+            string deck_cond = "N"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "44.1"
+            string scour_critical = "8"
+            string structural_eval = "6"
+            string structure_number = "000100967507128"
+            string substructure_cond = "N"
+            string superstructure_cond = "N"
+            string year_built = "1991"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (24620.382591249072, 231.7776336669922, -15607.77736726217)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b105" (
+        customData = {
+            string adt = "50"
+            string bridge_condition = "G"
+            string carries = "'STREAM'"
+            string crosses = "'LOCAL    EE.6-20.8'"
+            string culvert_cond = "7"
+            string deck_cond = "N"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "44.1"
+            string scour_critical = "8"
+            string structural_eval = "7"
+            string structure_number = "000100967707108"
+            string substructure_cond = "N"
+            string superstructure_cond = "N"
+            string year_built = "1981"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (24752.662386928103, 231.41098022460938, -14608.705340648536)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b106" (
+        customData = {
+            string adt = "10"
+            string bridge_condition = "F"
+            string carries = "'SALT CREEK'"
+            string crosses = "'Co. Road 1100'"
+            string culvert_cond = "N"
+            string deck_cond = "6"
+            string open_closed_posted = "P"
+            string operating_rating_tons = "31.3"
+            string scour_critical = "U"
+            string structural_eval = "5"
+            string structure_number = "000100969006748"
+            string substructure_cond = "6"
+            string superstructure_cond = "7"
+            string year_built = "1970"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (24520.65799943509, 259.14593505859375, 14477.282066266984)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b107" (
+        customData = {
+            string adt = "460"
+            string bridge_condition = "G"
+            string carries = "'TURKEY CREEK DRAINAGE'"
+            string crosses = "'K99 HWY'"
+            string culvert_cond = "7"
+            string deck_cond = "N"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "38.1"
+            string scour_critical = "8"
+            string structural_eval = "6"
+            string structure_number = "999909900100211"
+            string substructure_cond = "N"
+            string superstructure_cond = "N"
+            string year_built = "1934"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (6086.41062864766, 274.87908935546875, -14201.023252504412)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b108" (
+        customData = {
+            string adt = "625"
+            string bridge_condition = "F"
+            string carries = "'SPRING CREEK'"
+            string crosses = "'K99 HWY'"
+            string culvert_cond = "6"
+            string deck_cond = "N"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "28.6"
+            string scour_critical = "8"
+            string structural_eval = "4"
+            string structure_number = "999909900100221"
+            string substructure_cond = "N"
+            string superstructure_cond = "N"
+            string year_built = "1935"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (-3178.5007115530316, 330.44317626953125, 12955.405041367747)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b109" (
+        customData = {
+            string adt = "2500"
+            string bridge_condition = "G"
+            string carries = "'LAKE CREEK'"
+            string crosses = "'US166 HWY'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "R"
+            string operating_rating_tons = "41.9"
+            string scour_critical = "8"
+            string structural_eval = "6"
+            string structure_number = "999916600100161"
+            string substructure_cond = "7"
+            string superstructure_cond = "7"
+            string year_built = "1953"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (21295.871700916556, 233.69012451171875, -8490.789999693166)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b110" (
+        customData = {
+            string adt = "2500"
+            string bridge_condition = "G"
+            string carries = "'LITTLE CANEY RIVER DRG'"
+            string crosses = "'US166 HWY'"
+            string culvert_cond = "7"
+            string deck_cond = "N"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "29"
+            string scour_critical = "8"
+            string structural_eval = "4"
+            string structure_number = "999916600100171"
+            string substructure_cond = "N"
+            string superstructure_cond = "N"
+            string year_built = "1925"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (22209.879960951745, 234.35633850097656, -8461.953078732826)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b111" (
+        customData = {
+            string adt = "2500"
+            string bridge_condition = "G"
+            string carries = "'LITTLE CANEY RIVER DRG'"
+            string crosses = "'US166 HWY'"
+            string culvert_cond = "7"
+            string deck_cond = "N"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "29.9"
+            string scour_critical = "8"
+            string structural_eval = "5"
+            string structure_number = "999916600100181"
+            string substructure_cond = "N"
+            string superstructure_cond = "N"
+            string year_built = "1925"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (22654.533481679275, 234.09732055664062, -8447.888447209727)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b112" (
+        customData = {
+            string adt = "2500"
+            string bridge_condition = "F"
+            string carries = "'LITTLE CANEY RIVER'"
+            string crosses = "'US166 HWY'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "38.2"
+            string scour_critical = "5"
+            string structural_eval = "6"
+            string structure_number = "999916600100191"
+            string substructure_cond = "7"
+            string superstructure_cond = "6"
+            string year_built = "1953"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.85, 0.7, 0.1)]
+        double size = 15
+        double3 xformOp:translate = (23049.781525774277, 229.82110595703125, -8435.366847756784)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b113" (
+        customData = {
+            string adt = "2780"
+            string bridge_condition = "G"
+            string carries = "'MIDDLE CANEY CR DRN'"
+            string crosses = "'US166 HWY'"
+            string culvert_cond = "N"
+            string deck_cond = "8"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "43.5"
+            string scour_critical = "8"
+            string structural_eval = "6"
+            string structure_number = "999916600100251"
+            string substructure_cond = "7"
+            string superstructure_cond = "8"
+            string year_built = "1988"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (6570.359043294331, 280.40692138671875, -7183.11121445708)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b114" (
+        customData = {
+            string adt = "2780"
+            string bridge_condition = "G"
+            string carries = "'BEAR CREEK'"
+            string crosses = "'US166 HWY'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "39"
+            string scour_critical = "8"
+            string structural_eval = "6"
+            string structure_number = "999916600100261"
+            string substructure_cond = "7"
+            string superstructure_cond = "8"
+            string year_built = "1988"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (11068.930394548806, 251.328857421875, -7171.421590291429)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b115" (
+        customData = {
+            string adt = "2780"
+            string bridge_condition = "G"
+            string carries = "'MIDDLE CANEY CR DRN'"
+            string crosses = "'US166 HWY'"
+            string culvert_cond = "7"
+            string deck_cond = "N"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "99.9"
+            string scour_critical = "8"
+            string structural_eval = "5"
+            string structure_number = "999916600100271"
+            string substructure_cond = "N"
+            string superstructure_cond = "N"
+            string year_built = "1987"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (12855.612345810398, 251.94833374023438, -7394.790434990078)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b116" (
+        customData = {
+            string adt = "2418"
+            string bridge_condition = "G"
+            string carries = "'DAVIS CREEK DRAINAGE'"
+            string crosses = "'US166 HWY'"
+            string culvert_cond = "7"
+            string deck_cond = "N"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "99.9"
+            string scour_critical = "8"
+            string structural_eval = "5"
+            string structure_number = "999916600100281"
+            string substructure_cond = "N"
+            string superstructure_cond = "N"
+            string year_built = "1987"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (15822.30911968113, 257.1023406982422, -8198.57315467624)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b117" (
+        customData = {
+            string adt = "2418"
+            string bridge_condition = "G"
+            string carries = "'DAVIS CREEK'"
+            string crosses = "'US166 HWY'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "40.8"
+            string scour_critical = "5"
+            string structural_eval = "6"
+            string structure_number = "999916600100291"
+            string substructure_cond = "7"
+            string superstructure_cond = "8"
+            string year_built = "1987"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (17559.053229503217, 244.00613403320312, -8391.6628055959)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b118" (
+        customData = {
+            string adt = "2480"
+            string bridge_condition = "G"
+            string carries = "'CANEY RIVER'"
+            string crosses = "'US-166 HWY'"
+            string culvert_cond = "N"
+            string deck_cond = "8"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "80.3"
+            string scour_critical = "5"
+            string structural_eval = "7"
+            string structure_number = "999916600100301"
+            string substructure_cond = "7"
+            string superstructure_cond = "8"
+            string year_built = "1995"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (-22095.452594501316, 275.2576904296875, -4471.328102313913)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b119" (
+        customData = {
+            string adt = "2480"
+            string bridge_condition = "G"
+            string carries = "'CANEY RIVER TRIBUTARY'"
+            string crosses = "'US-166 HWY'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "88"
+            string scour_critical = "5"
+            string structural_eval = "8"
+            string structure_number = "999916600100311"
+            string substructure_cond = "8"
+            string superstructure_cond = "8"
+            string year_built = "1995"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (-21081.744990628213, 280.029296875, -4506.199806706049)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b120" (
+        customData = {
+            string adt = "2000"
+            string bridge_condition = "G"
+            string carries = "'CANEY RIVER DRAINAGE'"
+            string crosses = "'US-166 HWY'"
+            string culvert_cond = "N"
+            string deck_cond = "8"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "90.7"
+            string scour_critical = "5"
+            string structural_eval = "8"
+            string structure_number = "999916600100321"
+            string substructure_cond = "8"
+            string superstructure_cond = "8"
+            string year_built = "1995"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (-18781.08727120154, 297.7456359863281, -4629.956883815583)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b121" (
+        customData = {
+            string adt = "2000"
+            string bridge_condition = "G"
+            string carries = "'GRANT CREEK'"
+            string crosses = "'US-166 HWY'"
+            string culvert_cond = "N"
+            string deck_cond = "8"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "90.7"
+            string scour_critical = "5"
+            string structural_eval = "8"
+            string structure_number = "999916600100331"
+            string substructure_cond = "8"
+            string superstructure_cond = "8"
+            string year_built = "1998"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (-13989.524866536376, 285.0376892089844, -4592.7821868713945)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b122" (
+        customData = {
+            string adt = "2000"
+            string bridge_condition = "G"
+            string carries = "'GRANT CREEK DRAINAGE'"
+            string crosses = "'US-166 HWY'"
+            string culvert_cond = "7"
+            string deck_cond = "N"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "99.9"
+            string scour_critical = "8"
+            string structural_eval = "7"
+            string structure_number = "999916600100341"
+            string substructure_cond = "N"
+            string superstructure_cond = "N"
+            string year_built = "1996"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (-13743.507402671617, 287.94140625, -4555.201496861409)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b123" (
+        customData = {
+            string adt = "2000"
+            string bridge_condition = "G"
+            string carries = "'SHANGHAI CREEK'"
+            string crosses = "'US-166 HWY'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "90.7"
+            string scour_critical = "5"
+            string structural_eval = "8"
+            string structure_number = "999916600100351"
+            string substructure_cond = "8"
+            string superstructure_cond = "8"
+            string year_built = "1998"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (-12781.597005238407, 285.2735595703125, -4497.957276450004)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b124" (
+        customData = {
+            string adt = "2000"
+            string bridge_condition = "G"
+            string carries = "'SYCAMORE CREEK DRAINAGE'"
+            string crosses = "'US-166 HWY'"
+            string culvert_cond = "N"
+            string deck_cond = "8"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "99.9"
+            string scour_critical = "5"
+            string structural_eval = "7"
+            string structure_number = "999916600100361"
+            string substructure_cond = "8"
+            string superstructure_cond = "7"
+            string year_built = "1998"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (-7426.424973542453, 300.3238220214844, -4287.292511195876)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b125" (
+        customData = {
+            string adt = "2000"
+            string bridge_condition = "G"
+            string carries = "'SYCAMORE CREEK DRAINAGE'"
+            string crosses = "'US-166 HWY'"
+            string culvert_cond = "7"
+            string deck_cond = "N"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "99.9"
+            string scour_critical = "8"
+            string structural_eval = "3"
+            string structure_number = "999916600100371"
+            string substructure_cond = "N"
+            string superstructure_cond = "N"
+            string year_built = "1996"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (-7302.9940096116625, 304.91510009765625, -4283.818762404844)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b126" (
+        customData = {
+            string adt = "1420"
+            string bridge_condition = "G"
+            string carries = "'DEER CREEK'"
+            string crosses = "'US-166 HWY'"
+            string culvert_cond = "N"
+            string deck_cond = "8"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "65.1"
+            string scour_critical = "8"
+            string structural_eval = "8"
+            string structure_number = "999916600100391"
+            string substructure_cond = "8"
+            string superstructure_cond = "8"
+            string year_built = "2023"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (4551.271363487584, 253.4143524169922, -2429.9980412321165)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b127" (
+        customData = {
+            string adt = "1990"
+            string bridge_condition = "G"
+            string carries = "'MIDDLE CANEY CREEK'"
+            string crosses = "'U166  K99 HWY'"
+            string culvert_cond = "N"
+            string deck_cond = "7"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "66.4"
+            string scour_critical = "5"
+            string structural_eval = "7"
+            string structure_number = "9999166B0100241"
+            string substructure_cond = "8"
+            string superstructure_cond = "7"
+            string year_built = "1988"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (5790.942849350511, 250.8981475830078, -3411.390160928946)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Cube "b128" (
+        customData = {
+            string adt = "470"
+            string bridge_condition = "G"
+            string carries = "'MIDDLE CANEY CREEK'"
+            string crosses = "'U166 BUS HWY'"
+            string culvert_cond = "N"
+            string deck_cond = "8"
+            string open_closed_posted = "A"
+            string operating_rating_tons = "76.2"
+            string scour_critical = "8"
+            string structural_eval = "7"
+            string structure_number = "9999166B0100381"
+            string substructure_cond = "7"
+            string superstructure_cond = "8"
+            string year_built = "1999"
+        }
+    )
+    {
+        color3f[] primvars:displayColor = [(0.2, 0.7, 0.2)]
+        double size = 15
+        double3 xformOp:translate = (2750.104657233809, 252.77903747558594, -3346.9262973838486)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+}
+

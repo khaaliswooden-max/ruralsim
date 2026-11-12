@@ -1,0 +1,114 @@
+# Geodata manifest: sources for the 3D world. Clip every layer to each pilot county's
+# boundary in pilots/pilot_county_boundaries.geojson plus a 5 km buffer.
+# Endpoints were not all tested from the build machine: verify each before scripting,
+# record the retrieval date and license in the layer metadata.
+crs:
+  storage: EPSG:4326 for vectors, native for rasters
+  scene: local ENU metres, origin = county centroid from pilots/pilot_county_boundaries.geojson; record the UTM EPSG used for projection
+buffer_km: 5
+
+layers:
+  - id: terrain
+    source: USGS 3DEP (lidar DEM 1 m where available, else 1/3 arc-second ~10 m)
+    access: https://tnmaccess.nationalmap.gov/api/v1/products  (query by bbox, datasets "Digital Elevation Model (DEM) 1 meter" then "National Elevation Dataset (NED) 1/3 arc-second")
+    provenance: observed
+    auth: none
+  - id: land_cover
+    source: USGS/MRLC National Land Cover Database (Annual NLCD)
+    access: https://www.mrlc.gov/data
+    provenance: observed
+    auth: none
+  - id: crops
+    source: USDA NASS Cropland Data Layer
+    access: https://nassgeodata.gmu.edu/CropScape/
+    provenance: observed
+    auth: none
+  - id: hydrology
+    source: USGS National Hydrography Dataset / 3DHP
+    access: https://tnmaccess.nationalmap.gov/api/v1/products
+    provenance: observed
+    auth: none
+  - id: flood_zones
+    source: FEMA National Flood Hazard Layer
+    access: https://msc.fema.gov/portal/advanceSearch
+    provenance: observed
+    note: many rural counties have no digital flood map; record "unmapped" rather than "no risk"
+  - id: buildings
+    source: Overture Maps buildings theme (fallback Microsoft US Building Footprints)
+    access: https://docs.overturemaps.org/getting-data/ ; https://github.com/microsoft/USBuildingFootprints
+    provenance: observed (footprint), derived (height where missing)
+    validate_against: data/county_master.csv housing_units_2020
+  - id: roads
+    source: Overture Maps transportation theme; Census TIGER/Line roads as cross-check
+    access: https://docs.overturemaps.org/getting-data/ ; https://www2.census.gov/geo/tiger/TIGER2024/ROADS/
+    provenance: observed
+  - id: bridges
+    source: FHWA National Bridge Inventory (point records with condition and load rating)
+    access: https://www.fhwa.dot.gov/bridge/nbi/ascii.cfm
+    provenance: observed
+  - id: rail
+    source: BTS National Transportation Atlas Database, North American Rail Network
+    access: https://data-usdot.opendata.arcgis.com
+    provenance: observed
+  - id: grid_transmission
+    source: EIA U.S. Energy Atlas (transmission lines, substations, plants); OpenStreetMap power=* as cross-check
+    access: https://atlas.eia.gov
+    provenance: observed
+    note: the HIFLD Open portal has been unreliable; confirm availability before depending on it
+  - id: grid_generation
+    source: EIA Form 860 (plant and generator level)
+    access: https://www.eia.gov/electricity/data/eia860/
+    provenance: observed
+  - id: grid_utility_territory
+    source: EIA Form 861 service territory (utility x county); flag cooperatives
+    access: https://www.eia.gov/electricity/data/eia861/
+    provenance: observed
+  - id: grid_distribution
+    source: NOT PUBLIC. Synthesize feeders along the road network from substations to building clusters
+    provenance: assumed
+    note: every result that depends on feeder topology inherits "assumed"
+  - id: broadband
+    source: FCC National Broadband Map, Broadband Data Collection (location-level availability)
+    access: https://broadbandmap.fcc.gov/data-download
+    auth: free FCC account required for bulk download  # USER ACTION
+    provenance: observed (provider-reported availability, not adoption)
+    note: keep terrestrial, wireline and any-technology availability as separate attributes
+  - id: towers
+    source: FCC Antenna Structure Registration
+    access: https://www.fcc.gov/antenna-structure-registration
+    provenance: observed
+  - id: hospitals
+    source: this bundle, data/facility_hospital.csv (CMS Hospital General Information), geocode by address
+    provenance: observed
+  - id: schools
+    source: NCES EDGE school locations
+    access: https://nces.ed.gov/programs/edge/Geographic/SchoolLocations
+    provenance: observed
+  - id: water_systems
+    source: EPA SDWIS / ECHO drinking water systems and violations
+    access: https://echo.epa.gov/tools/data-downloads
+    provenance: observed
+  - id: solar_wind_resource
+    source: NREL NSRDB (solar) and WIND Toolkit
+    access: https://developer.nrel.gov
+    auth: free NREL API key required  # USER ACTION
+    provenance: observed (modelled reanalysis)
+  - id: climate
+    source: NOAA NCEI U.S. Climate Normals and Storm Events Database
+    access: https://www.ncei.noaa.gov
+    provenance: observed
+  - id: land_tenure
+    source: USGS PAD-US (federal, state, tribal and protected lands)
+    access: https://www.usgs.gov/programs/gap-analysis-project/science/pad-us-data-download
+    provenance: observed
+  - id: tribal_boundaries
+    source: Census TIGER/Line AIANNH areas
+    access: https://www2.census.gov/geo/tiger/TIGER2024/AIANNH/
+    provenance: observed
+    note: required for pilot 31173 (Thurston County NE); mark jurisdiction on every asset inside these areas
+
+validation:
+  - compare building count to housing_units_2020 (expect buildings >= housing units x 0.8; flag otherwise)
+  - compare hospital count to n_hospitals in data/county_master.csv (must match exactly)
+  - compare county polygon area to land_area_sqmi + water_area_sqmi (within 1%)
+  - report road centreline miles and bridge count; no dataset baseline exists yet, so record as the baseline

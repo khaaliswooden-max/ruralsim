@@ -1,0 +1,61 @@
+{
+ "checks": [
+  {
+   "check": "county rows vs 3144 target",
+   "value": 3163.0,
+   "threshold": 3144.0,
+   "op": ">=",
+   "status": "PASS"
+  },
+  {
+   "check": "median_hh_income_2023 completeness (%)",
+   "value": 99.36768890294024,
+   "threshold": 99.0,
+   "op": ">=",
+   "status": "PASS"
+  },
+  {
+   "check": "poverty_rate_2023 completeness (%)",
+   "value": 99.36768890294024,
+   "threshold": 99.0,
+   "op": ">=",
+   "status": "PASS"
+  },
+  {
+   "check": "pop_2024_estimate completeness (%)",
+   "value": 99.39930445779324,
+   "threshold": 99.0,
+   "op": ">=",
+   "status": "PASS"
+  },
+  {
+   "check": "profile join completeness (%)",
+   "value": 99.36768890294024,
+   "threshold": 95.0,
+   "op": ">=",
+   "status": "PASS"
+  },
+  {
+   "check": "RUCC>=4 coded nonmetro (%)",
+   "value": 100.0,
+   "threshold": 99.0,
+   "op": ">=",
+   "status": "PASS"
+  },
+  {
+   "check": "duplicate fips5 rows",
+   "value": 0.0,
+   "threshold": 0.0,
+   "op": "<=",
+   "status": "PASS"
+  },
+  {
+   "check": "pilot counties present",
+   "value": 0.0,
+   "threshold": 0.0,
+   "op": "<=",
+   "status": "PASS"
+  }
+ ],
+ "n_flags": 0
+}

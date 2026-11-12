@@ -1,0 +1,35 @@
+# Experiment card schema v0.1. Every test in RuralSim is one card. Cards are immutable
+# once run; a changed experiment is a new card with `supersedes` set.
+required:
+  id: string, unique, e.g. EXP-0001
+  title: string
+  category: one of [software, hardware, robotics, energy_compute, hypothesis_sandbox]
+  hypothesis: one falsifiable sentence
+  counties: list of fips5 (strings)
+  intervention:
+    description: plain language
+    parameters: mapping of name -> value with units
+    parameter_sources: mapping of name -> citation or "assumed"
+  baseline: matched no-intervention run with the same seeds, unless the card states otherwise
+  duration: simulated time, e.g. "1 year" or "10 minutes"
+  time_step: engine step, e.g. "15 min" or "2 ms"
+  engines: list from [power, compute, network, mobility, robotics, water_environment, economy, population]
+  seeds: integer >= 20 for promotable results, >= 5 for screening
+  metrics:
+    primary: one metric id with unit
+    secondary: list
+    rqli_domains_affected: list of domain ids from specs/rqli_spec.yaml
+  success_criterion: stated before the run, with a number
+  fidelity_tier: one of [A_statistical, B_pilot_3d, C_procedural]
+  provenance_floor: weakest tag among inputs, one of [observed, derived, calibrated, assumed, hypothetical]
+  risks_to_residents: what could go wrong for households if this were deployed
+optional:
+  supersedes: card id
+  cost_model: capital and operating cost assumptions with sources
+  notes: free text
+results_block:   # appended by the harness, never hand-edited
+  fields: [run_date, code_commit, data_bundle_hash, effect_size, interval_90, constraints_passed, promoted, failure_notes]
+rules:
+  - hypothesis_sandbox cards always have provenance_floor = hypothetical and are never promoted
+  - a card whose provenance_floor is "assumed" may be promoted only with a sensitivity analysis over the assumed inputs
+  - negative and null results are kept in the ledger and reported

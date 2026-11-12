@@ -1,0 +1,750 @@
+#usda 1.0
+(
+    customLayerData = {
+        dictionary ruralsim = {
+            string layer = "facilities"
+            string license = "public domain / ODbL"
+            string notes = "NCES EDGE school layer deferred (nces.ed.gov blocked); OSM schools interim"
+            string provenance = "observed (facility attrs); derived (some positions)"
+            string source = "CMS Hospital General Information (bundle) + OSM schools + EPA SDWIS"
+            string vintage = "2024-2026"
+        }
+    }
+)
+
+def "Facilities"
+{
+    def "Hospitals"
+    {
+        def Cylinder "h0" (
+            customData = {
+                string emergency = "Yes"
+                string name = "WELCH COMMUNITY HOSPITAL"
+                string provenance = "observed (OSM geocoded)"
+                string type = "Acute Care Hospitals"
+            }
+        )
+        {
+            double height = 40
+            color3f[] primvars:displayColor = [(0.9, 0.1, 0.15)]
+            double radius = 30
+            double3 xformOp:translate = (5807.366689395218, 415.04339599609375, 6679.972144476604)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+    }
+
+    def "Schools"
+    {
+        def Cone "s0"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (-30181.583925334853, 540.1943359375, -22637.53133132914)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s1"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (-26604.214385972242, 540.1943359375, -20085.257506430615)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s2"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (-18845.614546426747, 769.709716796875, -7523.507760598324)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s3"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (-12066.96222260507, 540.1943359375, -21297.170575426426)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s4"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (-1172.434534109314, 468.0233154296875, -11971.521354319062)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s5"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (8890.67160787416, 575.7131958007812, -19899.65192785347)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s6"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (19155.869288168207, 538.1279296875, -5525.932068460155)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s7"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (33667.0369387251, 540.1943359375, -14218.315733709838)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s8"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (-35678.78504802985, 540.1943359375, -2482.7952863248065)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s9"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (-31596.988486003247, 315.1558837890625, 4130.006150087807)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s10"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (-33198.34849795356, 313.6026916503906, 15058.248376324773)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s11"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (-34229.488906003535, 540.1943359375, 17288.778908028733)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s12"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (-30146.05616776168, 347.58447265625, 6487.834480858408)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s13"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (-11973.21680127416, 324.7148742675781, 4501.867236143909)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s14"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (-11999.836306705256, 324.0399169921875, 4531.4257247895)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s15"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (-14742.548673084122, 313.8670959472656, 9517.081381715368)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s16"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (-11833.532656848081, 340.2928771972656, 19644.840576652903)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s17"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (5180.427831462934, 427.965087890625, 4032.8542510624975)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s18"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (5224.36167993804, 427.5531311035156, 4037.8580515519716)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s19"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (5120.061566848017, 429.9420471191406, 4021.0314395800233)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s20"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (5110.979723952361, 434.4481201171875, 3989.879443504382)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s21"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (6422.408084155351, 414.09552001953125, 3740.293541861698)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s22"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (-1254.1852930641035, 368.704345703125, 10798.129875792656)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s23"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (9323.775673806434, 446.8432922363281, -2026.754660810344)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s24"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (12628.146811333252, 540.1943359375, 23510.73567082826)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s25"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (30810.651985848788, 792.9095458984375, -1341.1349286260083)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s26"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (35241.24284867081, 540.1943359375, -3744.4044826314785)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s27"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (-35118.084472495015, 540.1943359375, -8912.159909492824)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s28"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (-28742.036127220665, 540.1943359375, -19070.917894329876)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s29"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (-23135.870913743856, 540.1943359375, -15096.233615539968)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s30"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (-28765.58826062025, 540.1943359375, -7113.957566881087)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s31"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (-19505.44478586811, 513.6526489257812, -14875.927449576557)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s32"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (-1879.0025769685744, 427.96142578125, -8159.747605307959)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s33"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (23194.185823375825, 755.094970703125, -12286.622553551104)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s34"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (33806.12452483992, 540.1943359375, -15770.918501907494)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s35"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (34611.22846902878, 540.1943359375, -15971.439683726989)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s36"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (31827.018640612136, 540.1943359375, -14671.120052714366)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s37"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (33062.26408662263, 540.1943359375, -14199.982268500607)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s38"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (26966.04530986381, 729.8271484375, -8446.239132151939)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s39"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (35440.45793061942, 540.1943359375, -10783.646927038673)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s40"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (34928.51974441251, 540.1943359375, -7331.586054597516)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s41"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (-30576.975868698384, 540.1943359375, 951.0042582089081)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s42"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (-30711.346987187047, 540.1943359375, 440.28288809675723)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s43"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (-13143.93169548089, 373.4994812011719, -2197.473471082747)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s44"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (-13219.026299497345, 370.065185546875, -1994.0083453585394)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s45"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (-14566.2596688224, 311.42730712890625, 9432.41249460727)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s46"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (-14555.167991754017, 311.3774108886719, 9406.85414688522)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s47"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (6429.61856279982, 410.07879638671875, 6182.65476438636)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s48"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (-4444.3207247972605, 351.803466796875, 8903.365079449024)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s49"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (9662.812202452507, 654.2207641601562, 2641.8930667163804)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s50"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (7967.395264960302, 450.08380126953125, 7754.434202567209)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s51"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (13843.425245233579, 473.5864562988281, 4608.384499406442)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s52"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (25054.549358473218, 540.1943359375, 16239.649671269115)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s53"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (-2261.184477419127, 540.1943359375, 23160.909680977464)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s54"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (-1605.6163869098527, 540.1943359375, 23540.07400292717)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s55"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (10513.618955923943, 540.1943359375, 22014.841554576065)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s56"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (16277.927531207039, 540.1943359375, 21308.61596803367)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s57"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (24729.309181456105, 540.1943359375, 23233.337189015467)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s58"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (24540.476850642008, 540.1943359375, 24539.91440375708)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Cone "s59"
+        {
+            double height = 25
+            color3f[] primvars:displayColor = [(0.2, 0.5, 0.9)]
+            double radius = 25
+            double3 xformOp:translate = (-31417.95325527439, 540.1943359375, -18205.82576223975)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+    }
+
+    def "WaterSystems"
+    {
+        def Sphere "w0"
+        {
+            color3f[] primvars:displayColor = [(0.2, 0.75, 0.75)]
+            double radius = 18
+            double3 xformOp:translate = (16777.11348080216, 502.2966613769531, 2796.7388427108526)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Sphere "w1"
+        {
+            color3f[] primvars:displayColor = [(0.2, 0.75, 0.75)]
+            double radius = 18
+            double3 xformOp:translate = (14784.394156276481, 510.3099365234375, 4317.053088450339)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Sphere "w2"
+        {
+            color3f[] primvars:displayColor = [(0.2, 0.75, 0.75)]
+            double radius = 18
+            double3 xformOp:translate = (988.692156174744, 466.03228759765625, 4862.153214619495)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Sphere "w3"
+        {
+            color3f[] primvars:displayColor = [(0.2, 0.75, 0.75)]
+            double radius = 18
+            double3 xformOp:translate = (26661.765089595516, 662.6100463867188, 3185.4718400263228)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Sphere "w4"
+        {
+            color3f[] primvars:displayColor = [(0.2, 0.75, 0.75)]
+            double radius = 18
+            double3 xformOp:translate = (9193.955522445904, 447.0420837402344, -1692.5875132214278)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Sphere "w5"
+        {
+            color3f[] primvars:displayColor = [(0.2, 0.75, 0.75)]
+            double radius = 18
+            double3 xformOp:translate = (6241.5699933600845, 421.1232604980469, 5998.811068377458)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Sphere "w6"
+        {
+            color3f[] primvars:displayColor = [(0.2, 0.75, 0.75)]
+            double radius = 18
+            double3 xformOp:translate = (91.57949784665834, 379.8912048339844, 11093.183644549921)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Sphere "w7"
+        {
+            color3f[] primvars:displayColor = [(0.2, 0.75, 0.75)]
+            double radius = 18
+            double3 xformOp:translate = (13106.366962393862, 470.42205810546875, 5426.906772147864)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Sphere "w8"
+        {
+            color3f[] primvars:displayColor = [(0.2, 0.75, 0.75)]
+            double radius = 18
+            double3 xformOp:translate = (-1171.6499505409738, 466.17926025390625, -12165.451490396168)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Sphere "w9"
+        {
+            color3f[] primvars:displayColor = [(0.2, 0.75, 0.75)]
+            double radius = 18
+            double3 xformOp:translate = (-12925.951786916703, 376.036865234375, -2849.2931156544946)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Sphere "w10"
+        {
+            color3f[] primvars:displayColor = [(0.2, 0.75, 0.75)]
+            double radius = 18
+            double3 xformOp:translate = (135.29945858271094, 460.023193359375, 984.5861538099125)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Sphere "w11"
+        {
+            color3f[] primvars:displayColor = [(0.2, 0.75, 0.75)]
+            double radius = 18
+            double3 xformOp:translate = (6807.395470483694, 422.8271179199219, 3485.8046359638683)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Sphere "w12"
+        {
+            color3f[] primvars:displayColor = [(0.2, 0.75, 0.75)]
+            double radius = 18
+            double3 xformOp:translate = (27627.110276842548, 724.5498046875, 5000.153210504912)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Sphere "w13"
+        {
+            color3f[] primvars:displayColor = [(0.2, 0.75, 0.75)]
+            double radius = 18
+            double3 xformOp:translate = (25456.42573611316, 650.4676513671875, -970.1249564322643)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Sphere "w14"
+        {
+            color3f[] primvars:displayColor = [(0.2, 0.75, 0.75)]
+            double radius = 18
+            double3 xformOp:translate = (6241.5699933600845, 421.1232604980469, 5998.811068377458)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Sphere "w15"
+        {
+            color3f[] primvars:displayColor = [(0.2, 0.75, 0.75)]
+            double radius = 18
+            double3 xformOp:translate = (-3025.87572645233, 427.890625, -8491.833074282855)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Sphere "w16"
+        {
+            color3f[] primvars:displayColor = [(0.2, 0.75, 0.75)]
+            double radius = 18
+            double3 xformOp:translate = (8310.274331394292, 556.9267578125, -18908.429241952952)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Sphere "w17"
+        {
+            color3f[] primvars:displayColor = [(0.2, 0.75, 0.75)]
+            double radius = 18
+            double3 xformOp:translate = (-21265.24548647576, 308.4737548828125, 11824.118141949642)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Sphere "w18"
+        {
+            color3f[] primvars:displayColor = [(0.2, 0.75, 0.75)]
+            double radius = 18
+            double3 xformOp:translate = (-21345.24548647576, 308.4737548828125, 11824.118141949642)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Sphere "w19"
+        {
+            color3f[] primvars:displayColor = [(0.2, 0.75, 0.75)]
+            double radius = 18
+            double3 xformOp:translate = (-14053.601389208401, 315.9168701171875, 9662.557021076325)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        def Sphere "w20"
+        {
+            color3f[] primvars:displayColor = [(0.2, 0.75, 0.75)]
+            double radius = 18
+            double3 xformOp:translate = (26741.765089595516, 662.6100463867188, 3185.4718400263228)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+    }
+}
+

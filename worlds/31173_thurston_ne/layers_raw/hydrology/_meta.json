@@ -1,0 +1,7 @@
+{
+  "retrieved_utc": "2026-11-10T23:18:16.602896+00:00",
+  "source": "USGS National Hydrography Dataset via hydro.nationalmap.gov ArcGIS REST (flowline+waterbody, large scale)",
+  "license": "public domain",
+  "provenance": "observed",
+  "note": "OSM waterway fetch abandoned (Overpass timeouts on Missouri River geometry); NHD is the manifest source anyway"
+}

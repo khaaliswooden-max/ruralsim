@@ -1,0 +1,102 @@
+#usda 1.0
+(
+    customLayerData = {
+        dictionary ruralsim = {
+            string built_utc = "2026-11-12T00:15:48.433547+00:00"
+            string coordinate_system = "local ENU metres; origin at county centroid"
+            string county = "Chautauqua County, KS"
+            string county_fips = "20019"
+            double[] enu_origin_wgs84 = [-96.24538313582089, 37.15002439126439]
+            string fidelity_tier = "T1 geometry (observed layers) / feeders-broadband-solar assumed"
+            string[] guardrails = ["no real-person data", "election tables excluded from objective", "tribal data sovereignty: jurisdiction marked, tribal layers observed-only"]
+            dictionary layers = {
+                dictionary boundaries = {
+                    string license = "public domain"
+                    string notes = "tribal jurisdiction marked per guardrails"
+                    string provenance = "observed"
+                    string source = "Census 2023 cartographic county polygon + TIGER AIANNH (via USFS EDW)"
+                    string vintage = "2023/2024"
+                }
+                dictionary bridges = {
+                    string license = "public domain"
+                    string notes = "condition codes G/F/P from NBI BRIDGE_CONDITION"
+                    string provenance = "observed"
+                    string source = "FHWA National Bridge Inventory 2024"
+                    string vintage = "2024"
+                }
+                dictionary buildings = {
+                    string license = "ODbL 1.0"
+                    string notes = "heights inferred from footprint class per manifest rule; MS footprints fallback not needed"
+                    string provenance = "observed (footprint), derived (height)"
+                    string source = "OpenStreetMap building footprints"
+                    string vintage = "retrieved 2026-11-11"
+                }
+                dictionary facilities = {
+                    string license = "public domain / ODbL"
+                    string notes = "NCES EDGE school layer deferred (nces.ed.gov blocked); OSM schools interim"
+                    string provenance = "observed (facility attrs); derived (some positions)"
+                    string source = "CMS Hospital General Information (bundle) + OSM schools + EPA SDWIS"
+                    string vintage = "2024-2026"
+                }
+                dictionary grid = {
+                    string license = "ODbL 1.0 / public domain"
+                    string notes = "EIA Atlas transmission REST deferred; feeders NOT public - to be synthesized as 'assumed'"
+                    string provenance = "observed"
+                    string source = "OSM power=* (cross-check per manifest); EIA-860/861 tabular in layers_raw/grid"
+                    string vintage = "2024-2026"
+                }
+                dictionary hydrology = {
+                    string license = "public domain"
+                    string notes = "flowlines clipped to county envelope; buffer-zone flowlines partial"
+                    string provenance = "observed"
+                    string source = "USGS NHD flowlines+waterbodies (ArcGIS REST)"
+                    string vintage = "current"
+                }
+                dictionary land_tenure = {
+                    string license = "public domain"
+                    string notes = "tribal fee parcels overlap tribal_boundaries; jurisdiction marker authoritative there"
+                    string provenance = "observed"
+                    string source = "USGS PAD-US 3.0 Fee Manager"
+                    string vintage = "3.0"
+                }
+                dictionary rail = {
+                    string license = "public domain"
+                    string notes = ""
+                    string provenance = "observed"
+                    string source = "BTS NTAD North American Rail Network"
+                    string vintage = "NTAD current"
+                }
+                dictionary roads = {
+                    string license = "ODbL 1.0"
+                    string notes = "TIGER cross-check deferred (Census www2 blocked from build network)"
+                    string provenance = "observed"
+                    string source = "OpenStreetMap via Overpass"
+                    string vintage = "retrieved 2026-11-11"
+                }
+                dictionary terrain = {
+                    string license = "public domain"
+                    string notes = "Stage/viewer mesh at ~160 m; cells outside county-buffer clip filled by GDAL fillnodata interpolation (derived); interior cells observed; 20 m GeoTIFF payload retains nodata"
+                    string provenance = "observed"
+                    string source = "USGS 3DEP National Elevation Dataset 1/3 arc-second (~10 m)"
+                    string vintage = "2012-2024 tile vintages"
+                }
+            }
+            string projection = "EPSG:32614"
+        }
+    }
+    metersPerUnit = 1
+    subLayers = [
+        @./terrain.usda@,
+        @./land_tenure.usda@,
+        @./boundaries.usda@,
+        @./roads.usda@,
+        @./rail.usda@,
+        @./hydrology.usda@,
+        @./grid.usda@,
+        @./buildings.usda@,
+        @./bridges.usda@,
+        @./facilities.usda@
+    ]
+    upAxis = "Y"
+)
+

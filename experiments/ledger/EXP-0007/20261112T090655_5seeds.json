@@ -1,0 +1,7 @@
+{
+ "card_id": "EXP-0007",
+ "title": "20 MW data center on a rural cooperative feeder",
+ "run_date": "2026-11-12T09:06:55",
+ "status": "engine_pending",
+ "note": "domain engine for this card is not yet implemented; card is registered in the ledger as pending rather than silently skipped"
+}

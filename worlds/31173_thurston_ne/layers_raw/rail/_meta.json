@@ -1,0 +1,7 @@
+{
+  "retrieved_utc": "2026-11-10T23:33:11.301395+00:00",
+  "source": "BTS National Transportation Atlas Database - North American Rail Network Lines (ArcGIS Open Data)",
+  "license": "public domain (USDOT BTS)",
+  "provenance": "observed",
+  "endpoint": "https://services.arcgis.com/xOi1kZaI0eWDREZv/ArcGIS/rest/services/NTAD_North_American_Rail_Network_Lines/FeatureServer/0"
+}

@@ -1,0 +1,279 @@
+{
+ "columns": {
+  "county_name": {
+   "tag": "observed",
+   "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
+   "note": ""
+  },
+  "state_abbr": {
+   "tag": "observed",
+   "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
+   "note": ""
+  },
+  "rucc_2023": {
+   "tag": "observed",
+   "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
+   "note": ""
+  },
+  "nonmetro_2023": {
+   "tag": "observed",
+   "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
+   "note": ""
+  },
+  "pop_2024_estimate": {
+   "tag": "observed",
+   "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
+   "note": ""
+  },
+  "pop_change_2020_2024_pct": {
+   "tag": "observed",
+   "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
+   "note": ""
+  },
+  "pop_2020_pct_of_peak": {
+   "tag": "observed",
+   "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
+   "note": ""
+  },
+  "peak_pop_decade": {
+   "tag": "observed",
+   "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
+   "note": ""
+  },
+  "median_hh_income_2023": {
+   "tag": "observed",
+   "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
+   "note": ""
+  },
+  "poverty_rate_2023": {
+   "tag": "observed",
+   "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
+   "note": ""
+  },
+  "income_after_essentials_est": {
+   "tag": "calibrated",
+   "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
+   "note": "median income minus assumed 62% essentials share (same calibration as harness)"
+  },
+  "n_hospitals": {
+   "tag": "observed",
+   "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
+   "note": ""
+  },
+  "n_critical_access_hospitals": {
+   "tag": "observed",
+   "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
+   "note": ""
+  },
+  "n_rural_emergency_hospitals": {
+   "tag": "observed",
+   "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
+   "note": ""
+  },
+  "hospitals_per_10k_pop": {
+   "tag": "derived",
+   "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
+   "note": "hospital count over 2024 population"
+  },
+  "pct_65_plus_2020": {
+   "tag": "observed",
+   "source": "USDA ERS county typology profile (ACS 2016-2020 vintage fields)",
+   "note": "ERS field Age65AndOlderPct2020"
+  },
+  "pct_assoc_degree": {
+   "tag": "observed",
+   "source": "USDA ERS county typology profile (ACS 2016-2020 vintage fields)",
+   "note": "ERS field Ed4AssocDegreePct"
+  },
+  "pct_college_plus": {
+   "tag": "observed",
+   "source": "USDA ERS county typology profile (ACS 2016-2020 vintage fields)",
+   "note": "ERS field Ed5CollegePlusPct"
+  },
+  "unemp_rate_2021": {
+   "tag": "observed",
+   "source": "USDA ERS county typology profile (ACS 2016-2020 vintage fields)",
+   "note": "ERS field UnempRate2021"
+  },
+  "poverty_rate_acs": {
+   "tag": "observed",
+   "source": "USDA ERS county typology profile (ACS 2016-2020 vintage fields)",
+   "note": "ERS field Poverty_Rate_ACS"
+  },
+  "per_capita_income_acs": {
+   "tag": "observed",
+   "source": "USDA ERS county typology profile (ACS 2016-2020 vintage fields)",
+   "note": "ERS field PerCapitaInc"
+  },
+  "pct_owner_occupied": {
+   "tag": "observed",
+   "source": "USDA ERS county typology profile (ACS 2016-2020 vintage fields)",
+   "note": "ERS field OwnHomePct"
+  },
+  "pct_non_english_hh": {
+   "tag": "observed",
+   "source": "USDA ERS county typology profile (ACS 2016-2020 vintage fields)",
+   "note": "ERS field NonEnglishHHPct"
+  },
+  "avg_hh_size": {
+   "tag": "observed",
+   "source": "USDA ERS county typology profile (ACS 2016-2020 vintage fields)",
+   "note": "ERS field AvgHHSize"
+  },
+  "typ_high_farming_2025": {
+   "tag": "observed",
+   "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
+   "note": "USDA ERS typology; 20 rows had missing-data sentinels recoded to 0"
+  },
+  "typ_high_government_2025": {
+   "tag": "observed",
+   "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
+   "note": "USDA ERS typology; 20 rows had missing-data sentinels recoded to 0"
+  },
+  "typ_high_manufacturing_2025": {
+   "tag": "observed",
+   "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
+   "note": "USDA ERS typology; 20 rows had missing-data sentinels recoded to 0"
+  },
+  "typ_high_mining_2025": {
+   "tag": "observed",
+   "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
+   "note": "USDA ERS typology; 20 rows had missing-data sentinels recoded to 0"
+  },
+  "typ_high_recreation_2025": {
+   "tag": "observed",
+   "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
+   "note": "USDA ERS typology; 20 rows had missing-data sentinels recoded to 0"
+  },
+  "typ_housing_stress_2025": {
+   "tag": "observed",
+   "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
+   "note": "USDA ERS typology; 19 rows had missing-data sentinels recoded to 0"
+  },
+  "typ_industry_dependence_2025": {
+   "tag": "observed",
+   "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
+   "note": "USDA ERS typology; 1230 rows had missing-data sentinels recoded to 0"
+  },
+  "typ_low_employment_2025": {
+   "tag": "observed",
+   "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
+   "note": "USDA ERS typology; 19 rows had missing-data sentinels recoded to 0"
+  },
+  "typ_low_postsecondary_ed_2025": {
+   "tag": "observed",
+   "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
+   "note": "USDA ERS typology; 19 rows had missing-data sentinels recoded to 0"
+  },
+  "typ_nonspecialized_2025": {
+   "tag": "observed",
+   "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
+   "note": "USDA ERS typology; 20 rows had missing-data sentinels recoded to 0"
+  },
+  "typ_persistent_poverty_1721": {
+   "tag": "observed",
+   "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
+   "note": "USDA ERS typology; 44 rows had missing-data sentinels recoded to 0"
+  },
+  "typ_population_loss_2025": {
+   "tag": "observed",
+   "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
+   "note": "USDA ERS typology; 28 rows had missing-data sentinels recoded to 0"
+  },
+  "typ_retirement_destination_2025": {
+   "tag": "observed",
+   "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
+   "note": "USDA ERS typology; 20 rows had missing-data sentinels recoded to 0"
+  },
+  "births_latest": {
+   "tag": "observed",
+   "source": "Census population estimates components of change, annual",
+   "note": "vintage year 2024"
+  },
+  "deaths_latest": {
+   "tag": "observed",
+   "source": "Census population estimates components of change, annual",
+   "note": "vintage year 2024"
+  },
+  "net_migration_latest": {
+   "tag": "observed",
+   "source": "Census population estimates components of change, annual",
+   "note": "vintage year 2024"
+  },
+  "natural_change_latest": {
+   "tag": "observed",
+   "source": "Census population estimates components of change, annual",
+   "note": "vintage year 2024"
+  },
+  "pop_1900": {
+   "tag": "observed",
+   "source": "Census decennial populations 1900-2020",
+   "note": ""
+  },
+  "pop_1910": {
+   "tag": "observed",
+   "source": "Census decennial populations 1900-2020",
+   "note": ""
+  },
+  "pop_1920": {
+   "tag": "observed",
+   "source": "Census decennial populations 1900-2020",
+   "note": ""
+  },
+  "pop_1930": {
+   "tag": "observed",
+   "source": "Census decennial populations 1900-2020",
+   "note": ""
+  },
+  "pop_1940": {
+   "tag": "observed",
+   "source": "Census decennial populations 1900-2020",
+   "note": ""
+  },
+  "pop_1950": {
+   "tag": "observed",
+   "source": "Census decennial populations 1900-2020",
+   "note": ""
+  },
+  "pop_1960": {
+   "tag": "observed",
+   "source": "Census decennial populations 1900-2020",
+   "note": ""
+  },
+  "pop_1970": {
+   "tag": "observed",
+   "source": "Census decennial populations 1900-2020",
+   "note": ""
+  },
+  "pop_1980": {
+   "tag": "observed",
+   "source": "Census decennial populations 1900-2020",
+   "note": ""
+  },
+  "pop_1990": {
+   "tag": "observed",
+   "source": "Census decennial populations 1900-2020",
+   "note": ""
+  },
+  "pop_2000": {
+   "tag": "observed",
+   "source": "Census decennial populations 1900-2020",
+   "note": ""
+  },
+  "pop_2010": {
+   "tag": "observed",
+   "source": "Census decennial populations 1900-2020",
+   "note": ""
+  },
+  "pop_2020": {
+   "tag": "observed",
+   "source": "Census decennial populations 1900-2020",
+   "note": ""
+  }
+ },
+ "guardrails": {
+  "political_variables_excluded": "election/power columns stripped at load, absent from output",
+  "no_real_persons": true,
+  "tier": "A_statistical (no 3D, no household simulation)"
+ }
+}

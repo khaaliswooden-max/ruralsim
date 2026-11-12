@@ -1,0 +1,12 @@
+pwsid,geo_id,primacy_agency_code,epa_region,pws_activity_code,pws_type_code,tribal_code,state_served,ansi_entity_code,zip_code_served,city_served,area_type_code,county_served,pws_name,npm_candidate,primacy_agency_code_ws,epa_region_ws,season_begin_date,season_end_date,pws_activity_code_ws,pws_deactivation_date,pws_type_code_ws,dbpr_schedule_cat_code,cds_id,gw_sw_code,lt2_schedule_cat_code,owner_type_code,population_served_count,pop_cat_2_code,pop_cat_3_code,pop_cat_4_code,pop_cat_5_code,pop_cat_11_code,primacy_type,primary_source_code,is_grant_eligible_ind,is_wholesaler_ind,is_school_or_daycare_ind,service_connections_count,submission_status_code,org_name,admin_name,email_addr,phone_number,phone_ext_number,fax_number,alt_phone_number,address_line1,address_line2,city_name,zip_code,country_code,state_code,source_water_protection_code,source_protection_begin_date,outstanding_performer,outstanding_perform_begin_date
+KS2001901,,KS,07,A,CWS,,KS,,,ELGIN,"CN,CT",Chautauqua,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+KS2001902,,KS,07,A,CWS,,KS,,,CEDAR VALE,"CN,CT",Chautauqua,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+KS2001903,,KS,07,A,CWS,,KS,,,SEDAN,"CN,CT",Chautauqua,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+KS2001905,,KS,07,A,CWS,,KS,,,SEDAN,"CN,CT",Chautauqua,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+KS2001906,,KS,07,A,CWS,,KS,,,PERU,"CN,CT",Chautauqua,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+KS2001907,,KS,07,A,CWS,,KS,,,CHAUTAUQUA,"CN,CT",Chautauqua,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+KS2001908,,KS,07,A,CWS,,KS,,,CEDAR VALE,"CN,CT",Chautauqua,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+KS2001909,,KS,07,A,CWS,,KS,,,SEDAN,"CN,CT",Chautauqua,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+KS2001910,,KS,07,A,CWS,,KS,,,SEDAN,"CN,CT",Chautauqua,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+KS2001911,,KS,07,A,CWS,,KS,,,SEDAN,"CN,CT",Chautauqua,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+KS2101901,,KS,07,N,TNCWS,,KS,,,SEDAN,"CN,CT",Chautauqua,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,

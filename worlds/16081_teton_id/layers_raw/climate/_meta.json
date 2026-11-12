@@ -1,0 +1,22 @@
+{
+  "retrieved_utc": "2026-11-11T03:49:42.199886+00:00",
+  "source": "Open-Meteo archive API (ERA5 reanalysis), point at county centroid",
+  "license": "CC BY 4.0 (Open-Meteo), ERA5 Copernicus",
+  "provenance": "observed (modelled reanalysis)",
+  "note": "NOAA NCEI 1991-2020 station normals deferred (DECISIONS D-010); point reanalysis used for v0.1",
+  "lat": 43.760994,
+  "lon": -111.211765,
+  "period": "1991-2020",
+  "annual": {
+    "tmax_mean_f": 51.1,
+    "tmin_mean_f": 29.3,
+    "precip_in_per_year": 30.1,
+    "snow_in_per_year": 124.6
+  },
+  "extremes_1991_2020": {
+    "tmax_abs_f": 95.5,
+    "tmin_abs_f": -24.0,
+    "max_daily_precip_in": 1.65,
+    "max_wind_mph": 21.5
+  }
+}

@@ -1,0 +1,1611 @@
+{
+ "card_id": "EXP-0002",
+ "title": "Telehealth triage routing under real connectivity",
+ "run_date": "2026-11-12T09:31:21",
+ "mode": "promotion-eligible",
+ "seeds": 20,
+ "fidelity_tier": "B_pilot_3d",
+ "provenance_floor": "assumed",
+ "seed_results": [
+  {
+   "seed": 0,
+   "primary": {
+    "metric": "minutes_to_primary_care",
+    "baseline_mean": 39.20272257549078,
+    "intervention_mean": 26.73276308256649,
+    "change_pct": -31.808911916542268,
+    "unreachable_share_graph_disconnected": 0.026239067055393587,
+    "excluded_share_by_quintile": {
+     "1": 0.109,
+     "2": 0.124,
+     "3": 0.095,
+     "4": 0.073,
+     "5": 0.117
+    }
+   },
+   "rqli_baseline": {
+    "n": 686,
+    "p10": 0.006972964369053665,
+    "p50": 0.06979893828510247,
+    "p90": 0.8062975355732437,
+    "mean": 0.2117541988509527,
+    "worst_off_decile_mean": 0.005080481133976975
+   },
+   "rqli_intervention": {
+    "n": 686,
+    "p10": 0.013524585249162429,
+    "p50": 0.10105448730329833,
+    "p90": 0.8179273958815082,
+    "mean": 0.24806969289793518,
+    "worst_off_decile_mean": 0.009000123495620155
+   },
+   "constraints": {
+    "no_loss_of_essential_service": {
+     "passed": true,
+     "note": "max per-household essential-domain score drop = 0.0000"
+    },
+    "protect_lowest_income_quintile": {
+     "passed": true,
+     "note": "not modelled by this card"
+    },
+    "water_within_recharge": {
+     "passed": true,
+     "note": "not modelled: no withdrawal model in this run (cards adding water load must supply one)"
+    },
+    "no_displacement": {
+     "passed": true,
+     "note": "no housing-cost channel in this card"
+    },
+    "worst_off_decile_must_gain": {
+     "passed": true,
+     "note": "baseline worst-decile 0.0051 -> 0.0090 (per-seed; 90% CI checked across seeds)"
+    },
+    "political_variables_excluded": {
+     "passed": true,
+     "note": "denylist clean on all indicator tables (files fenced at load time)"
+    }
+   },
+   "constraints_passed": true,
+   "provenance_floor": "assumed",
+   "indicator_provenance": {
+    "minutes_to_emergency_care": "derived (OSM road graph to observed hospital; speeds assumed)",
+    "minutes_to_primary_care": "derived proxy (hospital used as primary-care destination; clinic layer not fetched)",
+    "school_travel_minutes_one_way": "derived (OSM road graph to observed schools)",
+    "ems_response_minutes_p90": "derived + assumed (turnout 6 min assumed; station=hospital)",
+    "usable_upload_mbps": "assumed (uniform 0.5-25; FCC BDC layer not in pilot bundle)",
+    "usable_download_mbps": "assumed (scaled from upload; FCC BDC layer not in pilot bundle)",
+    "broadband_cost_share_of_income": "assumed ($80/mo plan over calibrated income)",
+    "outage_hours_per_year": "assumed (rural SAIDI placeholder; EIA reliability not in bundle)",
+    "longest_outage_hours": "assumed",
+    "income_after_essentials": "calibrated income minus assumed essentials share 0.62",
+    "energy_cost_share_of_income": "assumed ($220/mo energy over calibrated income)",
+    "detour_minutes_from_closed_or_posted_bridges": "derived (NBI poor bridges removed from OSM graph)",
+    "supply_interruption_hours": "assumed placeholder",
+    "household_can_do_remote_learning": "derived from assumed bandwidth (25 Mbps threshold)",
+    "change_in_utility_rates_and_local_taxes": "baseline definition (0)"
+   }
+  },
+  {
+   "seed": 1,
+   "primary": {
+    "metric": "minutes_to_primary_care",
+    "baseline_mean": 40.41150459186359,
+    "intervention_mean": 27.7171381852624,
+    "change_pct": -31.412753706668624,
+    "unreachable_share_graph_disconnected": 0.014577259475218658,
+    "excluded_share_by_quintile": {
+     "1": 0.123,
+     "2": 0.102,
+     "3": 0.117,
+     "4": 0.095,
+     "5": 0.08
+    }
+   },
+   "rqli_baseline": {
+    "n": 686,
+    "p10": 0.006498265360582541,
+    "p50": 0.06790986469676881,
+    "p90": 0.7688765419108319,
+    "mean": 0.19587358643495398,
+    "worst_off_decile_mean": 0.004825628113948818
+   },
+   "rqli_intervention": {
+    "n": 686,
+    "p10": 0.013245291191128251,
+    "p50": 0.09296478956472495,
+    "p90": 0.7869121677244683,
+    "mean": 0.2332693893525796,
+    "worst_off_decile_mean": 0.008333992911730797
+   },
+   "constraints": {
+    "no_loss_of_essential_service": {
+     "passed": true,
+     "note": "max per-household essential-domain score drop = 0.0000"
+    },
+    "protect_lowest_income_quintile": {
+     "passed": true,
+     "note": "not modelled by this card"
+    },
+    "water_within_recharge": {
+     "passed": true,
+     "note": "not modelled: no withdrawal model in this run (cards adding water load must supply one)"
+    },
+    "no_displacement": {
+     "passed": true,
+     "note": "no housing-cost channel in this card"
+    },
+    "worst_off_decile_must_gain": {
+     "passed": true,
+     "note": "baseline worst-decile 0.0048 -> 0.0083 (per-seed; 90% CI checked across seeds)"
+    },
+    "political_variables_excluded": {
+     "passed": true,
+     "note": "denylist clean on all indicator tables (files fenced at load time)"
+    }
+   },
+   "constraints_passed": true,
+   "provenance_floor": "assumed",
+   "indicator_provenance": {
+    "minutes_to_emergency_care": "derived (OSM road graph to observed hospital; speeds assumed)",
+    "minutes_to_primary_care": "derived proxy (hospital used as primary-care destination; clinic layer not fetched)",
+    "school_travel_minutes_one_way": "derived (OSM road graph to observed schools)",
+    "ems_response_minutes_p90": "derived + assumed (turnout 6 min assumed; station=hospital)",
+    "usable_upload_mbps": "assumed (uniform 0.5-25; FCC BDC layer not in pilot bundle)",
+    "usable_download_mbps": "assumed (scaled from upload; FCC BDC layer not in pilot bundle)",
+    "broadband_cost_share_of_income": "assumed ($80/mo plan over calibrated income)",
+    "outage_hours_per_year": "assumed (rural SAIDI placeholder; EIA reliability not in bundle)",
+    "longest_outage_hours": "assumed",
+    "income_after_essentials": "calibrated income minus assumed essentials share 0.62",
+    "energy_cost_share_of_income": "assumed ($220/mo energy over calibrated income)",
+    "detour_minutes_from_closed_or_posted_bridges": "derived (NBI poor bridges removed from OSM graph)",
+    "supply_interruption_hours": "assumed placeholder",
+    "household_can_do_remote_learning": "derived from assumed bandwidth (25 Mbps threshold)",
+    "change_in_utility_rates_and_local_taxes": "baseline definition (0)"
+   }
+  },
+  {
+   "seed": 2,
+   "primary": {
+    "metric": "minutes_to_primary_care",
+    "baseline_mean": 40.27575403940927,
+    "intervention_mean": 27.646497875376042,
+    "change_pct": -31.35697013065398,
+    "unreachable_share_graph_disconnected": 0.01749271137026239,
+    "excluded_share_by_quintile": {
+     "1": 0.167,
+     "2": 0.051,
+     "3": 0.095,
+     "4": 0.139,
+     "5": 0.066
+    }
+   },
+   "rqli_baseline": {
+    "n": 686,
+    "p10": 0.007009469166088929,
+    "p50": 0.07356111195846587,
+    "p90": 0.7831868316763941,
+    "mean": 0.20896090925696562,
+    "worst_off_decile_mean": 0.005116631033890448
+   },
+   "rqli_intervention": {
+    "n": 686,
+    "p10": 0.013959512281563582,
+    "p50": 0.11983514968771945,
+    "p90": 0.797456884073483,
+    "mean": 0.2494801017898133,
+    "worst_off_decile_mean": 0.009377334159960926
+   },
+   "constraints": {
+    "no_loss_of_essential_service": {
+     "passed": true,
+     "note": "max per-household essential-domain score drop = 0.0000"
+    },
+    "protect_lowest_income_quintile": {
+     "passed": true,
+     "note": "not modelled by this card"
+    },
+    "water_within_recharge": {
+     "passed": true,
+     "note": "not modelled: no withdrawal model in this run (cards adding water load must supply one)"
+    },
+    "no_displacement": {
+     "passed": true,
+     "note": "no housing-cost channel in this card"
+    },
+    "worst_off_decile_must_gain": {
+     "passed": true,
+     "note": "baseline worst-decile 0.0051 -> 0.0094 (per-seed; 90% CI checked across seeds)"
+    },
+    "political_variables_excluded": {
+     "passed": true,
+     "note": "denylist clean on all indicator tables (files fenced at load time)"
+    }
+   },
+   "constraints_passed": true,
+   "provenance_floor": "assumed",
+   "indicator_provenance": {
+    "minutes_to_emergency_care": "derived (OSM road graph to observed hospital; speeds assumed)",
+    "minutes_to_primary_care": "derived proxy (hospital used as primary-care destination; clinic layer not fetched)",
+    "school_travel_minutes_one_way": "derived (OSM road graph to observed schools)",
+    "ems_response_minutes_p90": "derived + assumed (turnout 6 min assumed; station=hospital)",
+    "usable_upload_mbps": "assumed (uniform 0.5-25; FCC BDC layer not in pilot bundle)",
+    "usable_download_mbps": "assumed (scaled from upload; FCC BDC layer not in pilot bundle)",
+    "broadband_cost_share_of_income": "assumed ($80/mo plan over calibrated income)",
+    "outage_hours_per_year": "assumed (rural SAIDI placeholder; EIA reliability not in bundle)",
+    "longest_outage_hours": "assumed",
+    "income_after_essentials": "calibrated income minus assumed essentials share 0.62",
+    "energy_cost_share_of_income": "assumed ($220/mo energy over calibrated income)",
+    "detour_minutes_from_closed_or_posted_bridges": "derived (NBI poor bridges removed from OSM graph)",
+    "supply_interruption_hours": "assumed placeholder",
+    "household_can_do_remote_learning": "derived from assumed bandwidth (25 Mbps threshold)",
+    "change_in_utility_rates_and_local_taxes": "baseline definition (0)"
+   }
+  },
+  {
+   "seed": 3,
+   "primary": {
+    "metric": "minutes_to_primary_care",
+    "baseline_mean": 38.83579114774494,
+    "intervention_mean": 26.683075216239352,
+    "change_pct": -31.292566914041757,
+    "unreachable_share_graph_disconnected": 0.013119533527696793,
+    "excluded_share_by_quintile": {
+     "1": 0.072,
+     "2": 0.117,
+     "3": 0.124,
+     "4": 0.109,
+     "5": 0.095
+    }
+   },
+   "rqli_baseline": {
+    "n": 686,
+    "p10": 0.01025315966891674,
+    "p50": 0.07695306496947679,
+    "p90": 0.7890282212602312,
+    "mean": 0.2161979791126125,
+    "worst_off_decile_mean": 0.005492236134833784
+   },
+   "rqli_intervention": {
+    "n": 686,
+    "p10": 0.01705013755337651,
+    "p50": 0.11542505443823099,
+    "p90": 0.8082889172476935,
+    "mean": 0.2528629164426961,
+    "worst_off_decile_mean": 0.010099734533260608
+   },
+   "constraints": {
+    "no_loss_of_essential_service": {
+     "passed": true,
+     "note": "max per-household essential-domain score drop = 0.0000"
+    },
+    "protect_lowest_income_quintile": {
+     "passed": true,
+     "note": "not modelled by this card"
+    },
+    "water_within_recharge": {
+     "passed": true,
+     "note": "not modelled: no withdrawal model in this run (cards adding water load must supply one)"
+    },
+    "no_displacement": {
+     "passed": true,
+     "note": "no housing-cost channel in this card"
+    },
+    "worst_off_decile_must_gain": {
+     "passed": true,
+     "note": "baseline worst-decile 0.0055 -> 0.0101 (per-seed; 90% CI checked across seeds)"
+    },
+    "political_variables_excluded": {
+     "passed": true,
+     "note": "denylist clean on all indicator tables (files fenced at load time)"
+    }
+   },
+   "constraints_passed": true,
+   "provenance_floor": "assumed",
+   "indicator_provenance": {
+    "minutes_to_emergency_care": "derived (OSM road graph to observed hospital; speeds assumed)",
+    "minutes_to_primary_care": "derived proxy (hospital used as primary-care destination; clinic layer not fetched)",
+    "school_travel_minutes_one_way": "derived (OSM road graph to observed schools)",
+    "ems_response_minutes_p90": "derived + assumed (turnout 6 min assumed; station=hospital)",
+    "usable_upload_mbps": "assumed (uniform 0.5-25; FCC BDC layer not in pilot bundle)",
+    "usable_download_mbps": "assumed (scaled from upload; FCC BDC layer not in pilot bundle)",
+    "broadband_cost_share_of_income": "assumed ($80/mo plan over calibrated income)",
+    "outage_hours_per_year": "assumed (rural SAIDI placeholder; EIA reliability not in bundle)",
+    "longest_outage_hours": "assumed",
+    "income_after_essentials": "calibrated income minus assumed essentials share 0.62",
+    "energy_cost_share_of_income": "assumed ($220/mo energy over calibrated income)",
+    "detour_minutes_from_closed_or_posted_bridges": "derived (NBI poor bridges removed from OSM graph)",
+    "supply_interruption_hours": "assumed placeholder",
+    "household_can_do_remote_learning": "derived from assumed bandwidth (25 Mbps threshold)",
+    "change_in_utility_rates_and_local_taxes": "baseline definition (0)"
+   }
+  },
+  {
+   "seed": 4,
+   "primary": {
+    "metric": "minutes_to_primary_care",
+    "baseline_mean": 41.03383713616871,
+    "intervention_mean": 28.28251648232495,
+    "change_pct": -31.075135897062577,
+    "unreachable_share_graph_disconnected": 0.007288629737609329,
+    "excluded_share_by_quintile": {
+     "1": 0.116,
+     "2": 0.029,
+     "3": 0.146,
+     "4": 0.117,
+     "5": 0.109
+    }
+   },
+   "rqli_baseline": {
+    "n": 686,
+    "p10": 0.0071527385220725975,
+    "p50": 0.06387832373575464,
+    "p90": 0.7878299527289604,
+    "mean": 0.19292524737243222,
+    "worst_off_decile_mean": 0.0050178801387529256
+   },
+   "rqli_intervention": {
+    "n": 686,
+    "p10": 0.014065387365368482,
+    "p50": 0.10577547772312562,
+    "p90": 0.7902783794305415,
+    "mean": 0.22996873347920513,
+    "worst_off_decile_mean": 0.009156476048698922
+   },
+   "constraints": {
+    "no_loss_of_essential_service": {
+     "passed": true,
+     "note": "max per-household essential-domain score drop = 0.0000"
+    },
+    "protect_lowest_income_quintile": {
+     "passed": true,
+     "note": "not modelled by this card"
+    },
+    "water_within_recharge": {
+     "passed": true,
+     "note": "not modelled: no withdrawal model in this run (cards adding water load must supply one)"
+    },
+    "no_displacement": {
+     "passed": true,
+     "note": "no housing-cost channel in this card"
+    },
+    "worst_off_decile_must_gain": {
+     "passed": true,
+     "note": "baseline worst-decile 0.0050 -> 0.0092 (per-seed; 90% CI checked across seeds)"
+    },
+    "political_variables_excluded": {
+     "passed": true,
+     "note": "denylist clean on all indicator tables (files fenced at load time)"
+    }
+   },
+   "constraints_passed": true,
+   "provenance_floor": "assumed",
+   "indicator_provenance": {
+    "minutes_to_emergency_care": "derived (OSM road graph to observed hospital; speeds assumed)",
+    "minutes_to_primary_care": "derived proxy (hospital used as primary-care destination; clinic layer not fetched)",
+    "school_travel_minutes_one_way": "derived (OSM road graph to observed schools)",
+    "ems_response_minutes_p90": "derived + assumed (turnout 6 min assumed; station=hospital)",
+    "usable_upload_mbps": "assumed (uniform 0.5-25; FCC BDC layer not in pilot bundle)",
+    "usable_download_mbps": "assumed (scaled from upload; FCC BDC layer not in pilot bundle)",
+    "broadband_cost_share_of_income": "assumed ($80/mo plan over calibrated income)",
+    "outage_hours_per_year": "assumed (rural SAIDI placeholder; EIA reliability not in bundle)",
+    "longest_outage_hours": "assumed",
+    "income_after_essentials": "calibrated income minus assumed essentials share 0.62",
+    "energy_cost_share_of_income": "assumed ($220/mo energy over calibrated income)",
+    "detour_minutes_from_closed_or_posted_bridges": "derived (NBI poor bridges removed from OSM graph)",
+    "supply_interruption_hours": "assumed placeholder",
+    "household_can_do_remote_learning": "derived from assumed bandwidth (25 Mbps threshold)",
+    "change_in_utility_rates_and_local_taxes": "baseline definition (0)"
+   }
+  },
+  {
+   "seed": 5,
+   "primary": {
+    "metric": "minutes_to_primary_care",
+    "baseline_mean": 41.631281626824105,
+    "intervention_mean": 28.659082962139564,
+    "change_pct": -31.15973892172039,
+    "unreachable_share_graph_disconnected": 0.02040816326530612,
+    "excluded_share_by_quintile": {
+     "1": 0.145,
+     "2": 0.117,
+     "3": 0.088,
+     "4": 0.08,
+     "5": 0.088
+    }
+   },
+   "rqli_baseline": {
+    "n": 686,
+    "p10": 0.006703212065796568,
+    "p50": 0.06958951427567603,
+    "p90": 0.7829726117680822,
+    "mean": 0.20659288809233967,
+    "worst_off_decile_mean": 0.004552006247232833
+   },
+   "rqli_intervention": {
+    "n": 686,
+    "p10": 0.012988662804745747,
+    "p50": 0.11650722244549525,
+    "p90": 0.7990645075210625,
+    "mean": 0.24906804530762028,
+    "worst_off_decile_mean": 0.007814348680592201
+   },
+   "constraints": {
+    "no_loss_of_essential_service": {
+     "passed": true,
+     "note": "max per-household essential-domain score drop = 0.0000"
+    },
+    "protect_lowest_income_quintile": {
+     "passed": true,
+     "note": "not modelled by this card"
+    },
+    "water_within_recharge": {
+     "passed": true,
+     "note": "not modelled: no withdrawal model in this run (cards adding water load must supply one)"
+    },
+    "no_displacement": {
+     "passed": true,
+     "note": "no housing-cost channel in this card"
+    },
+    "worst_off_decile_must_gain": {
+     "passed": true,
+     "note": "baseline worst-decile 0.0046 -> 0.0078 (per-seed; 90% CI checked across seeds)"
+    },
+    "political_variables_excluded": {
+     "passed": true,
+     "note": "denylist clean on all indicator tables (files fenced at load time)"
+    }
+   },
+   "constraints_passed": true,
+   "provenance_floor": "assumed",
+   "indicator_provenance": {
+    "minutes_to_emergency_care": "derived (OSM road graph to observed hospital; speeds assumed)",
+    "minutes_to_primary_care": "derived proxy (hospital used as primary-care destination; clinic layer not fetched)",
+    "school_travel_minutes_one_way": "derived (OSM road graph to observed schools)",
+    "ems_response_minutes_p90": "derived + assumed (turnout 6 min assumed; station=hospital)",
+    "usable_upload_mbps": "assumed (uniform 0.5-25; FCC BDC layer not in pilot bundle)",
+    "usable_download_mbps": "assumed (scaled from upload; FCC BDC layer not in pilot bundle)",
+    "broadband_cost_share_of_income": "assumed ($80/mo plan over calibrated income)",
+    "outage_hours_per_year": "assumed (rural SAIDI placeholder; EIA reliability not in bundle)",
+    "longest_outage_hours": "assumed",
+    "income_after_essentials": "calibrated income minus assumed essentials share 0.62",
+    "energy_cost_share_of_income": "assumed ($220/mo energy over calibrated income)",
+    "detour_minutes_from_closed_or_posted_bridges": "derived (NBI poor bridges removed from OSM graph)",
+    "supply_interruption_hours": "assumed placeholder",
+    "household_can_do_remote_learning": "derived from assumed bandwidth (25 Mbps threshold)",
+    "change_in_utility_rates_and_local_taxes": "baseline definition (0)"
+   }
+  },
+  {
+   "seed": 6,
+   "primary": {
+    "metric": "minutes_to_primary_care",
+    "baseline_mean": 39.294537330370204,
+    "intervention_mean": 27.06609755930067,
+    "change_pct": -31.11994847593827,
+    "unreachable_share_graph_disconnected": 0.014577259475218658,
+    "excluded_share_by_quintile": {
+     "1": 0.094,
+     "2": 0.124,
+     "3": 0.08,
+     "4": 0.109,
+     "5": 0.109
+    }
+   },
+   "rqli_baseline": {
+    "n": 686,
+    "p10": 0.00921382268073106,
+    "p50": 0.08843759075806748,
+    "p90": 0.8196673292498179,
+    "mean": 0.24376147265506562,
+    "worst_off_decile_mean": 0.005440858466730003
+   },
+   "rqli_intervention": {
+    "n": 686,
+    "p10": 0.01405652114153538,
+    "p50": 0.1305616646419012,
+    "p90": 0.8288084180470332,
+    "mean": 0.2848391471650908,
+    "worst_off_decile_mean": 0.009431387374112128
+   },
+   "constraints": {
+    "no_loss_of_essential_service": {
+     "passed": true,
+     "note": "max per-household essential-domain score drop = 0.0000"
+    },
+    "protect_lowest_income_quintile": {
+     "passed": true,
+     "note": "not modelled by this card"
+    },
+    "water_within_recharge": {
+     "passed": true,
+     "note": "not modelled: no withdrawal model in this run (cards adding water load must supply one)"
+    },
+    "no_displacement": {
+     "passed": true,
+     "note": "no housing-cost channel in this card"
+    },
+    "worst_off_decile_must_gain": {
+     "passed": true,
+     "note": "baseline worst-decile 0.0054 -> 0.0094 (per-seed; 90% CI checked across seeds)"
+    },
+    "political_variables_excluded": {
+     "passed": true,
+     "note": "denylist clean on all indicator tables (files fenced at load time)"
+    }
+   },
+   "constraints_passed": true,
+   "provenance_floor": "assumed",
+   "indicator_provenance": {
+    "minutes_to_emergency_care": "derived (OSM road graph to observed hospital; speeds assumed)",
+    "minutes_to_primary_care": "derived proxy (hospital used as primary-care destination; clinic layer not fetched)",
+    "school_travel_minutes_one_way": "derived (OSM road graph to observed schools)",
+    "ems_response_minutes_p90": "derived + assumed (turnout 6 min assumed; station=hospital)",
+    "usable_upload_mbps": "assumed (uniform 0.5-25; FCC BDC layer not in pilot bundle)",
+    "usable_download_mbps": "assumed (scaled from upload; FCC BDC layer not in pilot bundle)",
+    "broadband_cost_share_of_income": "assumed ($80/mo plan over calibrated income)",
+    "outage_hours_per_year": "assumed (rural SAIDI placeholder; EIA reliability not in bundle)",
+    "longest_outage_hours": "assumed",
+    "income_after_essentials": "calibrated income minus assumed essentials share 0.62",
+    "energy_cost_share_of_income": "assumed ($220/mo energy over calibrated income)",
+    "detour_minutes_from_closed_or_posted_bridges": "derived (NBI poor bridges removed from OSM graph)",
+    "supply_interruption_hours": "assumed placeholder",
+    "household_can_do_remote_learning": "derived from assumed bandwidth (25 Mbps threshold)",
+    "change_in_utility_rates_and_local_taxes": "baseline definition (0)"
+   }
+  },
+  {
+   "seed": 7,
+   "primary": {
+    "metric": "minutes_to_primary_care",
+    "baseline_mean": 41.00645206350644,
+    "intervention_mean": 28.024427043563513,
+    "change_pct": -31.658493643482597,
+    "unreachable_share_graph_disconnected": 0.01749271137026239,
+    "excluded_share_by_quintile": {
+     "1": 0.116,
+     "2": 0.073,
+     "3": 0.088,
+     "4": 0.124,
+     "5": 0.117
+    }
+   },
+   "rqli_baseline": {
+    "n": 686,
+    "p10": 0.0064586050493499764,
+    "p50": 0.06801799387862631,
+    "p90": 0.7734589143704296,
+    "mean": 0.18219112296787093,
+    "worst_off_decile_mean": 0.0050595079304854036
+   },
+   "rqli_intervention": {
+    "n": 686,
+    "p10": 0.013363021079391305,
+    "p50": 0.09316637229270049,
+    "p90": 0.7893360509412708,
+    "mean": 0.21931508260524743,
+    "worst_off_decile_mean": 0.009449342045504629
+   },
+   "constraints": {
+    "no_loss_of_essential_service": {
+     "passed": true,
+     "note": "max per-household essential-domain score drop = 0.0000"
+    },
+    "protect_lowest_income_quintile": {
+     "passed": true,
+     "note": "not modelled by this card"
+    },
+    "water_within_recharge": {
+     "passed": true,
+     "note": "not modelled: no withdrawal model in this run (cards adding water load must supply one)"
+    },
+    "no_displacement": {
+     "passed": true,
+     "note": "no housing-cost channel in this card"
+    },
+    "worst_off_decile_must_gain": {
+     "passed": true,
+     "note": "baseline worst-decile 0.0051 -> 0.0094 (per-seed; 90% CI checked across seeds)"
+    },
+    "political_variables_excluded": {
+     "passed": true,
+     "note": "denylist clean on all indicator tables (files fenced at load time)"
+    }
+   },
+   "constraints_passed": true,
+   "provenance_floor": "assumed",
+   "indicator_provenance": {
+    "minutes_to_emergency_care": "derived (OSM road graph to observed hospital; speeds assumed)",
+    "minutes_to_primary_care": "derived proxy (hospital used as primary-care destination; clinic layer not fetched)",
+    "school_travel_minutes_one_way": "derived (OSM road graph to observed schools)",
+    "ems_response_minutes_p90": "derived + assumed (turnout 6 min assumed; station=hospital)",
+    "usable_upload_mbps": "assumed (uniform 0.5-25; FCC BDC layer not in pilot bundle)",
+    "usable_download_mbps": "assumed (scaled from upload; FCC BDC layer not in pilot bundle)",
+    "broadband_cost_share_of_income": "assumed ($80/mo plan over calibrated income)",
+    "outage_hours_per_year": "assumed (rural SAIDI placeholder; EIA reliability not in bundle)",
+    "longest_outage_hours": "assumed",
+    "income_after_essentials": "calibrated income minus assumed essentials share 0.62",
+    "energy_cost_share_of_income": "assumed ($220/mo energy over calibrated income)",
+    "detour_minutes_from_closed_or_posted_bridges": "derived (NBI poor bridges removed from OSM graph)",
+    "supply_interruption_hours": "assumed placeholder",
+    "household_can_do_remote_learning": "derived from assumed bandwidth (25 Mbps threshold)",
+    "change_in_utility_rates_and_local_taxes": "baseline definition (0)"
+   }
+  },
+  {
+   "seed": 8,
+   "primary": {
+    "metric": "minutes_to_primary_care",
+    "baseline_mean": 39.61926102822121,
+    "intervention_mean": 27.097156149665572,
+    "change_pct": -31.606104085676947,
+    "unreachable_share_graph_disconnected": 0.01749271137026239,
+    "excluded_share_by_quintile": {
+     "1": 0.101,
+     "2": 0.109,
+     "3": 0.124,
+     "4": 0.066,
+     "5": 0.117
+    }
+   },
+   "rqli_baseline": {
+    "n": 686,
+    "p10": 0.009138654500817925,
+    "p50": 0.07360096067059865,
+    "p90": 0.7920283651791271,
+    "mean": 0.20696674254375977,
+    "worst_off_decile_mean": 0.005650894463870522
+   },
+   "rqli_intervention": {
+    "n": 686,
+    "p10": 0.014815760704308378,
+    "p50": 0.10578520255601494,
+    "p90": 0.810683643299019,
+    "mean": 0.24688296797386095,
+    "worst_off_decile_mean": 0.01015805703075016
+   },
+   "constraints": {
+    "no_loss_of_essential_service": {
+     "passed": true,
+     "note": "max per-household essential-domain score drop = 0.0000"
+    },
+    "protect_lowest_income_quintile": {
+     "passed": true,
+     "note": "not modelled by this card"
+    },
+    "water_within_recharge": {
+     "passed": true,
+     "note": "not modelled: no withdrawal model in this run (cards adding water load must supply one)"
+    },
+    "no_displacement": {
+     "passed": true,
+     "note": "no housing-cost channel in this card"
+    },
+    "worst_off_decile_must_gain": {
+     "passed": true,
+     "note": "baseline worst-decile 0.0057 -> 0.0102 (per-seed; 90% CI checked across seeds)"
+    },
+    "political_variables_excluded": {
+     "passed": true,
+     "note": "denylist clean on all indicator tables (files fenced at load time)"
+    }
+   },
+   "constraints_passed": true,
+   "provenance_floor": "assumed",
+   "indicator_provenance": {
+    "minutes_to_emergency_care": "derived (OSM road graph to observed hospital; speeds assumed)",
+    "minutes_to_primary_care": "derived proxy (hospital used as primary-care destination; clinic layer not fetched)",
+    "school_travel_minutes_one_way": "derived (OSM road graph to observed schools)",
+    "ems_response_minutes_p90": "derived + assumed (turnout 6 min assumed; station=hospital)",
+    "usable_upload_mbps": "assumed (uniform 0.5-25; FCC BDC layer not in pilot bundle)",
+    "usable_download_mbps": "assumed (scaled from upload; FCC BDC layer not in pilot bundle)",
+    "broadband_cost_share_of_income": "assumed ($80/mo plan over calibrated income)",
+    "outage_hours_per_year": "assumed (rural SAIDI placeholder; EIA reliability not in bundle)",
+    "longest_outage_hours": "assumed",
+    "income_after_essentials": "calibrated income minus assumed essentials share 0.62",
+    "energy_cost_share_of_income": "assumed ($220/mo energy over calibrated income)",
+    "detour_minutes_from_closed_or_posted_bridges": "derived (NBI poor bridges removed from OSM graph)",
+    "supply_interruption_hours": "assumed placeholder",
+    "household_can_do_remote_learning": "derived from assumed bandwidth (25 Mbps threshold)",
+    "change_in_utility_rates_and_local_taxes": "baseline definition (0)"
+   }
+  },
+  {
+   "seed": 9,
+   "primary": {
+    "metric": "minutes_to_primary_care",
+    "baseline_mean": 39.33291266003723,
+    "intervention_mean": 26.99151414510481,
+    "change_pct": -31.37677247958158,
+    "unreachable_share_graph_disconnected": 0.008746355685131196,
+    "excluded_share_by_quintile": {
+     "1": 0.094,
+     "2": 0.124,
+     "3": 0.109,
+     "4": 0.095,
+     "5": 0.095
+    }
+   },
+   "rqli_baseline": {
+    "n": 686,
+    "p10": 0.007221060164295512,
+    "p50": 0.07482936216761917,
+    "p90": 0.7923163891056968,
+    "mean": 0.20842252900823305,
+    "worst_off_decile_mean": 0.004988215145574591
+   },
+   "rqli_intervention": {
+    "n": 686,
+    "p10": 0.013453050379343204,
+    "p50": 0.10579190540967688,
+    "p90": 0.8089042523396125,
+    "mean": 0.24479269975376186,
+    "worst_off_decile_mean": 0.008689103183803878
+   },
+   "constraints": {
+    "no_loss_of_essential_service": {
+     "passed": true,
+     "note": "max per-household essential-domain score drop = 0.0000"
+    },
+    "protect_lowest_income_quintile": {
+     "passed": true,
+     "note": "not modelled by this card"
+    },
+    "water_within_recharge": {
+     "passed": true,
+     "note": "not modelled: no withdrawal model in this run (cards adding water load must supply one)"
+    },
+    "no_displacement": {
+     "passed": true,
+     "note": "no housing-cost channel in this card"
+    },
+    "worst_off_decile_must_gain": {
+     "passed": true,
+     "note": "baseline worst-decile 0.0050 -> 0.0087 (per-seed; 90% CI checked across seeds)"
+    },
+    "political_variables_excluded": {
+     "passed": true,
+     "note": "denylist clean on all indicator tables (files fenced at load time)"
+    }
+   },
+   "constraints_passed": true,
+   "provenance_floor": "assumed",
+   "indicator_provenance": {
+    "minutes_to_emergency_care": "derived (OSM road graph to observed hospital; speeds assumed)",
+    "minutes_to_primary_care": "derived proxy (hospital used as primary-care destination; clinic layer not fetched)",
+    "school_travel_minutes_one_way": "derived (OSM road graph to observed schools)",
+    "ems_response_minutes_p90": "derived + assumed (turnout 6 min assumed; station=hospital)",
+    "usable_upload_mbps": "assumed (uniform 0.5-25; FCC BDC layer not in pilot bundle)",
+    "usable_download_mbps": "assumed (scaled from upload; FCC BDC layer not in pilot bundle)",
+    "broadband_cost_share_of_income": "assumed ($80/mo plan over calibrated income)",
+    "outage_hours_per_year": "assumed (rural SAIDI placeholder; EIA reliability not in bundle)",
+    "longest_outage_hours": "assumed",
+    "income_after_essentials": "calibrated income minus assumed essentials share 0.62",
+    "energy_cost_share_of_income": "assumed ($220/mo energy over calibrated income)",
+    "detour_minutes_from_closed_or_posted_bridges": "derived (NBI poor bridges removed from OSM graph)",
+    "supply_interruption_hours": "assumed placeholder",
+    "household_can_do_remote_learning": "derived from assumed bandwidth (25 Mbps threshold)",
+    "change_in_utility_rates_and_local_taxes": "baseline definition (0)"
+   }
+  },
+  {
+   "seed": 10,
+   "primary": {
+    "metric": "minutes_to_primary_care",
+    "baseline_mean": 39.810118615237705,
+    "intervention_mean": 27.336741302196096,
+    "change_pct": -31.332178217291986,
+    "unreachable_share_graph_disconnected": 0.018950437317784258,
+    "excluded_share_by_quintile": {
+     "1": 0.109,
+     "2": 0.095,
+     "3": 0.131,
+     "4": 0.095,
+     "5": 0.088
+    }
+   },
+   "rqli_baseline": {
+    "n": 686,
+    "p10": 0.006945508989116703,
+    "p50": 0.07264458732020851,
+    "p90": 0.7685327007616154,
+    "mean": 0.19988385565138614,
+    "worst_off_decile_mean": 0.005196826883816769
+   },
+   "rqli_intervention": {
+    "n": 686,
+    "p10": 0.013805244072823734,
+    "p50": 0.10074240976551944,
+    "p90": 0.7885281619357816,
+    "mean": 0.23709296464863616,
+    "worst_off_decile_mean": 0.009539419906516714
+   },
+   "constraints": {
+    "no_loss_of_essential_service": {
+     "passed": true,
+     "note": "max per-household essential-domain score drop = 0.0000"
+    },
+    "protect_lowest_income_quintile": {
+     "passed": true,
+     "note": "not modelled by this card"
+    },
+    "water_within_recharge": {
+     "passed": true,
+     "note": "not modelled: no withdrawal model in this run (cards adding water load must supply one)"
+    },
+    "no_displacement": {
+     "passed": true,
+     "note": "no housing-cost channel in this card"
+    },
+    "worst_off_decile_must_gain": {
+     "passed": true,
+     "note": "baseline worst-decile 0.0052 -> 0.0095 (per-seed; 90% CI checked across seeds)"
+    },
+    "political_variables_excluded": {
+     "passed": true,
+     "note": "denylist clean on all indicator tables (files fenced at load time)"
+    }
+   },
+   "constraints_passed": true,
+   "provenance_floor": "assumed",
+   "indicator_provenance": {
+    "minutes_to_emergency_care": "derived (OSM road graph to observed hospital; speeds assumed)",
+    "minutes_to_primary_care": "derived proxy (hospital used as primary-care destination; clinic layer not fetched)",
+    "school_travel_minutes_one_way": "derived (OSM road graph to observed schools)",
+    "ems_response_minutes_p90": "derived + assumed (turnout 6 min assumed; station=hospital)",
+    "usable_upload_mbps": "assumed (uniform 0.5-25; FCC BDC layer not in pilot bundle)",
+    "usable_download_mbps": "assumed (scaled from upload; FCC BDC layer not in pilot bundle)",
+    "broadband_cost_share_of_income": "assumed ($80/mo plan over calibrated income)",
+    "outage_hours_per_year": "assumed (rural SAIDI placeholder; EIA reliability not in bundle)",
+    "longest_outage_hours": "assumed",
+    "income_after_essentials": "calibrated income minus assumed essentials share 0.62",
+    "energy_cost_share_of_income": "assumed ($220/mo energy over calibrated income)",
+    "detour_minutes_from_closed_or_posted_bridges": "derived (NBI poor bridges removed from OSM graph)",
+    "supply_interruption_hours": "assumed placeholder",
+    "household_can_do_remote_learning": "derived from assumed bandwidth (25 Mbps threshold)",
+    "change_in_utility_rates_and_local_taxes": "baseline definition (0)"
+   }
+  },
+  {
+   "seed": 11,
+   "primary": {
+    "metric": "minutes_to_primary_care",
+    "baseline_mean": 41.23923692161553,
+    "intervention_mean": 28.224911614848484,
+    "change_pct": -31.558113772822,
+    "unreachable_share_graph_disconnected": 0.02040816326530612,
+    "excluded_share_by_quintile": {
+     "1": 0.087,
+     "2": 0.109,
+     "3": 0.131,
+     "4": 0.095,
+     "5": 0.095
+    }
+   },
+   "rqli_baseline": {
+    "n": 686,
+    "p10": 0.006859012767300001,
+    "p50": 0.06482923403175539,
+    "p90": 0.7781403789287309,
+    "mean": 0.19055434920297973,
+    "worst_off_decile_mean": 0.004935808579998476
+   },
+   "rqli_intervention": {
+    "n": 686,
+    "p10": 0.013690332334805438,
+    "p50": 0.10081811548779074,
+    "p90": 0.7990767760524957,
+    "mean": 0.22939099750999967,
+    "worst_off_decile_mean": 0.008967045448992728
+   },
+   "constraints": {
+    "no_loss_of_essential_service": {
+     "passed": true,
+     "note": "max per-household essential-domain score drop = 0.0000"
+    },
+    "protect_lowest_income_quintile": {
+     "passed": true,
+     "note": "not modelled by this card"
+    },
+    "water_within_recharge": {
+     "passed": true,
+     "note": "not modelled: no withdrawal model in this run (cards adding water load must supply one)"
+    },
+    "no_displacement": {
+     "passed": true,
+     "note": "no housing-cost channel in this card"
+    },
+    "worst_off_decile_must_gain": {
+     "passed": true,
+     "note": "baseline worst-decile 0.0049 -> 0.0090 (per-seed; 90% CI checked across seeds)"
+    },
+    "political_variables_excluded": {
+     "passed": true,
+     "note": "denylist clean on all indicator tables (files fenced at load time)"
+    }
+   },
+   "constraints_passed": true,
+   "provenance_floor": "assumed",
+   "indicator_provenance": {
+    "minutes_to_emergency_care": "derived (OSM road graph to observed hospital; speeds assumed)",
+    "minutes_to_primary_care": "derived proxy (hospital used as primary-care destination; clinic layer not fetched)",
+    "school_travel_minutes_one_way": "derived (OSM road graph to observed schools)",
+    "ems_response_minutes_p90": "derived + assumed (turnout 6 min assumed; station=hospital)",
+    "usable_upload_mbps": "assumed (uniform 0.5-25; FCC BDC layer not in pilot bundle)",
+    "usable_download_mbps": "assumed (scaled from upload; FCC BDC layer not in pilot bundle)",
+    "broadband_cost_share_of_income": "assumed ($80/mo plan over calibrated income)",
+    "outage_hours_per_year": "assumed (rural SAIDI placeholder; EIA reliability not in bundle)",
+    "longest_outage_hours": "assumed",
+    "income_after_essentials": "calibrated income minus assumed essentials share 0.62",
+    "energy_cost_share_of_income": "assumed ($220/mo energy over calibrated income)",
+    "detour_minutes_from_closed_or_posted_bridges": "derived (NBI poor bridges removed from OSM graph)",
+    "supply_interruption_hours": "assumed placeholder",
+    "household_can_do_remote_learning": "derived from assumed bandwidth (25 Mbps threshold)",
+    "change_in_utility_rates_and_local_taxes": "baseline definition (0)"
+   }
+  },
+  {
+   "seed": 12,
+   "primary": {
+    "metric": "minutes_to_primary_care",
+    "baseline_mean": 39.526331114093935,
+    "intervention_mean": 27.163588175762364,
+    "change_pct": -31.277233656334417,
+    "unreachable_share_graph_disconnected": 0.014577259475218658,
+    "excluded_share_by_quintile": {
+     "1": 0.116,
+     "2": 0.102,
+     "3": 0.088,
+     "4": 0.102,
+     "5": 0.109
+    }
+   },
+   "rqli_baseline": {
+    "n": 686,
+    "p10": 0.007258035599971225,
+    "p50": 0.07577082263893509,
+    "p90": 0.8049605233915308,
+    "mean": 0.22168122742887447,
+    "worst_off_decile_mean": 0.005154923915067635
+   },
+   "rqli_intervention": {
+    "n": 686,
+    "p10": 0.014219398367894435,
+    "p50": 0.11800574903302002,
+    "p90": 0.8209720770799442,
+    "mean": 0.2590694952839631,
+    "worst_off_decile_mean": 0.00907511607459267
+   },
+   "constraints": {
+    "no_loss_of_essential_service": {
+     "passed": true,
+     "note": "max per-household essential-domain score drop = 0.0000"
+    },
+    "protect_lowest_income_quintile": {
+     "passed": true,
+     "note": "not modelled by this card"
+    },
+    "water_within_recharge": {
+     "passed": true,
+     "note": "not modelled: no withdrawal model in this run (cards adding water load must supply one)"
+    },
+    "no_displacement": {
+     "passed": true,
+     "note": "no housing-cost channel in this card"
+    },
+    "worst_off_decile_must_gain": {
+     "passed": true,
+     "note": "baseline worst-decile 0.0052 -> 0.0091 (per-seed; 90% CI checked across seeds)"
+    },
+    "political_variables_excluded": {
+     "passed": true,
+     "note": "denylist clean on all indicator tables (files fenced at load time)"
+    }
+   },
+   "constraints_passed": true,
+   "provenance_floor": "assumed",
+   "indicator_provenance": {
+    "minutes_to_emergency_care": "derived (OSM road graph to observed hospital; speeds assumed)",
+    "minutes_to_primary_care": "derived proxy (hospital used as primary-care destination; clinic layer not fetched)",
+    "school_travel_minutes_one_way": "derived (OSM road graph to observed schools)",
+    "ems_response_minutes_p90": "derived + assumed (turnout 6 min assumed; station=hospital)",
+    "usable_upload_mbps": "assumed (uniform 0.5-25; FCC BDC layer not in pilot bundle)",
+    "usable_download_mbps": "assumed (scaled from upload; FCC BDC layer not in pilot bundle)",
+    "broadband_cost_share_of_income": "assumed ($80/mo plan over calibrated income)",
+    "outage_hours_per_year": "assumed (rural SAIDI placeholder; EIA reliability not in bundle)",
+    "longest_outage_hours": "assumed",
+    "income_after_essentials": "calibrated income minus assumed essentials share 0.62",
+    "energy_cost_share_of_income": "assumed ($220/mo energy over calibrated income)",
+    "detour_minutes_from_closed_or_posted_bridges": "derived (NBI poor bridges removed from OSM graph)",
+    "supply_interruption_hours": "assumed placeholder",
+    "household_can_do_remote_learning": "derived from assumed bandwidth (25 Mbps threshold)",
+    "change_in_utility_rates_and_local_taxes": "baseline definition (0)"
+   }
+  },
+  {
+   "seed": 13,
+   "primary": {
+    "metric": "minutes_to_primary_care",
+    "baseline_mean": 40.96323778488308,
+    "intervention_mean": 28.221458135483857,
+    "change_pct": -31.105401668472116,
+    "unreachable_share_graph_disconnected": 0.02040816326530612,
+    "excluded_share_by_quintile": {
+     "1": 0.072,
+     "2": 0.109,
+     "3": 0.102,
+     "4": 0.117,
+     "5": 0.117
+    }
+   },
+   "rqli_baseline": {
+    "n": 686,
+    "p10": 0.007436437996052895,
+    "p50": 0.06566253289260748,
+    "p90": 0.8108197337554899,
+    "mean": 0.20800215445084258,
+    "worst_off_decile_mean": 0.005371295222882005
+   },
+   "rqli_intervention": {
+    "n": 686,
+    "p10": 0.014967654529326059,
+    "p50": 0.11440312186305918,
+    "p90": 0.8224330614836637,
+    "mean": 0.24517876736304547,
+    "worst_off_decile_mean": 0.010205393015510732
+   },
+   "constraints": {
+    "no_loss_of_essential_service": {
+     "passed": true,
+     "note": "max per-household essential-domain score drop = 0.0000"
+    },
+    "protect_lowest_income_quintile": {
+     "passed": true,
+     "note": "not modelled by this card"
+    },
+    "water_within_recharge": {
+     "passed": true,
+     "note": "not modelled: no withdrawal model in this run (cards adding water load must supply one)"
+    },
+    "no_displacement": {
+     "passed": true,
+     "note": "no housing-cost channel in this card"
+    },
+    "worst_off_decile_must_gain": {
+     "passed": true,
+     "note": "baseline worst-decile 0.0054 -> 0.0102 (per-seed; 90% CI checked across seeds)"
+    },
+    "political_variables_excluded": {
+     "passed": true,
+     "note": "denylist clean on all indicator tables (files fenced at load time)"
+    }
+   },
+   "constraints_passed": true,
+   "provenance_floor": "assumed",
+   "indicator_provenance": {
+    "minutes_to_emergency_care": "derived (OSM road graph to observed hospital; speeds assumed)",
+    "minutes_to_primary_care": "derived proxy (hospital used as primary-care destination; clinic layer not fetched)",
+    "school_travel_minutes_one_way": "derived (OSM road graph to observed schools)",
+    "ems_response_minutes_p90": "derived + assumed (turnout 6 min assumed; station=hospital)",
+    "usable_upload_mbps": "assumed (uniform 0.5-25; FCC BDC layer not in pilot bundle)",
+    "usable_download_mbps": "assumed (scaled from upload; FCC BDC layer not in pilot bundle)",
+    "broadband_cost_share_of_income": "assumed ($80/mo plan over calibrated income)",
+    "outage_hours_per_year": "assumed (rural SAIDI placeholder; EIA reliability not in bundle)",
+    "longest_outage_hours": "assumed",
+    "income_after_essentials": "calibrated income minus assumed essentials share 0.62",
+    "energy_cost_share_of_income": "assumed ($220/mo energy over calibrated income)",
+    "detour_minutes_from_closed_or_posted_bridges": "derived (NBI poor bridges removed from OSM graph)",
+    "supply_interruption_hours": "assumed placeholder",
+    "household_can_do_remote_learning": "derived from assumed bandwidth (25 Mbps threshold)",
+    "change_in_utility_rates_and_local_taxes": "baseline definition (0)"
+   }
+  },
+  {
+   "seed": 14,
+   "primary": {
+    "metric": "minutes_to_primary_care",
+    "baseline_mean": 39.78185923461226,
+    "intervention_mean": 27.249011290681114,
+    "change_pct": -31.5039271292452,
+    "unreachable_share_graph_disconnected": 0.016034985422740525,
+    "excluded_share_by_quintile": {
+     "1": 0.101,
+     "2": 0.102,
+     "3": 0.095,
+     "4": 0.117,
+     "5": 0.102
+    }
+   },
+   "rqli_baseline": {
+    "n": 686,
+    "p10": 0.006552397245941418,
+    "p50": 0.07491522602014922,
+    "p90": 0.7969594071073057,
+    "mean": 0.21356346674408883,
+    "worst_off_decile_mean": 0.005133795101796107
+   },
+   "rqli_intervention": {
+    "n": 686,
+    "p10": 0.013373611223222505,
+    "p50": 0.1069341319890398,
+    "p90": 0.8070554002910589,
+    "mean": 0.2501583081509871,
+    "worst_off_decile_mean": 0.009279290595856074
+   },
+   "constraints": {
+    "no_loss_of_essential_service": {
+     "passed": true,
+     "note": "max per-household essential-domain score drop = 0.0000"
+    },
+    "protect_lowest_income_quintile": {
+     "passed": true,
+     "note": "not modelled by this card"
+    },
+    "water_within_recharge": {
+     "passed": true,
+     "note": "not modelled: no withdrawal model in this run (cards adding water load must supply one)"
+    },
+    "no_displacement": {
+     "passed": true,
+     "note": "no housing-cost channel in this card"
+    },
+    "worst_off_decile_must_gain": {
+     "passed": true,
+     "note": "baseline worst-decile 0.0051 -> 0.0093 (per-seed; 90% CI checked across seeds)"
+    },
+    "political_variables_excluded": {
+     "passed": true,
+     "note": "denylist clean on all indicator tables (files fenced at load time)"
+    }
+   },
+   "constraints_passed": true,
+   "provenance_floor": "assumed",
+   "indicator_provenance": {
+    "minutes_to_emergency_care": "derived (OSM road graph to observed hospital; speeds assumed)",
+    "minutes_to_primary_care": "derived proxy (hospital used as primary-care destination; clinic layer not fetched)",
+    "school_travel_minutes_one_way": "derived (OSM road graph to observed schools)",
+    "ems_response_minutes_p90": "derived + assumed (turnout 6 min assumed; station=hospital)",
+    "usable_upload_mbps": "assumed (uniform 0.5-25; FCC BDC layer not in pilot bundle)",
+    "usable_download_mbps": "assumed (scaled from upload; FCC BDC layer not in pilot bundle)",
+    "broadband_cost_share_of_income": "assumed ($80/mo plan over calibrated income)",
+    "outage_hours_per_year": "assumed (rural SAIDI placeholder; EIA reliability not in bundle)",
+    "longest_outage_hours": "assumed",
+    "income_after_essentials": "calibrated income minus assumed essentials share 0.62",
+    "energy_cost_share_of_income": "assumed ($220/mo energy over calibrated income)",
+    "detour_minutes_from_closed_or_posted_bridges": "derived (NBI poor bridges removed from OSM graph)",
+    "supply_interruption_hours": "assumed placeholder",
+    "household_can_do_remote_learning": "derived from assumed bandwidth (25 Mbps threshold)",
+    "change_in_utility_rates_and_local_taxes": "baseline definition (0)"
+   }
+  },
+  {
+   "seed": 15,
+   "primary": {
+    "metric": "minutes_to_primary_care",
+    "baseline_mean": 39.0846517619988,
+    "intervention_mean": 26.74768244488898,
+    "change_pct": -31.564741556952544,
+    "unreachable_share_graph_disconnected": 0.02478134110787172,
+    "excluded_share_by_quintile": {
+     "1": 0.101,
+     "2": 0.168,
+     "3": 0.088,
+     "4": 0.044,
+     "5": 0.117
+    }
+   },
+   "rqli_baseline": {
+    "n": 686,
+    "p10": 0.0068869058239019515,
+    "p50": 0.07601621186780197,
+    "p90": 0.7958365417588333,
+    "mean": 0.21955324460910036,
+    "worst_off_decile_mean": 0.0049498016279762415
+   },
+   "rqli_intervention": {
+    "n": 686,
+    "p10": 0.013405458598997132,
+    "p50": 0.11575732963017961,
+    "p90": 0.8121084983173412,
+    "mean": 0.2549023774117061,
+    "worst_off_decile_mean": 0.00898759985766777
+   },
+   "constraints": {
+    "no_loss_of_essential_service": {
+     "passed": true,
+     "note": "max per-household essential-domain score drop = 0.0000"
+    },
+    "protect_lowest_income_quintile": {
+     "passed": true,
+     "note": "not modelled by this card"
+    },
+    "water_within_recharge": {
+     "passed": true,
+     "note": "not modelled: no withdrawal model in this run (cards adding water load must supply one)"
+    },
+    "no_displacement": {
+     "passed": true,
+     "note": "no housing-cost channel in this card"
+    },
+    "worst_off_decile_must_gain": {
+     "passed": true,
+     "note": "baseline worst-decile 0.0049 -> 0.0090 (per-seed; 90% CI checked across seeds)"
+    },
+    "political_variables_excluded": {
+     "passed": true,
+     "note": "denylist clean on all indicator tables (files fenced at load time)"
+    }
+   },
+   "constraints_passed": true,
+   "provenance_floor": "assumed",
+   "indicator_provenance": {
+    "minutes_to_emergency_care": "derived (OSM road graph to observed hospital; speeds assumed)",
+    "minutes_to_primary_care": "derived proxy (hospital used as primary-care destination; clinic layer not fetched)",
+    "school_travel_minutes_one_way": "derived (OSM road graph to observed schools)",
+    "ems_response_minutes_p90": "derived + assumed (turnout 6 min assumed; station=hospital)",
+    "usable_upload_mbps": "assumed (uniform 0.5-25; FCC BDC layer not in pilot bundle)",
+    "usable_download_mbps": "assumed (scaled from upload; FCC BDC layer not in pilot bundle)",
+    "broadband_cost_share_of_income": "assumed ($80/mo plan over calibrated income)",
+    "outage_hours_per_year": "assumed (rural SAIDI placeholder; EIA reliability not in bundle)",
+    "longest_outage_hours": "assumed",
+    "income_after_essentials": "calibrated income minus assumed essentials share 0.62",
+    "energy_cost_share_of_income": "assumed ($220/mo energy over calibrated income)",
+    "detour_minutes_from_closed_or_posted_bridges": "derived (NBI poor bridges removed from OSM graph)",
+    "supply_interruption_hours": "assumed placeholder",
+    "household_can_do_remote_learning": "derived from assumed bandwidth (25 Mbps threshold)",
+    "change_in_utility_rates_and_local_taxes": "baseline definition (0)"
+   }
+  },
+  {
+   "seed": 16,
+   "primary": {
+    "metric": "minutes_to_primary_care",
+    "baseline_mean": 40.61339309815715,
+    "intervention_mean": 27.839161675355406,
+    "change_pct": -31.453248419623865,
+    "unreachable_share_graph_disconnected": 0.013119533527696793,
+    "excluded_share_by_quintile": {
+     "1": 0.094,
+     "2": 0.124,
+     "3": 0.124,
+     "4": 0.058,
+     "5": 0.117
+    }
+   },
+   "rqli_baseline": {
+    "n": 686,
+    "p10": 0.006976507275361348,
+    "p50": 0.07247482320447768,
+    "p90": 0.7786185114063018,
+    "mean": 0.20939346786668322,
+    "worst_off_decile_mean": 0.005344735659886644
+   },
+   "rqli_intervention": {
+    "n": 686,
+    "p10": 0.013908394277440247,
+    "p50": 0.12070546115023457,
+    "p90": 0.7937746382373541,
+    "mean": 0.24964912532274355,
+    "worst_off_decile_mean": 0.0096514425312702
+   },
+   "constraints": {
+    "no_loss_of_essential_service": {
+     "passed": true,
+     "note": "max per-household essential-domain score drop = 0.0000"
+    },
+    "protect_lowest_income_quintile": {
+     "passed": true,
+     "note": "not modelled by this card"
+    },
+    "water_within_recharge": {
+     "passed": true,
+     "note": "not modelled: no withdrawal model in this run (cards adding water load must supply one)"
+    },
+    "no_displacement": {
+     "passed": true,
+     "note": "no housing-cost channel in this card"
+    },
+    "worst_off_decile_must_gain": {
+     "passed": true,
+     "note": "baseline worst-decile 0.0053 -> 0.0097 (per-seed; 90% CI checked across seeds)"
+    },
+    "political_variables_excluded": {
+     "passed": true,
+     "note": "denylist clean on all indicator tables (files fenced at load time)"
+    }
+   },
+   "constraints_passed": true,
+   "provenance_floor": "assumed",
+   "indicator_provenance": {
+    "minutes_to_emergency_care": "derived (OSM road graph to observed hospital; speeds assumed)",
+    "minutes_to_primary_care": "derived proxy (hospital used as primary-care destination; clinic layer not fetched)",
+    "school_travel_minutes_one_way": "derived (OSM road graph to observed schools)",
+    "ems_response_minutes_p90": "derived + assumed (turnout 6 min assumed; station=hospital)",
+    "usable_upload_mbps": "assumed (uniform 0.5-25; FCC BDC layer not in pilot bundle)",
+    "usable_download_mbps": "assumed (scaled from upload; FCC BDC layer not in pilot bundle)",
+    "broadband_cost_share_of_income": "assumed ($80/mo plan over calibrated income)",
+    "outage_hours_per_year": "assumed (rural SAIDI placeholder; EIA reliability not in bundle)",
+    "longest_outage_hours": "assumed",
+    "income_after_essentials": "calibrated income minus assumed essentials share 0.62",
+    "energy_cost_share_of_income": "assumed ($220/mo energy over calibrated income)",
+    "detour_minutes_from_closed_or_posted_bridges": "derived (NBI poor bridges removed from OSM graph)",
+    "supply_interruption_hours": "assumed placeholder",
+    "household_can_do_remote_learning": "derived from assumed bandwidth (25 Mbps threshold)",
+    "change_in_utility_rates_and_local_taxes": "baseline definition (0)"
+   }
+  },
+  {
+   "seed": 17,
+   "primary": {
+    "metric": "minutes_to_primary_care",
+    "baseline_mean": 40.749514792320085,
+    "intervention_mean": 27.811262851410238,
+    "change_pct": -31.750689564893356,
+    "unreachable_share_graph_disconnected": 0.027696793002915453,
+    "excluded_share_by_quintile": {
+     "1": 0.101,
+     "2": 0.102,
+     "3": 0.102,
+     "4": 0.102,
+     "5": 0.109
+    }
+   },
+   "rqli_baseline": {
+    "n": 686,
+    "p10": 0.006800145322738723,
+    "p50": 0.06659512397157208,
+    "p90": 0.7924035848429234,
+    "mean": 0.2021446918075601,
+    "worst_off_decile_mean": 0.004992789501923578
+   },
+   "rqli_intervention": {
+    "n": 686,
+    "p10": 0.013414212992611214,
+    "p50": 0.1027341750926796,
+    "p90": 0.807101950049096,
+    "mean": 0.23896881113928287,
+    "worst_off_decile_mean": 0.009455701938493224
+   },
+   "constraints": {
+    "no_loss_of_essential_service": {
+     "passed": true,
+     "note": "max per-household essential-domain score drop = 0.0000"
+    },
+    "protect_lowest_income_quintile": {
+     "passed": true,
+     "note": "not modelled by this card"
+    },
+    "water_within_recharge": {
+     "passed": true,
+     "note": "not modelled: no withdrawal model in this run (cards adding water load must supply one)"
+    },
+    "no_displacement": {
+     "passed": true,
+     "note": "no housing-cost channel in this card"
+    },
+    "worst_off_decile_must_gain": {
+     "passed": true,
+     "note": "baseline worst-decile 0.0050 -> 0.0095 (per-seed; 90% CI checked across seeds)"
+    },
+    "political_variables_excluded": {
+     "passed": true,
+     "note": "denylist clean on all indicator tables (files fenced at load time)"
+    }
+   },
+   "constraints_passed": true,
+   "provenance_floor": "assumed",
+   "indicator_provenance": {
+    "minutes_to_emergency_care": "derived (OSM road graph to observed hospital; speeds assumed)",
+    "minutes_to_primary_care": "derived proxy (hospital used as primary-care destination; clinic layer not fetched)",
+    "school_travel_minutes_one_way": "derived (OSM road graph to observed schools)",
+    "ems_response_minutes_p90": "derived + assumed (turnout 6 min assumed; station=hospital)",
+    "usable_upload_mbps": "assumed (uniform 0.5-25; FCC BDC layer not in pilot bundle)",
+    "usable_download_mbps": "assumed (scaled from upload; FCC BDC layer not in pilot bundle)",
+    "broadband_cost_share_of_income": "assumed ($80/mo plan over calibrated income)",
+    "outage_hours_per_year": "assumed (rural SAIDI placeholder; EIA reliability not in bundle)",
+    "longest_outage_hours": "assumed",
+    "income_after_essentials": "calibrated income minus assumed essentials share 0.62",
+    "energy_cost_share_of_income": "assumed ($220/mo energy over calibrated income)",
+    "detour_minutes_from_closed_or_posted_bridges": "derived (NBI poor bridges removed from OSM graph)",
+    "supply_interruption_hours": "assumed placeholder",
+    "household_can_do_remote_learning": "derived from assumed bandwidth (25 Mbps threshold)",
+    "change_in_utility_rates_and_local_taxes": "baseline definition (0)"
+   }
+  },
+  {
+   "seed": 18,
+   "primary": {
+    "metric": "minutes_to_primary_care",
+    "baseline_mean": 41.235140762380276,
+    "intervention_mean": 28.153231372234696,
+    "change_pct": -31.725147891529673,
+    "unreachable_share_graph_disconnected": 0.021865889212827987,
+    "excluded_share_by_quintile": {
+     "1": 0.058,
+     "2": 0.073,
+     "3": 0.124,
+     "4": 0.109,
+     "5": 0.153
+    }
+   },
+   "rqli_baseline": {
+    "n": 686,
+    "p10": 0.006995555382984886,
+    "p50": 0.06372718759242608,
+    "p90": 0.7885789195026778,
+    "mean": 0.2034967945750533,
+    "worst_off_decile_mean": 0.005347235700986568
+   },
+   "rqli_intervention": {
+    "n": 686,
+    "p10": 0.014634058743505873,
+    "p50": 0.09965607566926118,
+    "p90": 0.8046776500485853,
+    "mean": 0.2389266619297165,
+    "worst_off_decile_mean": 0.010200547692812405
+   },
+   "constraints": {
+    "no_loss_of_essential_service": {
+     "passed": true,
+     "note": "max per-household essential-domain score drop = 0.0000"
+    },
+    "protect_lowest_income_quintile": {
+     "passed": true,
+     "note": "not modelled by this card"
+    },
+    "water_within_recharge": {
+     "passed": true,
+     "note": "not modelled: no withdrawal model in this run (cards adding water load must supply one)"
+    },
+    "no_displacement": {
+     "passed": true,
+     "note": "no housing-cost channel in this card"
+    },
+    "worst_off_decile_must_gain": {
+     "passed": true,
+     "note": "baseline worst-decile 0.0053 -> 0.0102 (per-seed; 90% CI checked across seeds)"
+    },
+    "political_variables_excluded": {
+     "passed": true,
+     "note": "denylist clean on all indicator tables (files fenced at load time)"
+    }
+   },
+   "constraints_passed": true,
+   "provenance_floor": "assumed",
+   "indicator_provenance": {
+    "minutes_to_emergency_care": "derived (OSM road graph to observed hospital; speeds assumed)",
+    "minutes_to_primary_care": "derived proxy (hospital used as primary-care destination; clinic layer not fetched)",
+    "school_travel_minutes_one_way": "derived (OSM road graph to observed schools)",
+    "ems_response_minutes_p90": "derived + assumed (turnout 6 min assumed; station=hospital)",
+    "usable_upload_mbps": "assumed (uniform 0.5-25; FCC BDC layer not in pilot bundle)",
+    "usable_download_mbps": "assumed (scaled from upload; FCC BDC layer not in pilot bundle)",
+    "broadband_cost_share_of_income": "assumed ($80/mo plan over calibrated income)",
+    "outage_hours_per_year": "assumed (rural SAIDI placeholder; EIA reliability not in bundle)",
+    "longest_outage_hours": "assumed",
+    "income_after_essentials": "calibrated income minus assumed essentials share 0.62",
+    "energy_cost_share_of_income": "assumed ($220/mo energy over calibrated income)",
+    "detour_minutes_from_closed_or_posted_bridges": "derived (NBI poor bridges removed from OSM graph)",
+    "supply_interruption_hours": "assumed placeholder",
+    "household_can_do_remote_learning": "derived from assumed bandwidth (25 Mbps threshold)",
+    "change_in_utility_rates_and_local_taxes": "baseline definition (0)"
+   }
+  },
+  {
+   "seed": 19,
+   "primary": {
+    "metric": "minutes_to_primary_care",
+    "baseline_mean": 41.306956002143494,
+    "intervention_mean": 28.309934311577862,
+    "change_pct": -31.464486731704927,
+    "unreachable_share_graph_disconnected": 0.007288629737609329,
+    "excluded_share_by_quintile": {
+     "1": 0.123,
+     "2": 0.102,
+     "3": 0.051,
+     "4": 0.102,
+     "5": 0.139
+    }
+   },
+   "rqli_baseline": {
+    "n": 686,
+    "p10": 0.006670171140191728,
+    "p50": 0.06811028560710404,
+    "p90": 0.7767515129111059,
+    "mean": 0.20040840864964063,
+    "worst_off_decile_mean": 0.0046312173877244706
+   },
+   "rqli_intervention": {
+    "n": 686,
+    "p10": 0.013107162060281273,
+    "p50": 0.11401628043670864,
+    "p90": 0.7907144574499722,
+    "mean": 0.23760148995177477,
+    "worst_off_decile_mean": 0.008432382849271869
+   },
+   "constraints": {
+    "no_loss_of_essential_service": {
+     "passed": true,
+     "note": "max per-household essential-domain score drop = 0.0000"
+    },
+    "protect_lowest_income_quintile": {
+     "passed": true,
+     "note": "not modelled by this card"
+    },
+    "water_within_recharge": {
+     "passed": true,
+     "note": "not modelled: no withdrawal model in this run (cards adding water load must supply one)"
+    },
+    "no_displacement": {
+     "passed": true,
+     "note": "no housing-cost channel in this card"
+    },
+    "worst_off_decile_must_gain": {
+     "passed": true,
+     "note": "baseline worst-decile 0.0046 -> 0.0084 (per-seed; 90% CI checked across seeds)"
+    },
+    "political_variables_excluded": {
+     "passed": true,
+     "note": "denylist clean on all indicator tables (files fenced at load time)"
+    }
+   },
+   "constraints_passed": true,
+   "provenance_floor": "assumed",
+   "indicator_provenance": {
+    "minutes_to_emergency_care": "derived (OSM road graph to observed hospital; speeds assumed)",
+    "minutes_to_primary_care": "derived proxy (hospital used as primary-care destination; clinic layer not fetched)",
+    "school_travel_minutes_one_way": "derived (OSM road graph to observed schools)",
+    "ems_response_minutes_p90": "derived + assumed (turnout 6 min assumed; station=hospital)",
+    "usable_upload_mbps": "assumed (uniform 0.5-25; FCC BDC layer not in pilot bundle)",
+    "usable_download_mbps": "assumed (scaled from upload; FCC BDC layer not in pilot bundle)",
+    "broadband_cost_share_of_income": "assumed ($80/mo plan over calibrated income)",
+    "outage_hours_per_year": "assumed (rural SAIDI placeholder; EIA reliability not in bundle)",
+    "longest_outage_hours": "assumed",
+    "income_after_essentials": "calibrated income minus assumed essentials share 0.62",
+    "energy_cost_share_of_income": "assumed ($220/mo energy over calibrated income)",
+    "detour_minutes_from_closed_or_posted_bridges": "derived (NBI poor bridges removed from OSM graph)",
+    "supply_interruption_hours": "assumed placeholder",
+    "household_can_do_remote_learning": "derived from assumed bandwidth (25 Mbps threshold)",
+    "change_in_utility_rates_and_local_taxes": "baseline definition (0)"
+   }
+  }
+ ],
+ "effect_summary": {
+  "effect_sizes": [
+   -31.808911916542268,
+   -31.412753706668624,
+   -31.35697013065398,
+   -31.292566914041757,
+   -31.075135897062577,
+   -31.15973892172039,
+   -31.11994847593827,
+   -31.658493643482597,
+   -31.606104085676947,
+   -31.37677247958158,
+   -31.332178217291986,
+   -31.558113772822,
+   -31.277233656334417,
+   -31.105401668472116,
+   -31.5039271292452,
+   -31.564741556952544,
+   -31.453248419623865,
+   -31.750689564893356,
+   -31.725147891529673,
+   -31.464486731704927
+  ],
+  "interval_90": [
+   -31.753600682475803,
+   -31.103888379901637
+  ],
+  "worst_off_decile_delta_p05": 0.0034960636795608488
+ },
+ "constraints_passed_all_seeds": true,
+ "promoted": false,
+ "promotion_note": "promotion additionally requires full-physics confirmation; engines here are reduced-order",
+ "guardrails": {
+  "synthetic_population": true,
+  "no_address_level_records": true,
+  "political_variables_excluded": true,
+  "rqli_reported_as_distribution": true,
+  "negative_results_recorded": true
+ },
+ "status": "ran"
+}

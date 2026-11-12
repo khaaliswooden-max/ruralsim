@@ -1,0 +1,7 @@
+{
+  "note": "portal mount kept dropping the canonical path; healed under a glob-compatible alternate name (D-019 refined)",
+  "renames": {
+    "nhd_waterbodies_20019.geojson": "nhd_waterbodies_20019_r.geojson"
+  },
+  "utc": "2026-11-11T21:55:11.278458+00:00"
+}

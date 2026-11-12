@@ -1,0 +1,14 @@
+#usda 1.0
+(
+    customLayerData = {
+        dictionary ruralsim = {
+            string layer = "rail"
+            string license = "public domain"
+            string notes = ""
+            string provenance = "observed"
+            string source = "BTS NTAD North American Rail Network"
+            string vintage = "NTAD current"
+        }
+    }
+)
+

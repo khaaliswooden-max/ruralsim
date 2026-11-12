@@ -1,0 +1,9 @@
+{
+  "retrieved_utc": "2026-11-11T22:35:54.670243+00:00",
+  "source": "FHWA National Bridge Inventory 2024 (delimited, all states)",
+  "license": "public domain",
+  "provenance": "observed",
+  "url": "https://www.fhwa.dot.gov/bridge/nbi/2024del.zip",
+  "county_records": 168,
+  "geocoded": 168
+}

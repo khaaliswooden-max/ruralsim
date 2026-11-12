@@ -1,0 +1,49 @@
+{
+  "retrieved_utc": "2026-11-11T22:22:38.847166Z",
+  "source": "OpenStreetMap via Overpass API",
+  "license": "ODbL 1.0",
+  "provenance": "observed",
+  "bbox_buffered": "31.765123,-87.729945,32.330934,-86.794576",
+  "themes": {
+    "roads": {
+      "features": 5730,
+      "file": "roads.geojson"
+    },
+    "buildings": {
+      "features": 686,
+      "file": "buildings.geojson"
+    },
+    "schools": {
+      "features": 55,
+      "file": "schools.geojson"
+    },
+    "healthcare": {
+      "features": 1,
+      "file": "healthcare.geojson"
+    },
+    "power": {
+      "features": 1637,
+      "file": "power.geojson"
+    },
+    "places": {
+      "features": 138,
+      "file": "places.geojson"
+    },
+    "water": {
+      "features": 9,
+      "file": "water.geojson"
+    },
+    "waterways": {
+      "features": 393,
+      "file": "waterways.geojson"
+    },
+    "food_shops": {
+      "features": 2,
+      "file": "food_shops.geojson"
+    },
+    "bridges": {
+      "features": 77,
+      "file": "bridges.geojson"
+    }
+  }
+}

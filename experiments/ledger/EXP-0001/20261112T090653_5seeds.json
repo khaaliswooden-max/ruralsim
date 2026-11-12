@@ -1,0 +1,7 @@
+{
+ "card_id": "EXP-0001",
+ "title": "EMS dispatch re-optimization",
+ "run_date": "2026-11-12T09:06:53",
+ "status": "engine_pending",
+ "note": "domain engine for this card is not yet implemented; card is registered in the ledger as pending rather than silently skipped"
+}

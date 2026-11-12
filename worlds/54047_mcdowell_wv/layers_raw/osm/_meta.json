@@ -1,0 +1,25 @@
+{
+  "retrieved_utc": "2026-11-11T18:15:24.140167Z",
+  "source": "OpenStreetMap via Overpass API",
+  "license": "ODbL 1.0",
+  "provenance": "observed",
+  "bbox_buffered": "37.139483000000006,-82.058578,37.61101,-81.249201",
+  "themes": {
+    "water": {
+      "features": 3,
+      "file": "water.geojson"
+    },
+    "waterways": {
+      "features": 1974,
+      "file": "waterways.geojson"
+    },
+    "food_shops": {
+      "features": 23,
+      "file": "food_shops.geojson"
+    },
+    "bridges": {
+      "features": 578,
+      "file": "bridges.geojson"
+    }
+  }
+}
