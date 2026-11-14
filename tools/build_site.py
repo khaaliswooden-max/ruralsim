@@ -289,7 +289,9 @@ def main():
         idx = dst / "viewer" / "index.html"
         html = idx.read_text()
         html = html.replace("<body>", "<body>\n" + back, 1)
-        html = html.replace("</head>", '<link rel="icon" href="/favicon.svg" type="image/svg+xml">\n</head>', 1)
+        html = html.replace("</head>", '<link rel="icon" href="/favicon.svg" type="image/svg+xml">\n'
+                            '<link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">\n'
+                            '<link rel="apple-touch-icon" href="/apple-touch-icon.png">\n</head>', 1)
         # the build-time note box sits bottom-left; nudge it above the link
         html = html.replace("#note { position:fixed; left:12px; bottom:12px;",
                             "#note { position:fixed; left:12px; bottom:56px;", 1)
