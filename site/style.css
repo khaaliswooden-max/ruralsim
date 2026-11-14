@@ -28,6 +28,7 @@ a:hover { text-decoration-thickness: 2px; }
 /* site bar */
 .bar { display: flex; align-items: baseline; gap: 28px; padding: 22px 0 18px; border-bottom: 1px solid var(--rule); }
 .bar .mark { font: 750 20px/1 var(--sans); color: var(--ink); text-decoration: none; letter-spacing: -.01em; margin-right: auto; }
+.bar .mark img { display: block; height: 22px; width: auto; }  /* wordmark: outlined Instrument Sans 600, square tittle; baseline = image bottom */
 .bar nav { display: flex; gap: 22px; font: 500 15px/1 var(--sans); }
 .bar nav a { color: var(--dim); text-decoration: none; white-space: nowrap; }
 .bar nav a:hover, .bar nav a[aria-current] { color: var(--ink); }
