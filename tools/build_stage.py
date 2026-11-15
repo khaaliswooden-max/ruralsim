@@ -445,14 +445,31 @@ def build_facilities(stage):
         # short-circuited the populated city_served)
         s = "" if v is None else str(v)
         return "" if s.lower() == "nan" else s
+    # D-030: positions from place_water_systems.py when present (OSM place, then Census
+    # Gazetteer place); otherwise the original OSM-place name match (pilot builds).
+    locf = RAW / "water_systems" / f"sdwis_locations_{FIPS}.csv"
+    loc = {}
+    if locf.exists():
+        wsy = wsy.drop_duplicates("pwsid")
+        for _, lr in pd_read(locf).iterrows():
+            if _s(lr.get("lon")) and _s(lr.get("lat")):
+                loc[_s(lr.get("pwsid"))] = (float(lr["lon"]), float(lr["lat"]), _s(lr.get("method")))
     for _, r in wsy.iterrows():
-        city = (_s(r.get("city_name")) or _s(r.get("city_served"))).upper()
-        xy = town_xy.get(city)
-        if not xy:
-            continue
+        if locf.exists():
+            hit = loc.get(_s(r.get("pwsid")))
+            if not hit:
+                continue
+            ll = (hit[0], hit[1])
+            xy = enu(*ll)
+        else:
+            city = (_s(r.get("city_name")) or _s(r.get("city_served"))).upper()
+            xy = town_xy.get(city)
+            if not xy:
+                continue
+            ll = town_ll[city]
         sp = UsdGeom.Sphere.Define(stage, f"/Facilities/WaterSystems/w{k}")
         sp.CreateRadiusAttr(18.0)
-        UsdGeom.XformCommonAPI(sp).SetTranslate((float(xy[0]) + 40.0 * (k % 3), demz(*town_ll[city]) + 18.0, float(xy[1])))
+        UsdGeom.XformCommonAPI(sp).SetTranslate((float(xy[0]) + 40.0 * (k % 3), demz(*ll) + 18.0, float(xy[1])))
         UsdGeom.Mesh(sp.GetPrim()).CreateDisplayColorAttr([(0.2, 0.75, 0.75)])
         viewer["water_systems"].append({"name": _s(r.get("pws_name")) or _s(r.get("pwsid")) or "PWS",
                                         "pop": _s(r.get("population_served_count")), "pos": [round(xy[0],1), round(xy[1],1)]})

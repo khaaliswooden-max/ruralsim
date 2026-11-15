@@ -19,8 +19,12 @@ FIPS = C.fips
 REPO = pathlib.Path(__file__).resolve().parent.parent
 OUT = C.world / "layers_raw" / "water_systems"
 OUT.mkdir(parents=True, exist_ok=True)
+sys.path.insert(0, str(REPO / "tools"))
+from place_water_systems import place  # noqa: E402  (D-030)
 if (OUT / f"sdwis_systems_{FIPS}.csv").exists():
-    print(f"water: sdwis_systems_{FIPS}.csv already present, skipping (delete to re-fetch)")
+    print(f"water: sdwis_systems_{FIPS}.csv already present, skipping fetch (delete to re-fetch)")
+    if not (OUT / f"sdwis_locations_{FIPS}.csv").exists():
+        place(C)
     sys.exit(0)
 BASE = "https://data.epa.gov/efservice"
 UA = {"User-Agent": "RuralSim-research/0.1"}
@@ -105,4 +109,5 @@ meta = {"retrieved_utc": datetime.datetime.now(datetime.UTC).isoformat(),
         "tribal_primacy_systems": int(len(trib)),
         "violations_all_time": int(len(vdf))}
 (OUT / "_meta.json").write_text(json.dumps(meta, indent=2))
+place(C)
 print("done")
