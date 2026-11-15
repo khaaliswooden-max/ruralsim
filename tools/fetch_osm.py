@@ -37,6 +37,7 @@ sys.path.insert(0, str(REPO / "tools"))
 
 GEOFABRIK_INDEX = "https://download.geofabrik.de/index-v1.json"
 CACHE = pathlib.Path(os.environ.get("RURALSIM_CACHE", "/tmp/ruralsim_cache")) / "osm"
+_US_STATE_PBF = re.compile(r"https://download\.geofabrik\.de/north-america/us/[a-z-]+-latest\.osm\.pbf")
 UA = {"User-Agent": "RuralSim/1.0 (+https://www.ruralsim.io; county twin build)"}
 INDEX_STORAGE = os.environ.get("RURALSIM_OSM_INDEX", "flex_mem")  # node-location index type
 
@@ -325,7 +326,16 @@ def geofabrik_index() -> list[dict]:
     if not p.exists() or time.time() - p.stat().st_mtime > 30 * 86400:
         _download(GEOFABRIK_INDEX, p, timeout=300)
     feats = json.loads(p.read_text())["features"]
-    return [f for f in feats if f["properties"].get("parent") == "us"]
+    # A state is any region whose extract sits exactly one level under
+    # /north-america/us/ (California's norcal/socal sub-extracts sit deeper and are
+    # skipped, so California downloads once). Matching on the URL, not `parent`,
+    # because the index's parent field did not identify the states (2026-11-15).
+    states = [f for f in feats if f.get("geometry")
+              and _US_STATE_PBF.fullmatch(f["properties"].get("urls", {}).get("pbf", ""))]
+    if len(states) < 50:
+        raise RuntimeError(f"Geofabrik index lists only {len(states)} U.S. state extracts "
+                           f"(expected 50 + DC); delete {p} and rerun, or check the index format")
+    return states
 
 
 def extracts_for(bboxes: list[tuple], index: list[dict]) -> list[dict]:
