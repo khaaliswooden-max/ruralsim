@@ -1,36 +1,36 @@
 {
  "checks": [
   {
-   "check": "county rows vs 3144 target",
-   "value": 3163.0,
+   "check": "county rows == 3144 (2024 vintage)",
+   "value": 3144.0,
    "threshold": 3144.0,
-   "op": ">=",
+   "op": "==",
    "status": "PASS"
   },
   {
    "check": "median_hh_income_2023 completeness (%)",
-   "value": 99.36768890294024,
+   "value": 99.96819338422391,
    "threshold": 99.0,
    "op": ">=",
    "status": "PASS"
   },
   {
    "check": "poverty_rate_2023 completeness (%)",
-   "value": 99.36768890294024,
+   "value": 99.96819338422391,
    "threshold": 99.0,
    "op": ">=",
    "status": "PASS"
   },
   {
    "check": "pop_2024_estimate completeness (%)",
-   "value": 99.39930445779324,
+   "value": 100.0,
    "threshold": 99.0,
    "op": ">=",
    "status": "PASS"
   },
   {
    "check": "profile join completeness (%)",
-   "value": 99.36768890294024,
+   "value": 99.71374045801527,
    "threshold": 95.0,
    "op": ">=",
    "status": "PASS"

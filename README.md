@@ -56,7 +56,7 @@ the national table reproduced identically to the original build.
 Built 2026-11-10. Everything Kimi K3.1 Pro needs to start building the 3D rural world model, except the items under "You must supply".
 
 > **Build status 2026-11-12** — all five pilot 3D twins built, validated and render-verified
-> (`worlds/`, `validation/`); Tier A national statistical twin built (`national/`, 3,163 counties,
+> (`worlds/`, `validation/`); Tier A national statistical twin built (`national/`, 3,144 counties,
 > 8/8 checks pass); experiment harness operational (`tools/harness/`, ten seed cards in
 > `experiments/ledger/`); `improve-quality-of-life` skill packaged in `skills/`.
 > See `docs/ARCHITECTURE.md` §8, `docs/DECISIONS.md` D-001…D-026, `docs/LIMITS.md`.

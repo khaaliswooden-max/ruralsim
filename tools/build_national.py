@@ -46,6 +46,11 @@ def load(name: str, **kw) -> pd.DataFrame:
 
 def main() -> None:
     master = load("county_master.csv")
+    # One boundary vintage only (D-027). county_master.csv also carries 19 legacy
+    # county-equivalents (8 pre-2022 Connecticut counties, retired Alaska and
+    # Virginia areas, Dade FL 12025, Shannon SD 46113) as empty rows for joins;
+    # they are not current geography and must not enter the Tier A universe.
+    master = master[master["geography_vintage"].astype(str) == "2024"]
     profile = load("county_profile.csv")
     year = load("county_year.csv")
     decade = load("county_decade.csv")
@@ -140,10 +145,11 @@ def main() -> None:
     # ---------- validation ----------
     checks = []
     def check(name, value, thresh, op=">="):
-        ok = bool(value >= thresh) if op == ">=" else bool(value <= thresh)
+        ok = {">=": value >= thresh, "<=": value <= thresh, "==": value == thresh}[op]
+        ok = bool(ok)
         checks.append({"check": name, "value": float(value), "threshold": float(thresh),
                        "op": op, "status": "PASS" if ok else "FLAG"})
-    check("county rows vs 3144 target", len(out), TARGET_COUNTIES, ">=")
+    check("county rows == 3144 (2024 vintage)", len(out), TARGET_COUNTIES, "==")
     check("median_hh_income_2023 completeness (%)", 100 * out["median_hh_income_2023"].notna().mean(), 99.0)
     check("poverty_rate_2023 completeness (%)", 100 * out["poverty_rate_2023"].notna().mean(), 99.0)
     check("pop_2024_estimate completeness (%)", 100 * out["pop_2024_estimate"].notna().mean(), 99.0)
@@ -177,7 +183,7 @@ def main() -> None:
     lines = [
         "# Tier A national statistical twin — summary",
         "",
-        f"- counties: **{len(out)}** (target {TARGET_COUNTIES}; difference = county-equivalents not in the 2024 vintage or merged planning regions)",
+        f"- counties: **{len(out)}** (2024-vintage county-equivalents; target {TARGET_COUNTIES})",
         f"- nonmetro counties (RUCC-based): **{len(nm)}**",
         f"- persistent-poverty counties (ERS 2017-21): **{int(out['typ_persistent_poverty_1721'].sum())}**"
         + (f" (+{sentinel_counts.get('typ_persistent_poverty_1721', 0)} counties with missing-data sentinels)" if sentinel_counts.get('typ_persistent_poverty_1721') else ""),
