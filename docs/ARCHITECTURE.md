@@ -28,8 +28,10 @@ tools/fetch_*.py   ── observed public sources ──►  worlds/<fips>_<name
                        └─ legacy Overpass path: fetch_osm_overpass.py (D-022)
   fetch_bridges.py     FHWA NBI 2024                   source · license · vintage ·
   fetch_grid.py        EIA-860/861                     observed|derived|calibrated|assumed
-  fetch_water.py       EPA SDWIS (Envirofacts)
-  fetch_climate.py     Open-Meteo ERA5 1991–2020 (D-010)
+  fetch_water.py       EPA SDWIS (Envirofacts); place_water_systems.py positions active
+                       systems at OSM / Census Gazetteer town or ZIP points (D-030)
+  fetch_climate.py     NOAA nClimDiv county normals 1991–2020 (D-029); optional
+                       Open-Meteo ERA5 daily series for EXP-0008
   fetch_cropland.py    USDA CropScape CDL (D-011), PC usda-cdl fallback (D-017)
   fetch_arcgis_layers.py  USFS EDW tribal lands, PAD-US 3.0, BTS NTAD rail, USGS NHD
         │  (all fetches are idempotent: skip-existing; payloads staged in /tmp then

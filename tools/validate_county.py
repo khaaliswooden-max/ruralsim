@@ -149,10 +149,16 @@ results.append(("population series 2010-2024 vs county_year", len(pop), len(pop)
 
 # 8. water systems: SDWIS systems vs placed markers
 wsy = pd.read_csv(RAW / "water_systems" / f"sdwis_systems_{FIPS}.csv", dtype=str)
+# D-030: the stage places ACTIVE systems only, so compare against active systems
+# (the old denominator counted inactive and closed systems and could never pass)
+if "pws_activity_code" in wsy.columns:
+    wsy = wsy[wsy["pws_activity_code"] == "A"]
+if (RAW / "water_systems" / f"sdwis_locations_{FIPS}.csv").exists():
+    wsy = wsy.drop_duplicates("pwsid")
 n_sys = len(wsy)
-cmp("water systems placed", len(fac["water_systems"]), n_sys, thresh=5.0,
-    note="EPA SDWIS has no coordinates; markers placed at served-town centroids - "
-         "systems whose town name did not match OSM places are unplaced (see DECISIONS)")
+cmp("active water systems placed", len(fac["water_systems"]), n_sys, thresh=5.0,
+    note="EPA SDWIS has no coordinates; markers sit at served-town points (OSM place, "
+         "else Census Gazetteer place, D-030); systems with no matching town stay unplaced")
 
 # 9. power: OSM generators vs EIA-860 plants
 plants_csv = RAW / "grid" / f"eia860_plants_{FIPS}.csv"
