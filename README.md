@@ -39,7 +39,8 @@ scripts in `build_scripts/` (see its README for sources).
 
 The live fetchers depend on public services that are sometimes down or rate-limited
 (Open-Meteo, CropScape). OpenStreetMap layers come from Geofabrik state extracts clipped
-locally, not from live Overpass queries (D-028). Each fetch is resumable: rerun the same
+locally, not from live Overpass queries (D-028); climate normals come from three national
+NOAA files rather than one Open-Meteo request per county (D-029). Each fetch is resumable: rerun the same
 command and it picks up where it stopped.
 
 ## License

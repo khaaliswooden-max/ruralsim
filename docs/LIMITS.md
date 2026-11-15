@@ -45,7 +45,7 @@ be cited as authoritative about any real place, person, or parcel.
 | Water systems | EPA SDWIS has no coordinates; systems whose served town has no OSM place match are **listed but unplaced** (28/37 in 31173, 35/38 in 16081) (D-015) | observed attrs, derived position |
 | Terrain | All five pilots refetched at full 1/3 arc-second (~10 m) after the D-024 window-crop repair; the 1″ PC fallback (D-021) remains in code for future builds | observed |
 | Land cover | CDL (crop-focused) doubles as land cover; non-ag classes coarse (D-011). CropScape outage forced Planetary Computer CDL ≤2021 for later pilots (D-017) | observed |
-| Climate | Open-Meteo ERA5 reanalysis at county centroid, not NOAA station normals (D-010); context layer, not engineering design values | observed (modelled) |
+| Climate | NOAA nClimDiv county-average monthly normals 1991–2020 for counties built after D-029 (no snowfall or wind columns); the five pilots and Connecticut/DC keep Open-Meteo ERA5 at the county centroid (D-010). Context layer, not engineering design values | observed |
 | Building heights | Inferred from footprint class per manifest rule, not measured | derived |
 | Roads | OSM; TIGER cross-check deferred (Census www2 blocked) | observed |
 | 2024 election context | Provisional vintage; fenced per §2 | observed, read-only |
