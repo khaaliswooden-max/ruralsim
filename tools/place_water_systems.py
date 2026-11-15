@@ -16,7 +16,15 @@ method is, in order of preference:
   census_place  — it matches a Census Gazetteer place (2024) in the same state whose
                   internal point lies inside the buffered bbox (so a same-named town
                   elsewhere in the state cannot capture it)
-  unplaced      — no served town given, or none matched; lon/lat blank
+  census_zcta   — no served town matched, but the system's ZIP code is a Census ZCTA
+                  whose internal point lies inside the buffered bbox
+  unplaced      — nothing matched; lon/lat blank
+
+Systems whose county record names no town (common: Teton ID has 22 of 26) are looked up
+once in the EPA WATER_SYSTEM table for city and ZIP. Those are the system's mailing
+address, which can be far away, so they count only if the matched point falls inside
+the county's buffered bbox. Only city, ZIP and name are kept from that lookup; contact
+fields (owner, administrator, email, phone) are never stored.
 
 Positions are town points, not intake or plant sites: provenance "derived (served-town
 point)". A system serving several towns is placed at the first that matches.
@@ -24,14 +32,15 @@ The Census Gazetteer file is downloaded once into $RURALSIM_CACHE (public domain
 """
 from __future__ import annotations
 
-import io, json, os, pathlib, re, sys, urllib.request, zipfile
+import io, json, os, pathlib, re, sys, time, urllib.request, zipfile
 
 import pandas as pd
 
 REPO = pathlib.Path(__file__).resolve().parent.parent
 CACHE = pathlib.Path(os.environ.get("RURALSIM_CACHE", "/tmp/ruralsim_cache")) / "census"
-GAZ_URL = ("https://www2.census.gov/geo/docs/maps-data/data/gazetteer/"
-           "2024_Gazetteer/2024_Gaz_place_national.zip")
+GAZ_BASE = "https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2024_Gazetteer/"
+EF_BASE = "https://data.epa.gov/efservice"
+KEEP_WS_FIELDS = ("pws_name", "city_name", "zip_code")  # never contact fields
 UA = {"User-Agent": "RuralSim/1.0 (+https://www.ruralsim.io; county twin build)"}
 _SUFFIX = re.compile(r"\s+(city|town|village|borough|CDP|municipality|city and borough|"
                      r"consolidated government|unified government|metro government|"
@@ -39,7 +48,8 @@ _SUFFIX = re.compile(r"\s+(city|town|village|borough|CDP|municipality|city and b
 
 
 def norm(name: str) -> str:
-    s = _SUFFIX.sub("", str(name).strip())
+    s = re.sub(r"\(.*?\)", "", str(name)).strip()
+    s = _SUFFIX.sub("", s)
     s = s.upper().replace("SAINT ", "ST ").replace("ST. ", "ST ").replace("MOUNT ", "MT ")
     return re.sub(r"[^A-Z0-9 ]", "", s).strip()
 
@@ -49,12 +59,14 @@ def _s(v) -> str:
     return "" if s.lower() == "nan" else s.strip()
 
 
-def gazetteer() -> pd.DataFrame:
+def _gaz(kind: str) -> pd.DataFrame:
+    """Census 2024 Gazetteer national file ('place' or 'zcta'), cached."""
     CACHE.mkdir(parents=True, exist_ok=True)
-    p = CACHE / "2024_Gaz_place_national.zip"
+    fname = f"2024_Gaz_{kind}_national.zip"
+    p = CACHE / fname
     if not p.exists():
-        print("  downloading Census Gazetteer places ...", flush=True)
-        req = urllib.request.Request(GAZ_URL, headers=UA)
+        print(f"  downloading Census Gazetteer ({kind}) ...", flush=True)
+        req = urllib.request.Request(GAZ_BASE + fname, headers=UA)
         with urllib.request.urlopen(req, timeout=300) as r:
             data = r.read()
         p.with_suffix(".part").write_bytes(data)
@@ -65,8 +77,37 @@ def gazetteer() -> pd.DataFrame:
     g.columns = [c.strip() for c in g.columns]
     g["lat"] = g["INTPTLAT"].astype(float)
     g["lon"] = g["INTPTLONG"].astype(float)
+    return g
+
+
+def gazetteer() -> pd.DataFrame:
+    g = _gaz("place")
     g["key"] = g["NAME"].map(norm)
     return g[["USPS", "NAME", "key", "lon", "lat"]]
+
+
+def zctas() -> pd.DataFrame:
+    g = _gaz("zcta")
+    return g[["GEOID", "lon", "lat"]]
+
+
+def ws_lookup(pwsids: list[str], cache_path: pathlib.Path) -> dict:
+    """city/ZIP/name from EPA WATER_SYSTEM for systems whose county record has no town."""
+    cache = json.loads(cache_path.read_text()) if cache_path.exists() else {}
+    for pid in pwsids:
+        if pid in cache:
+            continue
+        try:
+            req = urllib.request.Request(f"{EF_BASE}/WATER_SYSTEM/PWSID/{pid}/JSON", headers=UA)
+            with urllib.request.urlopen(req, timeout=120) as r:
+                recs = json.load(r)
+            rec = recs[0] if isinstance(recs, list) and recs else {}
+            cache[pid] = {k: rec.get(k) for k in KEEP_WS_FIELDS}
+        except Exception as e:
+            print(f"  WATER_SYSTEM lookup failed for {pid}: {e}", file=sys.stderr)
+        time.sleep(0.3)
+    cache_path.write_text(json.dumps(cache, indent=1))
+    return cache
 
 
 def served_towns(r) -> list[str]:
@@ -103,11 +144,19 @@ def place(C) -> pathlib.Path:
     for _, g in gz.iterrows():
         census.setdefault(g.key, ((g.lon, g.lat), g.NAME))
 
+    # systems whose county record names no town: one WATER_SYSTEM lookup each (cached)
+    no_town = [_s(r.get("pwsid")) for _, r in wsy.iterrows() if not served_towns(r)]
+    ws = ws_lookup(no_town, raw / "water_systems" / "_water_system_lookup.json") if no_town else {}
+    zc = None
+
     rows = []
     for _, r in wsy.iterrows():
-        rec = {"pwsid": _s(r.get("pwsid")), "pws_name": _s(r.get("pws_name")),
+        pid = _s(r.get("pwsid"))
+        extra = ws.get(pid, {})
+        rec = {"pwsid": pid, "pws_name": _s(r.get("pws_name")) or _s(extra.get("pws_name")),
                "lon": "", "lat": "", "method": "unplaced", "matched_town": ""}
-        for town in served_towns(r):
+        towns = served_towns(r) or ([_s(extra.get("city_name"))] if _s(extra.get("city_name")) else [])
+        for town in towns:
             k = norm(town)
             for method, table in (("osm_place", osm), ("census_place", census)):
                 if k in table:
@@ -117,6 +166,16 @@ def place(C) -> pathlib.Path:
                     break
             if rec["method"] != "unplaced":
                 break
+        zipc = (_s(r.get("zip_code")) or _s(r.get("zip_code_served")) or _s(extra.get("zip_code")))[:5]
+        if rec["method"] == "unplaced" and len(zipc) == 5 and zipc.isdigit():
+            if zc is None:
+                z = zctas()
+                zc = {g.GEOID: (g.lon, g.lat) for g in z.itertuples()
+                      if w <= g.lon <= e and s <= g.lat <= n}
+            if zipc in zc:
+                lon, lat = zc[zipc]
+                rec.update(lon=round(float(lon), 6), lat=round(float(lat), 6),
+                           method="census_zcta", matched_town=f"ZIP {zipc}")
         rows.append(rec)
     out = raw / "water_systems" / f"sdwis_locations_{C.fips}.csv"
     df = pd.DataFrame(rows, columns=["pwsid", "pws_name", "lon", "lat", "method", "matched_town"])
