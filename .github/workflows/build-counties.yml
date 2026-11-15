@@ -1,0 +1,123 @@
+# Build county worlds on GitHub's runners and publish them to Cloudflare R2 (D-031).
+#
+# Run from the Actions tab: "Build county worlds" -> Run workflow, then give either a
+# list of FIPS codes or a state. One job per county, up to 256 per run.
+#
+# Repository secrets: R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY
+# Repository variables: R2_BUCKET, RURALSIM_DATA_BASE (the bucket's public URL)
+name: Build county worlds
+
+on:
+  workflow_dispatch:
+    inputs:
+      counties:
+        description: "FIPS codes, comma-separated (e.g. 48301,01131)"
+        required: false
+        default: ""
+      state:
+        description: "Or a state code: build every current county in it (e.g. NE)"
+        required: false
+        default: ""
+      publish:
+        description: "Publish successful builds to R2"
+        type: boolean
+        default: true
+      max_parallel:
+        description: "Counties built at once"
+        required: false
+        default: "10"
+
+permissions:
+  contents: read
+
+env:
+  PYTHON_VERSION: "3.13"
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      fips: ${{ steps.plan.outputs.fips }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Plan the batch and pre-download shared inputs once
+        id: plan
+        env:
+          RURALSIM_CACHE: ${{ github.workspace }}/.rscache
+        run: |
+          python tools/plan_build.py --counties "${{ inputs.counties }}" --state "${{ inputs.state }}" --prefetch > plan.out
+          tail -n 1 plan.out
+          echo "fips=$(tail -n 1 plan.out)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache/save@v4
+        with:
+          path: |
+            .rscache
+            counties
+          key: inputs-${{ github.run_id }}
+
+  build:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      max-parallel: ${{ fromJSON(inputs.max_parallel) }}
+      matrix:
+        fips: ${{ fromJSON(needs.plan.outputs.fips) }}
+    env:
+      RURALSIM_CACHE: ${{ github.workspace }}/.rscache
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+      - run: pip install -r requirements.txt
+      - uses: actions/cache/restore@v4
+        with:
+          path: |
+            .rscache
+            counties
+          key: inputs-${{ github.run_id }}
+          fail-on-cache-miss: true
+      - name: Build ${{ matrix.fips }}
+        run: python tools/build_county.py ${{ matrix.fips }}
+      - name: Keep the validation report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: validation-${{ matrix.fips }}
+          path: validation/${{ matrix.fips }}_*
+          if-no-files-found: ignore
+      - name: Publish to R2
+        if: ${{ inputs.publish }}
+        env:
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET: ${{ vars.R2_BUCKET }}
+        run: python tools/publish_world.py ${{ matrix.fips }}
+
+  index:
+    needs: [plan, build]
+    if: ${{ always() && inputs.publish && needs.plan.result == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Rebuild worlds/index.json
+        env:
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET: ${{ vars.R2_BUCKET }}
+        run: python tools/publish_world.py --rebuild-index

@@ -139,3 +139,14 @@ Baselines depend only on (county, seed) and are shared across cards via
 `experiments/baseline_cache/`. Engines are reduced-order with every non-observed
 parameter tagged; cards without an engine are registered `engine_pending`, never
 skipped silently.
+
+## Building and publishing at national scale (D-031)
+```
+GitHub Actions "Build county worlds" (manual: FIPS list or state)
+  plan   tools/plan_build.py --prefetch   → county list; shared inputs downloaded once
+  build  tools/build_county.py <fips>      → one job per county (fetch → stage → validate)
+         tools/publish_world.py <fips>     → R2: worlds/<dir>/snapshots/<id>/ (immutable, manifest)
+                                                 worlds/<dir>/current/ (public viewer)
+  index  tools/publish_world.py --rebuild-index → worlds/index.json
+site     tools/build_site.py reads <RURALSIM_DATA_BASE>/worlds/index.json → National page links
+```
