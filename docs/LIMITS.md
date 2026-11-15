@@ -74,7 +74,7 @@ be cited as authoritative about any real place, person, or parcel.
 - The sandbox `/mnt` mount intermittently drops freshly written files (observed
   2026-11-11, D-019). Builds verify expected outputs per step and retry; a green build
   means outputs verified at build time, not a guarantee about later mount state.
-- Remote APIs used by the fetchers (TNM, Overpass mirrors, CropScape, Envirofacts,
+- Remote APIs used by the fetchers (TNM, Geofabrik downloads, CropScape, Envirofacts,
   Open-Meteo, Planetary Computer, ArcGIS REST) are outside our control. Outages are
   handled by documented fallback, absence, or retry — never by silent substitution.
 - One-command rebuild reproduces the *pipeline*; exact bytes can differ when upstream

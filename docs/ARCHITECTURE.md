@@ -23,8 +23,9 @@ pilots/pilot_county_boundaries.geojson            (canonical county polygon, fip
 tools/fetch_*.py   ── observed public sources ──►  worlds/<fips>_<name>/layers_raw/
   fetch_terrain.py     USGS TNM 3DEP NED 1/3″ DEM      (GeoTIFF / CSV / GeoJSON + _meta.json)
                        └─ throughput probe falls back to PC 3dep-seamless 1″ COG (D-021)
-  fetch_osm.py         OpenStreetMap via Overpass      per-layer provenance:
-                       └─ curl GET transport (D-022), quadrant bbox splitting on 504s
+  fetch_osm.py         OpenStreetMap, Geofabrik state  per-layer provenance:
+                       extracts clipped locally (D-028); --state XX does a whole state
+                       └─ legacy Overpass path: fetch_osm_overpass.py (D-022)
   fetch_bridges.py     FHWA NBI 2024                   source · license · vintage ·
   fetch_grid.py        EIA-860/861                     observed|derived|calibrated|assumed
   fetch_water.py       EPA SDWIS (Envirofacts)

@@ -123,67 +123,67 @@
   "typ_high_farming_2025": {
    "tag": "observed",
    "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
-   "note": "USDA ERS typology; 20 rows had missing-data sentinels recoded to 0"
+   "note": "USDA ERS typology; 9 rows had missing-data sentinels recoded to 0"
   },
   "typ_high_government_2025": {
    "tag": "observed",
    "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
-   "note": "USDA ERS typology; 20 rows had missing-data sentinels recoded to 0"
+   "note": "USDA ERS typology; 9 rows had missing-data sentinels recoded to 0"
   },
   "typ_high_manufacturing_2025": {
    "tag": "observed",
    "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
-   "note": "USDA ERS typology; 20 rows had missing-data sentinels recoded to 0"
+   "note": "USDA ERS typology; 9 rows had missing-data sentinels recoded to 0"
   },
   "typ_high_mining_2025": {
    "tag": "observed",
    "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
-   "note": "USDA ERS typology; 20 rows had missing-data sentinels recoded to 0"
+   "note": "USDA ERS typology; 9 rows had missing-data sentinels recoded to 0"
   },
   "typ_high_recreation_2025": {
    "tag": "observed",
    "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
-   "note": "USDA ERS typology; 20 rows had missing-data sentinels recoded to 0"
+   "note": "USDA ERS typology; 9 rows had missing-data sentinels recoded to 0"
   },
   "typ_housing_stress_2025": {
    "tag": "observed",
    "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
-   "note": "USDA ERS typology; 19 rows had missing-data sentinels recoded to 0"
+   "note": "USDA ERS typology"
   },
   "typ_industry_dependence_2025": {
    "tag": "observed",
    "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
-   "note": "USDA ERS typology; 1230 rows had missing-data sentinels recoded to 0"
+   "note": "USDA ERS typology; 1218 rows had missing-data sentinels recoded to 0"
   },
   "typ_low_employment_2025": {
    "tag": "observed",
    "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
-   "note": "USDA ERS typology; 19 rows had missing-data sentinels recoded to 0"
+   "note": "USDA ERS typology"
   },
   "typ_low_postsecondary_ed_2025": {
    "tag": "observed",
    "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
-   "note": "USDA ERS typology; 19 rows had missing-data sentinels recoded to 0"
+   "note": "USDA ERS typology"
   },
   "typ_nonspecialized_2025": {
    "tag": "observed",
    "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
-   "note": "USDA ERS typology; 20 rows had missing-data sentinels recoded to 0"
+   "note": "USDA ERS typology; 9 rows had missing-data sentinels recoded to 0"
   },
   "typ_persistent_poverty_1721": {
    "tag": "observed",
    "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
-   "note": "USDA ERS typology; 44 rows had missing-data sentinels recoded to 0"
+   "note": "USDA ERS typology; 33 rows had missing-data sentinels recoded to 0"
   },
   "typ_population_loss_2025": {
    "tag": "observed",
    "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
-   "note": "USDA ERS typology; 28 rows had missing-data sentinels recoded to 0"
+   "note": "USDA ERS typology; 17 rows had missing-data sentinels recoded to 0"
   },
   "typ_retirement_destination_2025": {
    "tag": "observed",
    "source": "Census TIGER 2024 geography + Census pop estimates 2024 + SAIPE 2023 + USDA ERS RUCC 2023/typology 2025 + AHRQ hospital counts (assembled in DATA_PROFILE)",
-   "note": "USDA ERS typology; 20 rows had missing-data sentinels recoded to 0"
+   "note": "USDA ERS typology; 9 rows had missing-data sentinels recoded to 0"
   },
   "births_latest": {
    "tag": "observed",

@@ -38,7 +38,8 @@ Live site: <https://www.ruralsim.io>. The data tables in `data/` and `pilots/` w
 scripts in `build_scripts/` (see its README for sources).
 
 The live fetchers depend on public services that are sometimes down or rate-limited
-(OpenStreetMap Overpass, Open-Meteo, CropScape). Each fetch is resumable: rerun the same
+(Open-Meteo, CropScape). OpenStreetMap layers come from Geofabrik state extracts clipped
+locally, not from live Overpass queries (D-028). Each fetch is resumable: rerun the same
 command and it picks up where it stopped.
 
 ## License
@@ -56,7 +57,7 @@ the national table reproduced identically to the original build.
 Built 2026-11-10. Everything Kimi K3.1 Pro needs to start building the 3D rural world model, except the items under "You must supply".
 
 > **Build status 2026-11-12** — all five pilot 3D twins built, validated and render-verified
-> (`worlds/`, `validation/`); Tier A national statistical twin built (`national/`, 3,163 counties,
+> (`worlds/`, `validation/`); Tier A national statistical twin built (`national/`, 3,144 counties,
 > 8/8 checks pass); experiment harness operational (`tools/harness/`, ten seed cards in
 > `experiments/ledger/`); `improve-quality-of-life` skill packaged in `skills/`.
 > See `docs/ARCHITECTURE.md` §8, `docs/DECISIONS.md` D-001…D-026, `docs/LIMITS.md`.
