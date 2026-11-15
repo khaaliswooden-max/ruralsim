@@ -232,8 +232,16 @@ def build_roads(stage):
     (VIEWER_DATA / "roads.json").write_text(json.dumps(
         [{"pts": s["pts"], "hwy": s["cls"].get("highway", "road"), "name": s["cls"].get("name")} for s in segs]))
     print("roads:", len(lines))
-register("roads", "OpenStreetMap via Overpass", "observed", "ODbL 1.0", "retrieved 2026-11-11",
-         "TIGER cross-check deferred (Census www2 blocked from build network)")
+_osm_meta_f = RAW / "osm" / "_meta.json"
+_osm_meta = json.loads(_osm_meta_f.read_text()) if _osm_meta_f.exists() else {}
+if _osm_meta.get("source", "").startswith("OpenStreetMap via Geofabrik"):
+    _ts = ", ".join(sorted({str(e.get("replication_timestamp") or "unknown") for e in _osm_meta.get("extracts", [])}))
+    register("roads", "OpenStreetMap via Geofabrik state extract (D-028)", "observed", "ODbL 1.0",
+             f"retrieved {_osm_meta.get('retrieved_utc', '')[:10]}; extract snapshot {_ts}",
+             "TIGER cross-check deferred (Census www2 blocked from build network)")
+else:  # pilot builds fetched via Overpass (D-022); label unchanged so restaging is byte-stable
+    register("roads", "OpenStreetMap via Overpass", "observed", "ODbL 1.0", "retrieved 2026-11-11",
+             "TIGER cross-check deferred (Census www2 blocked from build network)")
 
 def build_rail(stage):
     lines = lines_from_geojson(RAW / "rail" / f"rail_ntad_{FIPS}.geojson")

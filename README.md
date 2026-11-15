@@ -38,7 +38,8 @@ Live site: <https://www.ruralsim.io>. The data tables in `data/` and `pilots/` w
 scripts in `build_scripts/` (see its README for sources).
 
 The live fetchers depend on public services that are sometimes down or rate-limited
-(OpenStreetMap Overpass, Open-Meteo, CropScape). Each fetch is resumable: rerun the same
+(Open-Meteo, CropScape). OpenStreetMap layers come from Geofabrik state extracts clipped
+locally, not from live Overpass queries (D-028). Each fetch is resumable: rerun the same
 command and it picks up where it stopped.
 
 ## License
