@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Company: RuralSim</title>
-<meta name="description" content="Why RuralSim exists, how it supports Thelvanor's rural AI infrastructure, and who builds it.">
+<meta name="description" content="Why RuralSim exists, how it relates to Get Rural America Done, and who builds it.">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -17,8 +17,6 @@
 
   section { padding-top: 88px; scroll-margin-top: 24px; }
   .row { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 28px 48px; align-items: start; }
-  .row.flip { grid-template-columns: minmax(0, 1fr) minmax(0, 1.55fr); }
-  .row.flip .film { order: 2; }
   .kicker { font: 600 13px/1 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--contour); margin-bottom: 14px; }
   section h2 { font-size: 34px; margin-bottom: 16px; }
 
@@ -26,24 +24,21 @@
   .film video { width: 100%; aspect-ratio: 16/9; display: block; background: #07090a; border-radius: 4px; box-shadow: 0 0 0 1px var(--rule); }
   .film figcaption { font: 14px/1.5 var(--sans); color: var(--dim); margin-top: 10px; }
 
-  .facts { list-style: none; padding: 0; margin: 18px 0 0; font-size: 16px; line-height: 1.5; }
-  .facts li { border-top: 1px solid var(--rule); padding: 10px 0; }
-  .facts b { font-weight: 600; }
-  .met { color: var(--met); font-weight: 600; } .miss { color: var(--miss); font-weight: 600; }
 
   .papers { list-style: none; padding: 0; margin: 18px 0 0; font-size: 16px; line-height: 1.45; }
   .papers li { display: grid; grid-template-columns: 82px 1fr; gap: 12px; border-top: 1px solid var(--rule); padding: 10px 0; }
   .papers span { color: var(--dim); font-size: 14px; padding-top: 2px; }
 
+  .solo { max-width: 72ch; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 28px 48px; max-width: 1000px; }
   .commit { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; margin-top: 26px; }
   .commit div { border-top: 3px solid var(--contour); padding-top: 14px; }
   .commit b { font: 600 17px var(--sans); display: block; margin-bottom: 6px; }
   .commit p { font-size: 16px; line-height: 1.5; }
 
   @media (max-width: 900px) {
-    .row, .row.flip { grid-template-columns: 1fr; }
-    .row.flip .film { order: 0; }
-    .commit { grid-template-columns: 1fr; }
+    .row { grid-template-columns: 1fr; }
+    .commit, .cols { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -65,7 +60,7 @@
     <p class="lede">Most rural infrastructure is designed somewhere else and tested only after it’s been built. RuralSim moves that testing first, onto real counties rebuilt from public data, and scores every plan by what it does for the people who live there.</p>
     <nav class="jump" aria-label="On this page">
       <a href="#mission">Mission</a>
-      <a href="#thelvanor">How RuralSim supports Thelvanor</a>
+      <a href="#grad">RuralSim and GRAD</a>
       <a href="#founder">Founder</a>
     </nav>
   </div>
@@ -88,36 +83,17 @@
     </div>
   </section>
 
-  <section id="thelvanor" aria-labelledby="thelvanor-h">
-    <div class="row flip">
-      <figure class="film">
-        <video controls preload="none" playsinline poster="/media/thelvanor.jpg" aria-describedby="thelvanor-cap">
-          <source src="/media/thelvanor.mp4" type="video/mp4">
-        </video>
-        <figcaption id="thelvanor-cap">How RuralSim supports Thelvanor · 1 minute · no sound</figcaption>
-      </figure>
-      <div>
-        <div class="kicker">Thelvanor</div>
-        <h2 id="thelvanor-h">Thelvanor builds. RuralSim proves.</h2>
-        <p>Thelvanor builds small, solar-powered AI infrastructure for rural communities, anchored at hospitals, schools, courthouses and fire and police stations. RuralSim tests each design before anything is installed.</p>
-        <ul class="facts">
-          <li><b>20 MW data center on a rural co-op feeder.</b> Lowest-income power rates fell 23.8% when it bought from the grid and <span class="miss">rose 16.7%</span> when it generated its own power. Same load, opposite outcome.</li>
-          <li><b>Hospital and school microgrid.</b> <span class="met">Carried a 72-hour outage in 30 of 30 simulated winters</span> in Teton County, Idaho.</li>
-          <li><b>Edge AI triage at the clinic.</b> <span class="miss">84.8% uptime against a 99% target</span> in Thurston County, Nebraska. With only 4 hours of battery, it shows what to fix next.</li>
-        </ul>
-        <p class="small" style="margin-top:14px">Simulated, screening-grade results: reduced-order models with assumed device parameters. Decision support, not a finding.</p>
-      </div>
+  <section id="grad" aria-labelledby="grad-h">
+    <div class="kicker">Sibling project</div>
+    <h2 id="grad-h">RuralSim and Get Rural America Done</h2>
+    <div class="cols">
+      <p>RuralSim and <a href="https://getruralamericadone.com">Get Rural America Done</a> (GRAD) are sibling projects with the same founder. Neither owns the other. GRAD is a rural health and Critical Access Hospital modernization practice. Its free public-education series, Grid &amp; Grain, uses RuralSim scenarios as teaching material in a monthly Sim Lab segment.</p>
+      <p>The flow runs both ways. RuralSim gives GRAD simulated scenarios for teaching and screening-grade decision support. GRAD brings back real rural problems, hospital use cases and field priorities, which decide what RuralSim models and tests next. RuralSim itself stays free and open source.</p>
     </div>
   </section>
 
   <section id="founder" aria-labelledby="founder-h">
-    <div class="row">
-      <figure class="film">
-        <video controls preload="none" playsinline poster="/media/founder.jpg" aria-describedby="founder-cap">
-          <source src="/media/founder.mp4" type="video/mp4">
-        </video>
-        <figcaption id="founder-cap">Founder · 2 minutes · no sound</figcaption>
-      </figure>
+    <div class="solo">
       <div>
         <div class="kicker">Founder</div>
         <h2 id="founder-h">Aldrich Khaalis Wooden, Sr.</h2>
@@ -127,7 +103,6 @@
           <li><span>Oct 2025</span><a href="https://papers.ssrn.com/sol3/cf_dev/AbsByAuth.cfm?per_id=8105377">Edge AI for Rural Hospitals and Water Utilities: The ARIS-2025 Reference Architecture</a></li>
           <li><span>Mar 2026</span><a href="https://papers.ssrn.com/sol3/cf_dev/AbsByAuth.cfm?per_id=8105377">What Would It Mean to Solve the Critical Access Hospital Problem? A Benchmark Framework</a></li>
           <li><span>May 2026</span><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6755144">The 65 Percent Problem: Why $32.5 Billion of Rural Health Funding Cannot Be Counted</a></li>
-          <li><span>Oct 2026</span><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7631278">Thelvanor Keg-1: Pre-Build Design of a Sub-$1,000 Solar-Powered Three-Node Data Center</a></li>
         </ul>
         <p class="small" style="margin-top:14px">ORCID <a href="https://orcid.org/0009-0004-7679-5142">0009-0004-7679-5142</a> · <a href="https://github.com/khaaliswooden-max">GitHub</a></p>
       </div>
@@ -144,7 +119,8 @@
   </section>
 
   <footer class="foot">
-    <p>Videos use RuralSim’s own 3D county renders. Every number on this page traces to the <a href="https://github.com/khaaliswooden-max/ruralsim/blob/main/experiments/BATCH_REPORT.md">experiment ledger</a>, the <a href="https://github.com/khaaliswooden-max/ruralsim/blob/main/national/tier_a_summary.md">national summary</a> or the papers linked above.</p>
+    <p class="disclose">RuralSim is a free, open-source project by Grid &amp; Grain's founder. Simulated, screening-grade results with assumed parameters. Decision support, not a finding.</p>
+    <p>The video uses RuralSim’s own 3D county renders. Every number on this page traces to the <a href="https://github.com/khaaliswooden-max/ruralsim/blob/main/experiments/BATCH_REPORT.md">experiment ledger</a>, the <a href="https://github.com/khaaliswooden-max/ruralsim/blob/main/national/tier_a_summary.md">national summary</a> or the papers linked above.</p>
     <p>Code: <a href="https://github.com/khaaliswooden-max/ruralsim/blob/main/LICENSE">Apache 2.0</a>. Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a> (ODbL). Other data keeps its publisher's terms; RuralSim's own results and writing are CC BY 4.0. <a href="https://github.com/khaaliswooden-max/ruralsim/blob/main/DATA_LICENSE.md">Details</a>.</p>
   </footer>
 </div>

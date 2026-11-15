@@ -299,6 +299,10 @@ def main():
                'right:12px;bottom:10px;font:12px/1.3 \'Public Sans\',system-ui,sans-serif;color:#9aa4ad;'
                'text-decoration:none">Map data © OpenStreetMap contributors</a>')
         html = html.replace("<body>", "<body>\n" + osm, 1)
+        disc = ('<div id="disclose" style="position:fixed;z-index:10;right:12px;bottom:28px;max-width:44ch;'
+                'text-align:right;font:12px/1.35 \'Public Sans\',system-ui,sans-serif;color:#c3cbd2">'
+                "RuralSim is a free, open-source project by Grid &amp; Grain's founder. Simulated, screening-grade results with assumed parameters. Decision support, not a finding.</div>")
+        html = html.replace("<body>", "<body>\n" + disc, 1)
         idx.write_text(html)
         b0, b1 = slim_viewer_data(dst / "viewer_data")
         print(f"  {name}: viewer data {b0/1e6:.1f} -> {b1/1e6:.1f} MB")
