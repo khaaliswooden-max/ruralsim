@@ -8,7 +8,7 @@ committed outputs of the simulation pipeline: worlds/*/viewer + viewer_data + re
 experiments/ledger (latest 20-seed run per card), national/, pilots/. Political columns
 in pilots/ are never read into the site (D-007).
 """
-import csv, glob, json, math, os, re, shutil
+import csv, glob, json, math, os, re, shutil, urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -126,6 +126,51 @@ def slim_viewer_data(vd):
         f.write_bytes(raw)
         after += len(raw)
     return before, after
+
+
+SITE_URL = "https://www.ruralsim.io"
+
+
+def brand_viewer_html(html, home="/"):
+    """Site chrome for a county viewer: link home, favicons, OSM credit, disclosure lines. `home` is "/" for
+    viewers served by this site and the full site URL for viewers served from R2 (D-031)."""
+    back = (f'<a href="{home}" id="sitehome" style="position:fixed;z-index:10;left:12px;bottom:12px;'
+            'font:500 13px/1 \'Public Sans\',system-ui,sans-serif;color:#12181d;background:#d9a441;'
+            'padding:9px 12px;border-radius:6px;text-decoration:none">All counties</a>')
+    ico = "" if home == "/" else home.rstrip("/")
+    html = html.replace("<body>", "<body>\n" + back, 1)
+    html = html.replace("</head>", f'<link rel="icon" href="{ico}/favicon.svg" type="image/svg+xml">\n'
+                        f'<link rel="icon" href="{ico}/favicon-32.png" type="image/png" sizes="32x32">\n'
+                        f'<link rel="apple-touch-icon" href="{ico}/apple-touch-icon.png">\n</head>', 1)
+    # the build-time note box sits bottom-left; nudge it above the link
+    html = html.replace("#note { position:fixed; left:12px; bottom:12px;",
+                        "#note { position:fixed; left:12px; bottom:56px;", 1)
+    osm = ('<a href="https://www.openstreetmap.org/copyright" id="osmcredit" style="position:fixed;z-index:10;'
+           'right:12px;bottom:10px;font:12px/1.3 \'Public Sans\',system-ui,sans-serif;color:#9aa4ad;'
+           'text-decoration:none">Map data © OpenStreetMap contributors</a>')
+    html = html.replace("<body>", "<body>\n" + osm, 1)
+    disc = ('<div id="disclose" style="position:fixed;z-index:10;right:12px;bottom:28px;max-width:44ch;'
+            'text-align:right;font:12px/1.35 \'Public Sans\',system-ui,sans-serif;color:#c3cbd2">'
+            "RuralSim is a free, open-source project by Grid &amp; Grain's founder. "
+            "Simulated, screening-grade results with assumed parameters. Decision support, not a finding.</div>")
+    return html.replace("<body>", "<body>\n" + disc, 1)
+
+
+def remote_worlds():
+    """Counties published to object storage (D-031): {fips5: viewer URL}. Read at build time
+    from <RURALSIM_DATA_BASE>/worlds/index.json; empty when the variable is unset or the
+    index is unreachable, so the site still builds with the pilots alone."""
+    base = os.environ.get("RURALSIM_DATA_BASE", "").rstrip("/")
+    if not base:
+        return {}
+    try:
+        req = urllib.request.Request(f"{base}/worlds/index.json", headers={"User-Agent": "ruralsim-site-build"})
+        with urllib.request.urlopen(req, timeout=60) as r:
+            idx = json.load(r)
+    except Exception as e:
+        print(f"  remote worlds index unavailable ({e}); publishing pilots only")
+        return {}
+    return {c["fips5"]: f"{base}/worlds/{c['dir']}/current/viewer/" for c in idx.get("counties", [])}
 
 
 def county_dirs():
@@ -278,38 +323,22 @@ def main():
         (shutil.copytree if p.is_dir() else shutil.copy2)(p, OUT / p.name)
 
     # 3D worlds: viewer + data + renders; add a link back to the site
-    back = ('<a href="/" id="sitehome" style="position:fixed;z-index:10;left:12px;bottom:12px;'
-            'font:500 13px/1 \'Public Sans\',system-ui,sans-serif;color:#12181d;background:#d9a441;'
-            'padding:9px 12px;border-radius:6px;text-decoration:none">All counties</a>')
     for fips, name in dirs.items():
         src, dst = ROOT / "worlds" / name, OUT / "worlds" / name
         for sub in ("viewer", "viewer_data"):
             if (src / sub).exists():
                 shutil.copytree(src / sub, dst / sub)
         idx = dst / "viewer" / "index.html"
-        html = idx.read_text()
-        html = html.replace("<body>", "<body>\n" + back, 1)
-        html = html.replace("</head>", '<link rel="icon" href="/favicon.svg" type="image/svg+xml">\n'
-                            '<link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">\n'
-                            '<link rel="apple-touch-icon" href="/apple-touch-icon.png">\n</head>', 1)
-        # the build-time note box sits bottom-left; nudge it above the link
-        html = html.replace("#note { position:fixed; left:12px; bottom:12px;",
-                            "#note { position:fixed; left:12px; bottom:56px;", 1)
-        osm = ('<a href="https://www.openstreetmap.org/copyright" id="osmcredit" style="position:fixed;z-index:10;'
-               'right:12px;bottom:10px;font:12px/1.3 \'Public Sans\',system-ui,sans-serif;color:#9aa4ad;'
-               'text-decoration:none">Map data © OpenStreetMap contributors</a>')
-        html = html.replace("<body>", "<body>\n" + osm, 1)
-        disc = ('<div id="disclose" style="position:fixed;z-index:10;right:12px;bottom:28px;max-width:44ch;'
-                'text-align:right;font:12px/1.35 \'Public Sans\',system-ui,sans-serif;color:#c3cbd2">'
-                "RuralSim is a free, open-source project by Grid &amp; Grain's founder. Simulated, screening-grade results with assumed parameters. Decision support, not a finding.</div>")
-        html = html.replace("<body>", "<body>\n" + disc, 1)
-        idx.write_text(html)
+        idx.write_text(brand_viewer_html(idx.read_text()))
         b0, b1 = slim_viewer_data(dst / "viewer_data")
         print(f"  {name}: viewer data {b0/1e6:.1f} -> {b1/1e6:.1f} MB")
 
     data = OUT / "data"
     data.mkdir(exist_ok=True)
     (data / "pilots.json").write_text(json.dumps(pilots))
+    worlds = {f: u for f, u in remote_worlds().items() if f not in dirs}  # pilots stay on this site
+    (data / "worlds.json").write_text(json.dumps(worlds, separators=(",", ":")))
+    print(f"  remote 3D counties linked: {len(worlds)}")
     (data / "experiments.json").write_text(json.dumps(build_experiments(pilots)))
     (data / "national.json").write_text(json.dumps(build_national(), separators=(",", ":")))
     shutil.copy2(ROOT / "national" / "tier_a_county_stats.csv", data / "tier_a_county_stats.csv")
