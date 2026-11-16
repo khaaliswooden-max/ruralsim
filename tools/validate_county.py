@@ -51,19 +51,49 @@ BUILDINGS_FLOOR, BUILDINGS_CEILING = 0.8, 5.0
 from shapely.prepared import prep
 _inside = prep(geom_wgs)
 _bfc = json.loads((RAW / "osm" / "buildings.geojson").read_text())["features"]
+
+
+def _rep_point(g):
+    """A point on the footprint; OSM relations can carry degenerate rings (<4 points)
+    that shapely refuses, so fall back to the mean of the coordinates."""
+    from shapely.geometry import Point
+    try:
+        return shape(g).representative_point()
+    except (ValueError, TypeError):
+        xy = np.array([c for c in _flat(g["coordinates"])], dtype=float)
+        return Point(xy[:, 0].mean(), xy[:, 1].mean()) if len(xy) else None
+
+
+def _flat(c):
+    if c and isinstance(c[0], (int, float)):
+        yield c[:2]
+    else:
+        for x in c:
+            yield from _flat(x)
+
+
+def _poly(g):
+    try:
+        return shape(g)
+    except (ValueError, TypeError):
+        return None
+
+
 n_osm = sum(1 for f in _bfc if f.get("geometry")
-            and _inside.contains(shape(f["geometry"]).representative_point()))
+            and (pt := _rep_point(f["geometry"])) is not None and _inside.contains(pt))
 # Overture fill (D-037): the same footprints the stage draws — centre not inside an OSM building
 n_ovt = 0
 _of = RAW / "buildings_overture" / f"overture_buildings_{FIPS}.geojson"
 if _of.exists():
     from shapely import STRtree
     _ov = json.loads(_of.read_text()).get("features", [])
-    _polys = [shape(f["geometry"]) for f in _bfc
-              if f.get("geometry") and f["geometry"]["type"] in ("Polygon", "MultiPolygon")]
-    _pts = [shape(f["geometry"]).representative_point() for f in _ov]
-    _dup = set(int(i) for i in STRtree(_polys).query(_pts, predicate="within")[0]) if _polys and _pts else set()
-    n_ovt = sum(1 for i, pt in enumerate(_pts) if i not in _dup and _inside.contains(pt))
+    _polys = [g for f in _bfc if f.get("geometry") and f["geometry"]["type"] in ("Polygon", "MultiPolygon")
+              and (g := _poly(f["geometry"])) is not None]
+    _pts = [_rep_point(f["geometry"]) for f in _ov]
+    _ok = [i for i, pt in enumerate(_pts) if pt is not None]
+    _dup = (set(_ok[int(i)] for i in STRtree(_polys).query([_pts[i] for i in _ok], predicate="within")[0])
+            if _polys and _ok else set())
+    n_ovt = sum(1 for i in _ok if i not in _dup and _inside.contains(_pts[i]))
 n_b = n_osm + n_ovt
 hu = float(m["housing_units_2020"])
 ratio = n_b / hu if hu else float("inf")

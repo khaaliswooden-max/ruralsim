@@ -340,11 +340,17 @@ def overture_fill(osm_features):
         return []
     from shapely import STRtree
     from shapely.geometry import shape as _shape
-    polys = [_shape(f["geometry"]) for f in osm_features
-             if f.get("geometry") and f["geometry"]["type"] in ("Polygon", "MultiPolygon")]
-    pts = [_shape(f["geometry"]).representative_point() for f in ovt]
+    def safe(g):  # OSM relations can carry degenerate rings that shapely refuses
+        try:
+            return _shape(g)
+        except (ValueError, TypeError):
+            return None
+    polys = [p for f in osm_features
+             if f.get("geometry") and f["geometry"]["type"] in ("Polygon", "MultiPolygon")
+             and (p := safe(f["geometry"])) is not None]
+    pts = [_shape(f["geometry"]).representative_point() for f in ovt]  # Overture: valid by spec
     dup = set()
-    if polys:
+    if polys and pts:
         hit = STRtree(polys).query(pts, predicate="within")
         dup = set(int(i) for i in hit[0])
     keep = [f for i, f in enumerate(ovt) if i not in dup]
