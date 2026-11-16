@@ -6,7 +6,7 @@ Coordinates: ENU metres. Projection: the county's UTM zone (tools/county_config.
 centroid (recorded as customData). Every layer carries provenance metadata.
 Also exports a compact JSON scene bundle per layer for the web viewer.
 """
-import json, pathlib, datetime, sys
+import json, pathlib, datetime, re, sys
 import numpy as np
 import geopandas as gpd
 from shapely.geometry import mapping
@@ -42,26 +42,43 @@ def enu_coords(coords):
     return list(zip(np.asarray(xs) - ox, np.asarray(ys) - oy))
 
 # DEM sampler: overlays are draped onto observed terrain (1:1, no exaggeration)
-_DEM = {"src": None, "fallback": None}
-def demz(lon, lat, default=None):
-    if _DEM["src"] is None:
-        _DEM["src"] = rasterio.open(next((LAYERS / "terrain").glob("dem_*_*.tif")))
-    src = _DEM["src"]
-    if default is None:
-        # fallback = elevation at county centroid (was hardcoded 340 m = pilot 1;
-        # buried every unplaceable Teton overlay 1.2 km under the terrain)
-        if _DEM["fallback"] is None:
-            v0 = next(src.sample([ORIGIN]))[0]
-            _DEM["fallback"] = float(v0) if np.isfinite(v0) and v0 > 0 else 0.0
-        default = _DEM["fallback"]
-    try:
-        v = next(src.sample([(lon, lat)]))[0]
+_DEM = {"arr": None, "inv": None, "fallback": None}
+
+
+def _dem_load():
+    """Read the DEM into memory once. demz() used rasterio's sample() per point, which
+    decompresses a GeoTIFF block on every call: fine for a rural county, but the rerun
+    (43845007357) spent 4+ hours in build_stage for DC and Monroe FL, whose bboxes hold
+    hundreds of thousands of buildings and millions of road vertices (D-038)."""
+    with rasterio.open(next((LAYERS / "terrain").glob("dem_*_*.tif"))) as src:
+        arr = src.read(1).astype("float32")
         nd = src.nodata
-        if not np.isfinite(v) or (nd is not None and v == nd) or v <= 0:
-            return default
-        return float(v)
-    except Exception:
-        return default
+        if nd is not None and np.isfinite(nd):
+            arr[arr == nd] = np.nan
+        arr[arr <= 0] = np.nan
+        _DEM["arr"], _DEM["inv"] = arr, ~src.transform
+    h, w = arr.shape
+    c, r = _DEM["inv"] * ORIGIN
+    r, c = int(r), int(c)
+    v0 = arr[r, c] if 0 <= r < h and 0 <= c < w else np.nan
+    # fallback = elevation at county centroid (was hardcoded 340 m = pilot 1;
+    # buried every unplaceable Teton overlay 1.2 km under the terrain)
+    _DEM["fallback"] = float(v0) if np.isfinite(v0) else 0.0
+
+
+def demz(lon, lat, default=None):
+    if _DEM["arr"] is None:
+        _dem_load()
+    arr = _DEM["arr"]
+    if default is None:
+        default = _DEM["fallback"]
+    c, r = _DEM["inv"] * (lon, lat)
+    r, c = int(np.floor(r)), int(np.floor(c))
+    if 0 <= r < arr.shape[0] and 0 <= c < arr.shape[1]:
+        v = arr[r, c]
+        if np.isfinite(v):
+            return float(v)
+    return default
 
 LAYER_META = {}  # layer_id -> meta dict (provenance etc.)
 
@@ -168,7 +185,9 @@ def build_boundaries(stage):
                 tcoords = list(p.exterior.coords)
                 pts = [Gf.Vec3f(float(x), demz(c[0], c[1]) + 4.0, float(y))
                        for c, (x, y) in zip(tcoords, enu_coords(tcoords))]
-                c = UsdGeom.BasisCurves.Define(stage, f"/Boundaries/Tribal/{row['namelsad'].replace(' ','_')}_{j}")
+                # USD prim names allow letters, digits and _ only ("Twenty-Nine Palms")
+                prim = re.sub(r"[^A-Za-z0-9_]", "_", str(row["namelsad"]))
+                c = UsdGeom.BasisCurves.Define(stage, f"/Boundaries/Tribal/{prim}_{j}")
                 c.CreatePointsAttr(pts)
                 c.CreateCurveVertexCountsAttr([len(pts)])
                 c.CreateTypeAttr("linear"); c.CreateWidthsAttr([80.0])
@@ -368,7 +387,23 @@ def _ovt_height(p):
 
 def build_buildings(stage):
     d = json.loads((RAW / "osm" / "buildings.geojson").read_text())
-    feats = [(f, "osm") for f in d["features"]] + [(f, "ovt") for f in overture_fill(d["features"])]
+    # Draw buildings in the county plus ~1 km, as the Overture fill already is (D-037).
+    # The OSM layer covers the whole buffered bbox, which for Monroe FL reaches Miami and
+    # for DC most of the inner suburbs: hundreds of thousands of buildings outside the
+    # county, each a USD prim (D-038). Roads and other context layers keep the bbox.
+    from shapely.geometry import shape as _shape
+    from shapely.prepared import prep as _prep
+    near = _prep(geom_wgs.buffer(0.01))
+
+    def _keep(f):
+        try:
+            return near.contains(_shape(f["geometry"]).representative_point())
+        except (ValueError, TypeError, KeyError):
+            return False
+    osm_all = d["features"]
+    osm = [f for f in osm_all if f.get("geometry") and _keep(f)]
+    print(f"buildings: {len(osm)} of {len(osm_all)} OSM footprints within ~1 km of the county")
+    feats = [(f, "osm") for f in osm] + [(f, "ovt") for f in overture_fill(osm_all)]
     n = 0; viewer = []
     for f, src in feats:
         g = f["geometry"]
