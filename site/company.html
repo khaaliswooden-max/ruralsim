@@ -22,6 +22,7 @@
 
   .film { margin: 0; }
   .film video { width: 100%; aspect-ratio: 16/9; display: block; background: #07090a; border-radius: 4px; box-shadow: 0 0 0 1px var(--rule); }
+  .film video.port { display: none; aspect-ratio: 9/16; max-width: 420px; margin: 0 auto; }
   .film figcaption { font: 14px/1.5 var(--sans); color: var(--dim); margin-top: 10px; }
 
 
@@ -39,6 +40,10 @@
   @media (max-width: 900px) {
     .row { grid-template-columns: 1fr; }
     .commit, .cols { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 700px) {
+    .film video.land { display: none; }
+    .film video.port { display: block; }
   }
 </style>
 </head>
@@ -68,8 +73,11 @@
   <section id="mission" aria-labelledby="mission-h">
     <div class="row">
       <figure class="film">
-        <video controls preload="none" playsinline poster="/media/mission.jpg" aria-describedby="mission-cap">
+        <video class="land" controls preload="none" playsinline poster="/media/mission.jpg" aria-describedby="mission-cap">
           <source src="/media/mission.mp4" type="video/mp4">
+        </video>
+        <video class="port" controls preload="none" playsinline poster="/media/mission_vertical.jpg" aria-describedby="mission-cap">
+          <source src="/media/mission_vertical.mp4" type="video/mp4">
         </video>
         <figcaption id="mission-cap">Mission · 1 minute · original score</figcaption>
       </figure>
