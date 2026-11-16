@@ -5,6 +5,10 @@ runner and uploads it to an R2 bucket. The public site links to the viewers serv
 that bucket. Setup takes about 15 minutes and is done once. Labels in the Cloudflare
 dashboard change from time to time; the steps below describe what to look for.
 
+## Current setup (2026-11-15)
+Bucket `ruralsim-data` (Standard, ENAM), public development URL
+`https://pub-b414cd9251804d11871e4bec734e096e.r2.dev`.
+
 ## 1. Create the bucket
 In the Cloudflare dashboard, open **R2 Object Storage** and create a bucket named
 `ruralsim-data` (any name works; it goes in `R2_BUCKET` below). Default location is fine.
@@ -27,7 +31,8 @@ limited to the `ruralsim-data` bucket. Copy the **Access Key ID** and **Secret A
 ## 4. Give GitHub the credentials
 In the GitHub repo: **Settings → Secrets and variables → Actions**.
 - Secrets: `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`
-- Variables: `R2_BUCKET` = `ruralsim-data`, `RURALSIM_DATA_BASE` = the URL from step 2
+- The bucket name is not secret and is written into the workflow file (`R2_BUCKET: ruralsim-data`);
+  change it there if you use a different bucket.
 
 Never commit these values or paste them into an issue, pull request or chat.
 
