@@ -168,6 +168,9 @@ for dirname, fname, url, extra, paginate, source, lic in JOBS:
 # verifies every expected output after each step.
 gp = ROOT / "_source_gaps.json"
 current = [g for dn, fn, *_ in JOBS if (ROOT / dn / fn).exists() and (g := _gap_of(ROOT / dn / fn))]
+mine = {fn for _, fn, *_ in JOBS}
+current += [g for g in (json.loads(gp.read_text()) if gp.exists() else [])
+            if g.get("file") not in mine]  # other steps' gaps (e.g. Overture buildings) stay
 if current:
     gp.write_text(json.dumps(current, indent=2))
     print(f"source gaps recorded: {[g['file'] for g in current]}")
