@@ -17,6 +17,12 @@ This covers:
   `worlds/*/viewer_data/*.json` files (roads, buildings, power lines, substations and
   generators, OSM-placed facilities)
 
+Since D-037, county worlds built by the workflow also carry building footprints from the
+Overture Maps Foundation buildings theme (`worlds/*/layers_raw/buildings_overture/`), which
+is published under the ODbL as well. RuralSim takes only Overture's non-OSM footprints
+(Microsoft and Google machine-learned buildings, Esri Community Maps). Credit:
+"© OpenStreetMap contributors, Overture Maps Foundation".
+
 If you publicly use or share a database derived from these files, the ODbL requires you to
 share it under the ODbL and to keep the attribution. Images and other "produced works" made
 from them must credit "© OpenStreetMap contributors".

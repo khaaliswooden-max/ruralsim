@@ -72,12 +72,34 @@ def _flat(c):
             yield from _flat(x)
 
 
-n_b = sum(1 for f in _bfc if f.get("geometry")
-          and (pt := _rep_point(f["geometry"])) is not None and _inside.contains(pt))
+def _poly(g):
+    try:
+        return shape(g)
+    except (ValueError, TypeError):
+        return None
+
+
+n_osm = sum(1 for f in _bfc if f.get("geometry")
+            and (pt := _rep_point(f["geometry"])) is not None and _inside.contains(pt))
+# Overture fill (D-037): the same footprints the stage draws — centre not inside an OSM building
+n_ovt = 0
+_of = RAW / "buildings_overture" / f"overture_buildings_{FIPS}.geojson"
+if _of.exists():
+    from shapely import STRtree
+    _ov = json.loads(_of.read_text()).get("features", [])
+    _polys = [g for f in _bfc if f.get("geometry") and f["geometry"]["type"] in ("Polygon", "MultiPolygon")
+              and (g := _poly(f["geometry"])) is not None]
+    _pts = [_rep_point(f["geometry"]) for f in _ov]
+    _ok = [i for i, pt in enumerate(_pts) if pt is not None]
+    _dup = (set(_ok[int(i)] for i in STRtree(_polys).query([_pts[i] for i in _ok], predicate="within")[0])
+            if _polys and _ok else set())
+    n_ovt = sum(1 for i in _ok if i not in _dup and _inside.contains(_pts[i]))
+n_b = n_osm + n_ovt
 hu = float(m["housing_units_2020"])
 ratio = n_b / hu if hu else float("inf")
 if ratio < BUILDINGS_FLOOR:
-    status, why = "FLAG", "below the 80% floor - OSM building completeness in rural counties is partial"
+    status, why = "FLAG", ("below the 80% floor - building footprint coverage is partial"
+                           + ("" if _of.exists() else " (OSM only; Overture fill not fetched)"))
 elif ratio > BUILDINGS_CEILING:
     status, why = "FLAG", ("over 5x housing units - many non-residential structures (farm, oil field, "
                            "industrial); households placed on building centroids may land on them")
@@ -85,7 +107,9 @@ else:
     status, why = "PASS", "within 80%-500% of housing units"
 results.append(("buildings vs housing_units_2020", n_b, int(hu),
                 round((n_b - hu) / hu * 100, 1) if hu else None, status,
-                f"OSM footprints inside the county {n_b} vs {int(hu)} housing units ({ratio*100:.0f}%); {why}"))
+                (f"footprints inside the county {n_b} (OSM {n_osm} + Overture {n_ovt})" if _of.exists()
+                 else f"OSM footprints inside the county {n_b}")
+                + f" vs {int(hu)} housing units ({ratio*100:.0f}%); {why}"))
 
 # 2b. source gaps: a public server that was down at build time (D-036). The layer was
 # written empty so the world could still be built; say so on the public page.

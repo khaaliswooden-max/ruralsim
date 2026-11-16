@@ -16,3 +16,6 @@ networkx==3.7
 PyYAML==6.0.3
 pystac-client==0.9.1
 planetary-computer==1.0.0
+# fetch_buildings_overture.py reads Overture GeoParquet from S3 (D-037); httpfs and spatial
+# extensions are downloaded by DuckDB at first use
+duckdb==1.5.6

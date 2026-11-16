@@ -135,7 +135,8 @@ def publish(fips: str, s3) -> dict:
         shutil.copytree(world / "viewer", d / "viewer")
         shutil.copytree(world / "viewer_data", d / "viewer_data")
         idx = d / "viewer" / "index.html"
-        idx.write_text(brand_viewer_html(idx.read_text(), home=SITE_URL + "/"))
+        ovt = (world / "layers_raw" / "buildings_overture" / "_meta.json").exists()  # D-037 credit
+        idx.write_text(brand_viewer_html(idx.read_text(), home=SITE_URL + "/", overture=ovt))
         slim_viewer_data(d / "viewer_data")
         for p in sorted(d.rglob("*")):
             if p.is_file():
