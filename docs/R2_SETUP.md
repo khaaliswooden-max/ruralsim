@@ -8,6 +8,9 @@ dashboard change from time to time; the steps below describe what to look for.
 ## Current setup (2026-11-15)
 Bucket `ruralsim-data` (Standard, ENAM), public development URL
 `https://pub-b414cd9251804d11871e4bec734e096e.r2.dev`.
+Deploy hook (§7): Vercel hook `r2-index-rebuild` on branch `main`, created 2026-11-16;
+its URL is stored only as the GitHub secret `VERCEL_DEPLOY_HOOK`. To rotate it, delete
+the hook in Vercel, create a new one, and replace the secret.
 
 ## 1. Create the bucket
 In the Cloudflare dashboard, open **R2 Object Storage** and create a bucket named
