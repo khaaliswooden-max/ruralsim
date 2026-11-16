@@ -241,23 +241,33 @@ def lines_from_geojson(path, key_filter=None):
 
 def write_curves(stage, root, lines, color_fn, width=30.0, zoff=2.0, viewer=None):
     """lines: list of (props, coords). viewer: list to append viewer segments.
-    Curves are draped on the DEM (zoff metres above sampled ground)."""
+    Curves are draped on the DEM (zoff metres above sampled ground).
+
+    All curves of a layer go into ONE BasisCurves prim (per-curve colour as a uniform
+    primvar). One prim per line made USD prim creation the bottleneck and grew worse
+    than linearly: 40 k road lines took 132 s, and DC, Manhattan, Monroe FL and
+    Capitol Planning Region CT ran into GitHub's 5-hour job limit in build_stage (D-039)."""
     vcount = 0
+    pts, counts, colors = [], [], []
     for i, (props, coords) in enumerate(lines):
         if len(coords) < 2:
             continue
-        pts = [Gf.Vec3f(float(x), demz(c[0], c[1]) + zoff, float(y))
-               for c, (x, y) in zip(coords, enu_coords(coords))]
-        c = UsdGeom.BasisCurves.Define(stage, f"/{root}/c{i}")
-        c.CreatePointsAttr(pts)
-        c.CreateCurveVertexCountsAttr([len(pts)])
-        c.CreateTypeAttr("linear")
-        c.CreateWidthsAttr([width])
-        c.CreateDisplayColorAttr([color_fn(props)])
+        enu_xy = enu_coords(coords)
+        pts += [Gf.Vec3f(float(x), demz(c[0], c[1]) + zoff, float(y))
+                for c, (x, y) in zip(coords, enu_xy)]
+        counts.append(len(coords))
+        colors.append(color_fn(props))
         if viewer is not None:
-            viewer.append({"pts": [[round(x, 1), round(y, 1)] for x, y in enu_coords(coords)],
+            viewer.append({"pts": [[round(x, 1), round(y, 1)] for x, y in enu_xy],
                            "cls": color_fn(props).__class__ and props})
             vcount += 1
+    if counts:
+        c = UsdGeom.BasisCurves.Define(stage, f"/{root}/curves")
+        c.CreatePointsAttr(pts)
+        c.CreateCurveVertexCountsAttr(counts)
+        c.CreateTypeAttr("linear")
+        c.CreateWidthsAttr([width])
+        c.CreateDisplayColorPrimvar(UsdGeom.Tokens.uniform).Set(colors)
     return vcount
 
 ROAD_COLORS = {"motorway": (0.85, 0.3, 0.2), "trunk": (0.85, 0.3, 0.2),
@@ -421,6 +431,7 @@ def build_buildings(stage):
     print(f"buildings: {len(osm)} of {len(osm_all)} OSM footprints within ~1 km of the county")
     feats = [(f, "osm") for f in osm] + [(f, "ovt") for f in overture_fill(osm_all)]
     n = 0; viewer = []
+    positions, scales = [], []  # one PointInstancer, not one prim per building (D-039)
     for f, src in feats:
         g = f["geometry"]
         if g["type"] == "Polygon":
@@ -437,12 +448,8 @@ def build_buildings(stage):
             continue
         base = demz(float(np.mean([c[0] for c in rings[0]])),
                     float(np.mean([c[1] for c in rings[0]])))
-        cube = UsdGeom.Cube.Define(stage, f"/Buildings/b{n}")
-        cube.CreateSizeAttr(1.0)
-        xf = UsdGeom.XformCommonAPI(cube)
-        xf.SetScale((max(w, 3), h, max(dep, 3)))
-        xf.SetTranslate((cx, base + h / 2, cy))
-        UsdGeom.Mesh(cube.GetPrim()).CreateDisplayColorAttr([(0.75, 0.72, 0.68)])
+        positions.append(Gf.Vec3f(cx, base + h / 2, cy))
+        scales.append(Gf.Vec3f(max(w, 3), h, max(dep, 3)))
         n += 1
         v = {"c": [round(cx, 1), round(cy, 1)], "w": round(w, 1), "d": round(dep, 1), "h": h,
              "kind": (f["properties"].get("building", "yes") if src == "osm"
@@ -450,6 +457,15 @@ def build_buildings(stage):
         if src == "ovt":
             v["src"] = f["properties"].get("source") or "Overture"
         viewer.append(v)
+    if n:
+        inst = UsdGeom.PointInstancer.Define(stage, "/Buildings/instancer")
+        cube = UsdGeom.Cube.Define(stage, "/Buildings/instancer/prototypes/box")
+        cube.CreateSizeAttr(1.0)
+        cube.CreateDisplayColorAttr([(0.75, 0.72, 0.68)])
+        inst.CreatePrototypesRel().SetTargets([cube.GetPath()])
+        inst.CreateProtoIndicesAttr([0] * n)
+        inst.CreatePositionsAttr(positions)
+        inst.CreateScalesAttr(scales)
     (VIEWER_DATA / "buildings.json").write_text(json.dumps(viewer))
     print("buildings extruded:", n)
 _ovt_meta_f = RAW / "buildings_overture" / "_meta.json"
