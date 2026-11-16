@@ -415,6 +415,10 @@ def _fetch_with_retry(url: str, dest: pathlib.Path, tries: int, wait: int, timeo
 def ensure_extract(props: dict, max_age_days: float) -> dict:
     """Download (or reuse) one state extract; verify md5; return its provenance."""
     url = props["urls"]["pbf"]
+    # geofabrik_index() used to create this directory as a side effect of downloading the
+    # index; since the index is committed (D-040) nothing else does, and every county job
+    # in run 43928880530 failed writing the R2 mirror copy into a missing directory.
+    CACHE.mkdir(parents=True, exist_ok=True)
     dest = CACHE / pathlib.Path(url).name
     md5_path = dest.with_name(dest.name + ".md5")
     fresh = dest.exists() and time.time() - dest.stat().st_mtime < max_age_days * 86400
