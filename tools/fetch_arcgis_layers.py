@@ -38,16 +38,25 @@ def arcgis_query(url, extra=None, paginate=False, page=2000):
 
     A server that answers HTTP 500 for a large page (NHD waterbodies over Cameron
     Parish's coastal marsh, canary run 43794676050) is retried with smaller pages."""
-    try:
-        return _arcgis_query(url, extra, paginate, page)
-    except RuntimeError:
-        if not paginate or page <= 250:
-            raise
-        print(f"  retrying {url.rsplit('/', 3)[-3]} with {page // 4}-feature pages", file=sys.stderr)
-        return arcgis_query(url, extra, paginate, page // 4)
+    deadline = time.time() + LAYER_BUDGET_S
+    while True:
+        try:
+            return _arcgis_query(url, extra, paginate, page, deadline)
+        except RuntimeError:
+            if not paginate or page <= 250 or time.time() > deadline:
+                raise
+            page //= 4
+            print(f"  retrying {url.rsplit('/', 3)[-3]} with {page}-feature pages", file=sys.stderr)
 
 
-def _arcgis_query(url, extra, paginate, page):
+# One layer may spend at most this long across all retries and page sizes. NHD answered
+# HTTP 504 for hours over Yukon-Koyukuk AK in the rerun (43845007357), and the retry
+# ladder kept the county job running toward GitHub's 5-hour limit. Past the budget the
+# layer becomes a recorded source gap (D-036) and the build continues (D-038).
+LAYER_BUDGET_S = 20 * 60
+
+
+def _arcgis_query(url, extra, paginate, page, deadline):
     base = {"geometry": ENV, "geometryType": "esriGeometryEnvelope", "inSR": "4326",
             "spatialRel": "esriSpatialRelIntersects", "outFields": "*",
             "returnGeometry": "true", "outSR": "4326", "f": "geojson",
@@ -58,10 +67,12 @@ def _arcgis_query(url, extra, paginate, page):
         if paginate:
             params["resultOffset"] = offset
         full = url + "?" + urllib.parse.urlencode(params)
+        if time.time() > deadline:
+            raise RuntimeError(f"gave up after {LAYER_BUDGET_S // 60} min: {url}")
         for attempt in range(4):
             try:
                 req = urllib.request.Request(full, headers=UA)
-                with urllib.request.urlopen(req, timeout=300) as r:
+                with urllib.request.urlopen(req, timeout=120) as r:
                     gj = json.load(r)
                 break
             except Exception as e:
