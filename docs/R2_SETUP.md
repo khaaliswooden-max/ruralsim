@@ -48,3 +48,13 @@ publish on. When it finishes, `<RURALSIM_DATA_BASE>/worlds/index.json` lists the
 and its viewer is at `<RURALSIM_DATA_BASE>/worlds/48301_loving_tx/current/viewer/index.html`
 (R2 public URLs do not serve `index.html` for a bare folder path; always name the file).
 Redeploy the site (or push any commit) to pick up the new link.
+
+## 7. Optional: redeploy the site automatically after each build
+Without this, the site links newly built counties only at its next deploy (any merge to
+`main`, or Redeploy in Vercel). To make every build run refresh the site:
+1. Vercel → project `ruralsim` → **Settings → Git → Deploy Hooks**: create a hook named
+   `county-builds` for branch `main`. Copy the URL it shows.
+2. GitHub → repo **Settings → Secrets and variables → Actions → New repository secret**:
+   name `VERCEL_DEPLOY_HOOK`, value the hook URL. Treat it as a secret: anyone with it can
+   trigger deploys.
+The workflow's last step then triggers a production redeploy after rebuilding the index.
