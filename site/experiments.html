@@ -21,6 +21,7 @@
   .exp h2 { font-size: 28px; }
   .exp .where { font: 500 14px var(--sans); margin: 8px 0 18px; }
   .exp .where a { color: var(--dim); }
+  .grade { display: inline-block; font: 600 12px/1 var(--sans); letter-spacing: .06em; color: var(--dim); border: 1px solid var(--rule); padding: 6px 8px; border-radius: 4px; margin: 0 0 16px 6px; vertical-align: top; }
   .verdict { display: inline-block; font: 600 14px/1 var(--sans); padding: 7px 10px; border-radius: 4px; margin-bottom: 16px; }
   .v-met { background: rgba(63,106,58,.12); color: var(--met); }
   .v-not_met { background: rgba(163,54,31,.10); color: var(--miss); }
@@ -72,7 +73,7 @@
   <div class="head">
     <h1>Ten ideas, tested before anyone pays for them.</h1>
     <p>Each idea ran 20 times on a different set of 2,000 simulated households in one pilot county. The success line for each was written down before it ran. An idea clears the bar only if the middle 90% of its runs lands past that line and none of the six protections for residents is broken.</p>
-    <p class="small">Screening grade: simplified engines, assumed equipment numbers. Nothing here is a finding until confirmed with full-physics models.</p>
+    <p class="small">Every result here is graded SPECULATIVE: simplified engines, assumed equipment numbers. Nothing here is a finding. Ideas that fell short are listed first.</p>
     <div class="key">
       <span><i style="background:var(--water)"></i>One run (20 per idea)</span>
       <span><i style="background:rgba(37,93,140,.30);border-radius:2px;width:22px"></i>Middle 90% of runs</span>
@@ -83,6 +84,7 @@
   <main id="list"></main>
 
   <footer class="foot">
+    <p class="disclose">RuralSim is a free, open-source project by Grid &amp; Grain's founder. Simulated, screening-grade results with assumed parameters. Decision support, not a finding.</p>
     <p>Full run records, all 20 seeds per idea, are in <a href="https://github.com/khaaliswooden-max/ruralsim/tree/main/experiments/ledger">experiments/ledger</a>. The resident-protection rules are defined in <a href="https://github.com/khaaliswooden-max/ruralsim/blob/main/specs/rqli_spec.yaml">the quality-of-life spec</a>.</p>
     <p>Code: <a href="https://github.com/khaaliswooden-max/ruralsim/blob/main/LICENSE">Apache 2.0</a>. Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a> (ODbL). Other data keeps its publisher's terms; RuralSim's own results and writing are CC BY 4.0. <a href="https://github.com/khaaliswooden-max/ruralsim/blob/main/DATA_LICENSE.md">Details</a>.</p>
   </footer>
@@ -137,10 +139,12 @@ function why(e) {
   return cap(parts.join('. And ')) + '.';
 }
 
+const order = { not_met: 0, met: 1, conditional: 2 };
+exps.sort((x, y) => order[x.verdict] - order[y.verdict]);
 document.getElementById('list').innerHTML = exps.map(e => `
   <article class="exp" id="${e.id}">
     <div>
-      <span class="verdict v-${e.verdict}">${verdictText[e.verdict]}</span>
+      <span class="verdict v-${e.verdict}">${verdictText[e.verdict]}</span> <span class="grade">Grade: SPECULATIVE</span>
       <h2>${esc(e.title)}</h2>
       <div class="where"><a href="/worlds/${dirOf[e.fips]}/viewer/">${esc(e.county)}</a></div>
       <p class="hyp">${esc(e.hypothesis)}</p>

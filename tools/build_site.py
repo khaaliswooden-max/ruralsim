@@ -132,7 +132,7 @@ SITE_URL = "https://www.ruralsim.io"
 
 
 def brand_viewer_html(html, home="/"):
-    """Site chrome for a county viewer: link home, favicons, OSM credit. `home` is "/" for
+    """Site chrome for a county viewer: link home, favicons, OSM credit, disclosure lines. `home` is "/" for
     viewers served by this site and the full site URL for viewers served from R2 (D-031)."""
     back = (f'<a href="{home}" id="sitehome" style="position:fixed;z-index:10;left:12px;bottom:12px;'
             'font:500 13px/1 \'Public Sans\',system-ui,sans-serif;color:#12181d;background:#d9a441;'
@@ -148,7 +148,12 @@ def brand_viewer_html(html, home="/"):
     osm = ('<a href="https://www.openstreetmap.org/copyright" id="osmcredit" style="position:fixed;z-index:10;'
            'right:12px;bottom:10px;font:12px/1.3 \'Public Sans\',system-ui,sans-serif;color:#9aa4ad;'
            'text-decoration:none">Map data © OpenStreetMap contributors</a>')
-    return html.replace("<body>", "<body>\n" + osm, 1)
+    html = html.replace("<body>", "<body>\n" + osm, 1)
+    disc = ('<div id="disclose" style="position:fixed;z-index:10;right:12px;bottom:28px;max-width:44ch;'
+            'text-align:right;font:12px/1.35 \'Public Sans\',system-ui,sans-serif;color:#c3cbd2">'
+            "RuralSim is a free, open-source project by Grid &amp; Grain's founder. "
+            "Simulated, screening-grade results with assumed parameters. Decision support, not a finding.</div>")
+    return html.replace("<body>", "<body>\n" + disc, 1)
 
 
 def remote_worlds():

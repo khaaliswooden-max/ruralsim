@@ -51,6 +51,7 @@ p { margin: 0 0 1em; max-width: var(--measure); }
 
 /* footer */
 .foot { border-top: 1px solid var(--rule); margin-top: 96px; padding: 28px 0 48px; }
+.foot .disclose { color: var(--ink); font-weight: 500; }
 .foot p { font: 14px/1.6 var(--sans); color: var(--dim); max-width: 80ch; }
 
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
