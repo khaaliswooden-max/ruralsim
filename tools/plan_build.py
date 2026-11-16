@@ -16,6 +16,7 @@ import argparse, csv, json, pathlib, sys
 REPO = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO / "tools"))
 MATRIX_MAX = 256  # GitHub Actions limit on jobs in one matrix
+OSM_PREFETCH_MAX = 4  # state extracts shared through the Actions cache (10 GB per repo)
 
 
 def current_counties() -> dict[str, str]:
@@ -49,9 +50,15 @@ def main(argv=None):
         cfgs = [get(f) for f in fipses]  # also caches each boundary from TIGERweb
         index = fetch_osm.geofabrik_index()
         regions = fetch_osm.extracts_for([c.buf_bbox for c in cfgs], index)
-        print(f"prefetch: {len(regions)} OSM extract(s): {', '.join(r['id'] for r in regions)}", file=sys.stderr)
-        for r in regions:
-            fetch_osm.ensure_extract(r, max_age_days=7)
+        if len(regions) <= OSM_PREFETCH_MAX:
+            print(f"prefetch: {len(regions)} OSM extract(s): {', '.join(r['id'] for r in regions)}", file=sys.stderr)
+            for r in regions:
+                fetch_osm.ensure_extract(r, max_age_days=7)
+        else:
+            # The Actions cache holds 10 GB per repository; a many-state batch would overflow it.
+            # Each county job downloads its own state extract instead (D-035).
+            print(f"prefetch: {len(regions)} OSM extracts needed; over {OSM_PREFETCH_MAX}, "
+                  "so each county job downloads its own", file=sys.stderr)
         fetch_climate.climdiv_files()
         place_water_systems.gazetteer()
         place_water_systems.zctas()
