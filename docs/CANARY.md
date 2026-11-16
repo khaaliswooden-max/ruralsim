@@ -50,3 +50,68 @@ quartile, not the mean.
 | TNM search server error | 53023 |
 
 Re-run list (the 19): `02013,02290,06003,06071,09110,10001,11001,12087,15005,20071,22023,22107,29227,36061,37177,41069,46102,51610,53023`
+
+## Final result — runs 43794676050, 43845007357, 43912692762, 43933790557 (2026-11-16)
+
+56 of 57 built and published. Not built: **Yukon-Koyukuk AK (02290)** — after the D-038/D-039 fixes it got through every fetch, then the runner lost contact (resources) in the stage step; it is the largest county in the U.S. and needs either a larger runner or a split build. Build times are the last successful run per county (fix runs included); sizes from each snapshot's manifest.
+
+| FIPS | County | Minutes | MB | Pass | Flag | Fail |
+|---|---|---:|---:|---:|---:|---:|
+| 01063 | Greene County, AL | 11 | 187 | 9 | 0 | 0 |
+| 02013 | Aleutians East Borough, AK | 20 | 1230 | 5 | 1 | 0 |
+| 04011 | Greenlee County, AZ | 23 | 296 | 7 | 1 | 0 |
+| 05013 | Calhoun County, AR | 7 | 102 | 8 | 0 | 0 |
+| 06003 | Alpine County, CA | 34 | 248 | 7 | 1 | 0 |
+| 06071 | San Bernardino County, CA | 92 | 1987 | 8 | 2 | 0 |
+| 08053 | Hinsdale County, CO | 21 | 198 | 7 | 1 | 0 |
+| 09110 | Capitol Planning Region, CT | 51 | 659 | 6 | 2 | 0 |
+| 10001 | Kent County, DE | 35 | 421 | 8 | 1 | 0 |
+| 11001 | District of Columbia, DC | 48 | 588 | 6 | 3 | 0 |
+| 12077 | Liberty County, FL | 13 | 146 | 7 | 1 | 0 |
+| 12087 | Monroe County, FL | 60 | 623 | 6 | 5 | 0 |
+| 13265 | Taliaferro County, GA | 12 | 61 | 7 | 1 | 0 |
+| 15005 | Kalawao County, HI | 3 | 32 | 5 | 1 | 0 |
+| 16033 | Clark County, ID | 13 | 228 | 6 | 2 | 0 |
+| 17069 | Hardin County, IL | 14 | 49 | 8 | 1 | 0 |
+| 18115 | Ohio County, IN | 11 | 133 | 8 | 0 | 0 |
+| 19003 | Adams County, IA | 7 | 86 | 9 | 0 | 0 |
+| 20071 | Greeley County, KS | 6 | 49 | 9 | 0 | 0 |
+| 21201 | Robertson County, KY | 6 | 36 | 7 | 1 | 0 |
+| 22023 | Cameron Parish, LA | 23 | 428 | 7 | 0 | 0 |
+| 22107 | Tensas Parish, LA | 11 | 188 | 6 | 1 | 0 |
+| 23021 | Piscataquis County, ME | 30 | 481 | 8 | 1 | 0 |
+| 24029 | Kent County, MD | 26 | 168 | 8 | 1 | 0 |
+| 25019 | Nantucket County, MA | 10 | 44 | 9 | 0 | 0 |
+| 26083 | Keweenaw County, MI | 19 | 208 | 6 | 2 | 0 |
+| 27155 | Traverse County, MN | 15 | 70 | 8 | 1 | 0 |
+| 28055 | Issaquena County, MS | 14 | 203 | 6 | 2 | 0 |
+| 29227 | Worth County, MO | 7 | 61 | 7 | 1 | 0 |
+| 30069 | Petroleum County, MT | 9 | 227 | 8 | 0 | 0 |
+| 31117 | McPherson County, NE | 5 | 58 | 7 | 0 | 0 |
+| 32009 | Esmeralda County, NV | 53 | 503 | 7 | 1 | 0 |
+| 33007 | Coos County, NH | 28 | 322 | 8 | 1 | 0 |
+| 34033 | Salem County, NJ | 54 | 431 | 8 | 1 | 0 |
+| 35021 | Harding County, NM | 10 | 197 | 8 | 0 | 0 |
+| 36041 | Hamilton County, NY | 25 | 278 | 8 | 0 | 0 |
+| 36061 | New York County, NY | 20 | 557 | 7 | 1 | 0 |
+| 37177 | Tyrrell County, NC | 9 | 75 | 7 | 1 | 0 |
+| 38087 | Slope County, ND | 10 | 167 | 8 | 0 | 0 |
+| 39163 | Vinton County, OH | 15 | 110 | 7 | 1 | 0 |
+| 40025 | Cimarron County, OK | 29 | 159 | 9 | 0 | 0 |
+| 41069 | Wheeler County, OR | 45 | 557 | 8 | 0 | 0 |
+| 42023 | Cameron County, PA | 13 | 61 | 6 | 2 | 0 |
+| 44001 | Bristol County, RI | 18 | 140 | 8 | 0 | 0 |
+| 45005 | Allendale County, SC | 18 | 95 | 8 | 1 | 0 |
+| 46075 | Jones County, SD | 6 | 126 | 7 | 1 | 0 |
+| 46102 | Oglala Lakota County, SD | 12 | 213 | 8 | 1 | 0 |
+| 47137 | Pickett County, TN | 12 | 71 | 7 | 1 | 0 |
+| 49009 | Daggett County, UT | 18 | 111 | 6 | 2 | 0 |
+| 50009 | Essex County, VT | 15 | 193 | 7 | 1 | 0 |
+| 51091 | Highland County, VA | 13 | 98 | 8 | 0 | 0 |
+| 51610 | Falls Church city, VA | 15 | 153 | 6 | 1 | 0 |
+| 53023 | Garfield County, WA | 23 | 138 | 7 | 2 | 0 |
+| 54105 | Wirt County, WV | 8 | 62 | 8 | 0 | 0 |
+| 55078 | Menominee County, WI | 9 | 61 | 8 | 0 | 0 |
+| 56027 | Niobrara County, WY | 13 | 277 | 8 | 1 | 0 |
+
+Flags by check: water systems placed 22, buildings vs housing units 20, source unavailable at build (NHD outages) 6, terrain coverage 4. Counties built before D-037 have no Overture buildings yet; rebuilding them is one run.
