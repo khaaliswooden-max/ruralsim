@@ -77,6 +77,8 @@ jobs:
         fips: ${{ fromJSON(needs.plan.outputs.fips) }}
     env:
       RURALSIM_CACHE: ${{ github.workspace }}/.rscache
+      # unbuffered: a job killed for time or memory still shows its last step in the log
+      PYTHONUNBUFFERED: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

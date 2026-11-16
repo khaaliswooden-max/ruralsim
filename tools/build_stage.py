@@ -11,6 +11,7 @@ import numpy as np
 import geopandas as gpd
 from shapely.geometry import mapping
 import rasterio
+import rasterio.enums
 from pxr import Usd, UsdGeom, Gf, Sdf
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
@@ -51,12 +52,24 @@ def _dem_load():
     (43845007357) spent 4+ hours in build_stage for DC and Monroe FL, whose bboxes hold
     hundreds of thousands of buildings and millions of road vertices (D-038)."""
     with rasterio.open(next((LAYERS / "terrain").glob("dem_*_*.tif"))) as src:
-        arr = src.read(1).astype("float32")
+        # Overlays need ~1 cell per 40 m at most; cap the in-memory grid at ~60 M cells
+        # (240 MB) so the largest counties (Yukon-Koyukuk AK) stay inside runner memory.
+        k = 1
+        while (src.height // k) * (src.width // k) > 60_000_000:
+            k += 1
+        if k > 1:
+            arr = src.read(1, out_shape=(src.height // k, src.width // k),
+                           resampling=rasterio.enums.Resampling.average).astype("float32")
+            tr = src.transform * rasterio.Affine.scale(src.width / (src.width // k),
+                                                       src.height / (src.height // k))
+        else:
+            arr = src.read(1).astype("float32")
+            tr = src.transform
         nd = src.nodata
         if nd is not None and np.isfinite(nd):
             arr[arr == nd] = np.nan
         arr[arr <= 0] = np.nan
-        _DEM["arr"], _DEM["inv"] = arr, ~src.transform
+        _DEM["arr"], _DEM["inv"] = arr, ~tr
     h, w = arr.shape
     c, r = _DEM["inv"] * ORIGIN
     r, c = int(r), int(c)
@@ -102,7 +115,10 @@ def build_terrain(stage):
         # ~160 m effective for the stage mesh; payload resolution varies by
         # source (20 m from 1/3 arc-second, 30 m from the 1 arc-second fallback)
         step = max(1, round(160 / (abs(src.transform.a) * 111320)))
-        arr = src.read(1)[::step, ::step].astype("float32")
+        # read only every step-th cell: the full grid is ~0.8 GB for Yukon-Koyukuk AK
+        from rasterio.windows import Window
+        arr = np.stack([src.read(1, window=Window(0, r, src.width, 1))[0, ::step]
+                        for r in range(0, src.height, step)]).astype("float32")
         t = src.transform
     # nodata cells sit outside the county-buffer clip polygon (raster corners).
     # Fill them by edge interpolation so the mesh has no fabricated 0 m pits;
