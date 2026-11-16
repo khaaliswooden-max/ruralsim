@@ -47,10 +47,14 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
       - run: pip install -r requirements.txt
-      - name: Plan the batch and pre-download shared inputs once
+      - name: Plan the batch, mirror OSM extracts to R2, pre-download shared inputs once
         id: plan
         env:
           RURALSIM_CACHE: ${{ github.workspace }}/.rscache
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET: ruralsim-data
         run: |
           python tools/plan_build.py --counties "${{ inputs.counties }}" --state "${{ inputs.state }}" --prefetch > plan.out
           tail -n 1 plan.out
@@ -89,6 +93,12 @@ jobs:
           fail-on-cache-miss: true
       - name: Build ${{ matrix.fips }}
         shell: bash
+        env:
+          # read-only use here: the OSM extract mirrored by the plan job (D-036)
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET: ruralsim-data
         run: python tools/build_county.py ${{ matrix.fips }} 2>&1 | tee build.log
       - name: Publish the build log (public, read without GitHub sign-in)
         if: ${{ always() && inputs.publish }}

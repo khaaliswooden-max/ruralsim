@@ -5,9 +5,10 @@
     python3 tools/plan_build.py --state NE --prefetch       # also fills $RURALSIM_CACHE
 
 Used by .github/workflows/build-counties.yml: the plan job runs it with --prefetch so the
-state OpenStreetMap extracts, NOAA climate files and Census Gazetteer files are downloaded
-once per batch and handed to every county job through the Actions cache, instead of each
-of up to 254 parallel jobs downloading the same state extract from Geofabrik.
+NOAA climate files and Census Gazetteer files are downloaded once per batch and handed to
+every county job through the Actions cache. With R2 credentials in the environment the
+state OpenStreetMap extracts are copied to R2 once (tools/mirror_osm.py, D-036) and county
+jobs read them from there; without, up to four extracts go through the Actions cache.
 """
 from __future__ import annotations
 
@@ -50,7 +51,13 @@ def main(argv=None):
         cfgs = [get(f) for f in fipses]  # also caches each boundary from TIGERweb
         index = fetch_osm.geofabrik_index()
         regions = fetch_osm.extracts_for([c.buf_bbox for c in cfgs], index)
-        if len(regions) <= OSM_PREFETCH_MAX:
+        if fetch_osm._r2_ready():
+            # D-036: copy each extract to R2 once, serially; county jobs read it from there
+            import mirror_osm
+            print(f"prefetch: mirroring {len(regions)} OSM extract(s) to R2: "
+                  f"{', '.join(r['id'] for r in regions)}", file=sys.stderr)
+            mirror_osm.mirror(regions)
+        elif len(regions) <= OSM_PREFETCH_MAX:
             print(f"prefetch: {len(regions)} OSM extract(s): {', '.join(r['id'] for r in regions)}", file=sys.stderr)
             for r in regions:
                 fetch_osm.ensure_extract(r, max_age_days=7)

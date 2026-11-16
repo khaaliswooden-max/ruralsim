@@ -359,31 +359,82 @@ def _covering(t: "Target", prov: list[dict], index: list[dict]) -> list[dict]:
     return [p for p in prov if p["region"] in geoms and geoms[p["region"]].intersects(t.box)]
 
 
+# R2 mirror of the state extracts (D-036). In the canary run (43794676050) ten county jobs
+# downloading from Geofabrik at once were refused ("Network is unreachable") for 7 of 57
+# counties. The plan job now copies each needed extract to R2 once, serially
+# (tools/mirror_osm.py), and county jobs read it from there; Geofabrik is the fallback.
+# Read through the S3 API when R2 credentials are present (no rate limit; r2.dev public
+# URLs are throttled), else over HTTP from RURALSIM_OSM_MIRROR if set.
+OSM_MIRROR = os.environ.get("RURALSIM_OSM_MIRROR", "").rstrip("/")
+OSM_MIRROR_PREFIX = "osm/"
+
+
+def _r2_ready() -> bool:
+    return all(os.environ.get(k) for k in ("R2_ACCOUNT_ID", "R2_ACCESS_KEY_ID",
+                                           "R2_SECRET_ACCESS_KEY", "R2_BUCKET"))
+
+
+def _mirror_get(name: str, dest: pathlib.Path) -> bool:
+    """Fetch one mirrored file (extract or its .md5); False if the mirror lacks it."""
+    if _r2_ready():
+        from publish_world import bucket, client
+        part = dest.with_suffix(dest.suffix + ".part")
+        for attempt in range(3):
+            try:
+                client().download_file(bucket(), OSM_MIRROR_PREFIX + name, str(part))
+                os.replace(part, dest)
+                return True
+            except Exception as e:
+                if "404" in str(e) or "Not Found" in str(e):
+                    return False  # not mirrored: go straight to Geofabrik
+                print(f"    R2 mirror attempt {attempt + 1} for {name} failed: {e}", file=sys.stderr)
+                time.sleep(15 * (attempt + 1))
+        return False
+    if OSM_MIRROR:
+        return _fetch_with_retry(f"{OSM_MIRROR}/{name}", dest, 3, 20)
+    return False
+
+
+def _fetch_with_retry(url: str, dest: pathlib.Path, tries: int, wait: int, timeout=3600) -> bool:
+    for attempt in range(tries):
+        try:
+            _download(url, dest, timeout=timeout)
+            return True
+        except Exception as e:
+            print(f"    attempt {attempt + 1} of {tries} for {url} failed: {e}", file=sys.stderr)
+            if attempt + 1 < tries:
+                time.sleep(wait * (attempt + 1))
+    return False
+
+
 def ensure_extract(props: dict, max_age_days: float) -> dict:
     """Download (or reuse) one state extract; verify md5; return its provenance."""
     url = props["urls"]["pbf"]
     dest = CACHE / pathlib.Path(url).name
+    md5_path = dest.with_name(dest.name + ".md5")
     fresh = dest.exists() and time.time() - dest.stat().st_mtime < max_age_days * 86400
+    source = url
+    if not fresh and (OSM_MIRROR or _r2_ready()):
+        print(f"  downloading {dest.name} from the R2 mirror ...", flush=True)
+        if _mirror_get(dest.name + ".md5", md5_path) and _mirror_get(dest.name, dest):
+            fresh, source = True, f"r2:{OSM_MIRROR_PREFIX}{dest.name}"
+        else:
+            print("    mirror unavailable; falling back to Geofabrik", file=sys.stderr)
+            md5_path.unlink(missing_ok=True)
     if not fresh:
         print(f"  downloading {url} ...", flush=True)
-        for attempt in range(3):
-            try:
-                _download(url, dest)
-                break
-            except Exception as e:
-                print(f"    attempt {attempt + 1} failed: {e}", file=sys.stderr)
-                time.sleep(30 * (attempt + 1))
-        else:
+        if not _fetch_with_retry(url, dest, 5, 60):
             raise RuntimeError(f"could not download {url}")
-    md5_path = dest.with_name(dest.name + ".md5")
-    if not fresh or not md5_path.exists():
-        _download(url + ".md5", md5_path, timeout=120)
+    if source == url and (not fresh or not md5_path.exists()):
+        if not _fetch_with_retry(url + ".md5", md5_path, 5, 30, timeout=120):
+            raise RuntimeError(f"could not download {url}.md5")
     want = md5_path.read_text().split()[0]
     got = _md5(dest)
     if got != want:
         dest.unlink()
         raise RuntimeError(f"md5 mismatch for {dest.name} (got {got}, want {want}); deleted, rerun")
     return {"region": props["id"], "url": url, "file": dest.name, "md5": got,
+            **({"fetched_from": source} if source != url else {}),
             "replication_timestamp": _replication_ts(dest)}
 
 

@@ -9,7 +9,7 @@ Discovery notes (recorded in _meta.json):
   record; they are assigned by the WATER_SYSTEM city field against county towns.
 Manifest layer: water_systems. Provenance: observed (EPA SDWIS via Envirofacts).
 """
-import json, pathlib, urllib.request, datetime, time, sys
+import json, pathlib, urllib.error, urllib.parse, urllib.request, datetime, time, sys
 import pandas as pd
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
@@ -39,9 +39,21 @@ if places.exists():
 print("county towns for matching:", sorted(TOWNS))
 
 def ef(path):
-    req = urllib.request.Request(f"{BASE}/{path}", headers=UA)
-    with urllib.request.urlopen(req, timeout=300) as r:
-        raw = r.read()
+    # names with spaces ("New York", "District of Columbia", CT planning regions) must be
+    # percent-encoded or urllib refuses the URL (canary run 43794676050)
+    req = urllib.request.Request(f"{BASE}/{urllib.parse.quote(path)}", headers=UA)
+    for attempt in range(4):
+        try:
+            with urllib.request.urlopen(req, timeout=300) as r:
+                raw = r.read()
+            break
+        except urllib.error.HTTPError as e:
+            if e.code < 500 or attempt == 3:
+                raise
+        except (urllib.error.URLError, TimeoutError):
+            if attempt == 3:
+                raise
+        time.sleep(20 * (attempt + 1))
     try:
         return json.loads(raw)
     except json.JSONDecodeError:
@@ -51,6 +63,8 @@ def ef(path):
 
 geo = ef(f"GEOGRAPHIC_AREA/COUNTY_SERVED/{C.name_short}/JSON")
 g = pd.DataFrame(geo)
+if g.empty or "primacy_agency_code" not in g.columns:
+    g = pd.DataFrame(columns=["pwsid", "primacy_agency_code"])
 ne = g[g["primacy_agency_code"] == C.st]
 print(f"{C.st}-primacy systems serving {C.name_short} Co:", ne.pwsid.nunique())
 
@@ -65,7 +79,13 @@ if has_tribal:
     wa = pd.DataFrame(ws_all)
     print(f"region-{reg} tribal systems total:", len(wa))
     citycol = next((c for c in wa.columns if "city" in c.lower()), None)
-    trib = wa[(wa["primacy_agency_code"] == reg) & (wa[citycol].str.upper().isin(TOWNS))]
+    if wa.empty or citycol is None or "primacy_agency_code" not in wa.columns:
+        # no tribal-primacy systems in this EPA region (DE, HI, LA in the canary): an empty
+        # answer has no columns, so there is nothing to match (canary run 43794676050)
+        wa = pd.DataFrame(columns=["pwsid", "primacy_agency_code"])
+        citycol = "city_name"
+        wa[citycol] = []
+    trib = wa[(wa["primacy_agency_code"] == reg) & (wa[citycol].astype(str).str.upper().isin(TOWNS))]
     print("tribal-primacy systems in county towns:", len(trib))
     if len(trib):
         print(trib[["pwsid", "pws_name", citycol, "population_served_count"]].to_string())
