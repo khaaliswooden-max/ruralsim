@@ -47,17 +47,21 @@ _SUFFIX = re.compile(r"\s+(city|town|village|borough|boro|CDP|municipality|city 
                      r"consolidated government|unified government|metro government|"
                      r"urban county|plantation|township|twp|charter township|gore|grant|"
                      r"location|purchase|unorganized territory|CCD|precinct)(\s+\(balance\))?$", re.I)
-# New Jersey writes served towns as "ALLOWAY TWP-.1701" (municipal code after the name);
-# Salem NJ placed 0 of 105 systems until this was stripped (canary run 43794676050)
-_MUNI_CODE = re.compile(r"\s*-\s*\.?\d+\s*$")
+# New Jersey writes served towns with its municipal code: "ALLOWAY TWP-.1701",
+# "PITTSGROVE TWP.-1710", "LOWER ALLOWAYS CR.-1704". Salem NJ placed 0 of 105 systems
+# until the code, the period and the abbreviation were handled (canary run 43794676050).
+_MUNI_CODE = re.compile(r"[\s.]*-[\s.]*\d+\s*$")
+_ABBREV = {"CR": "CREEK", "CRK": "CREEK", "PT": "POINT", "HTS": "HEIGHTS", "SPGS": "SPRINGS",
+           "LK": "LAKE", "FT": "FORT", "TWP": "TOWNSHIP", "BORO": "BOROUGH"}
 
 
 def norm(name: str) -> str:
     s = re.sub(r"\(.*?\)", "", str(name)).strip()
-    s = _MUNI_CODE.sub("", s)
-    s = _SUFFIX.sub("", s)
-    s = s.upper().replace("SAINT ", "ST ").replace("ST. ", "ST ").replace("MOUNT ", "MT ")
-    return re.sub(r"[^A-Z0-9 ]", "", s).strip()
+    s = _MUNI_CODE.sub("", s).upper()
+    s = s.replace("SAINT ", "ST ").replace("ST. ", "ST ").replace("MOUNT ", "MT ")
+    s = re.sub(r"[^A-Z0-9 ]", "", s)
+    s = " ".join(_ABBREV.get(w, w) for w in s.split())
+    return _SUFFIX.sub("", s).strip()
 
 
 def _s(v) -> str:

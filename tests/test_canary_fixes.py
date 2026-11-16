@@ -19,7 +19,12 @@ import place_water_systems as pw  # noqa: E402
 def test_nj_town_names():
     pairs = {"ALLOWAY TWP-.1701": "Alloway township", "PENNS GROVE BORO-.1708": "Penns Grove borough",
              "SALEM CITY-.1712": "Salem city", "Carneys Point Township": "Carneys Point township",
-             "Pittsgrove twp": "Pittsgrove township", "Lebanon CCD": "Lebanon"}
+             "Pittsgrove twp": "Pittsgrove township", "Lebanon CCD": "Lebanon",
+             "PITTSGROVE TWP.-1710": "Pittsgrove township",
+             "UPPER PITTSGROVE TWP.-1714": "Upper Pittsgrove township",
+             "LOWER ALLOWAYS CR.-1704": "Lower Alloways Creek township",
+             "CARNEY'S POINT TWP.-1713": "Carneys Point township",
+             "Mount Pleasant": "Mt. Pleasant city", "Saint Marys": "St. Marys city"}
     for sdwis, census in pairs.items():
         assert pw.norm(sdwis) == pw.norm(census), (sdwis, pw.norm(sdwis), pw.norm(census))
     # a name that merely ends in a number is not a municipal code
