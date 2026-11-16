@@ -34,3 +34,19 @@ Per county, from the bucket (`logs/<run id>/<fips>.txt`, `worlds/<dir>/latest.js
 build minutes, published MB, validation pass / flag / fail, and the first error line for
 any failure. Summarise in READINESS and decide the national batch size from the slowest
 quartile, not the mean.
+
+## Result — run 43794676050 (2026-11-16)
+
+38 of 57 built and published; 19 failed. Built: median 13 min, 75th percentile 19 min, slowest 54 min; median 143 MB published, largest 503 MB, 6.4 GB in all. Validation across the 38: 286 pass, 29 flag, 0 fail; 14 counties with no flag. Failure causes and fixes: D-036.
+
+| Cause | Counties |
+|---|---|
+| Geofabrik refused parallel downloads | 06003, 20071, 29227, 37177, 41069, 46102, 51610 |
+| EPA URL with a space | 09110, 11001, 36061 |
+| Empty EPA answer | 10001, 15005, 22107 |
+| Terrain out of memory | 02013, 02290, 06071 |
+| Multi-part boundary | 12087 |
+| NHD server error, then heal loop | 22023 |
+| TNM search server error | 53023 |
+
+Re-run list (the 19): `02013,02290,06003,06071,09110,10001,11001,12087,15005,20071,22023,22107,29227,36061,37177,41069,46102,51610,53023`

@@ -43,7 +43,7 @@ class SlowLink(Exception):
 
 
 def api(query):
-    """TNM product search, retried: it answered HTTP 500 for King WA in the canary run
+    """TNM product search, retried: it answered HTTP 500 for Garfield WA in the canary run
     (43794676050) and the whole county failed on one bad response."""
     url = "https://tnmaccess.nationalmap.gov/api/v1/products?" + urllib.parse.urlencode(query)
     req = urllib.request.Request(url, headers={"User-Agent": "RuralSim-research/0.1"})

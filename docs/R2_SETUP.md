@@ -58,3 +58,11 @@ Without this, the site links newly built counties only at its next deploy (any m
    name `VERCEL_DEPLOY_HOOK`, value the hook URL. Treat it as a secret: anyone with it can
    trigger deploys.
 The workflow's last step then triggers a production redeploy after rebuilding the index.
+
+## 8. OSM extract mirror (D-036)
+The plan job copies each Geofabrik state extract a batch needs into the bucket under
+`osm/` (the `.pbf` and Geofabrik's `.md5`), once and one at a time, and the county jobs
+read them from there with the same R2 credentials. Nothing to set up: it uses the three
+secrets above. Copies older than 7 days are refreshed on the next run that needs them;
+a full national set is about 10 GB (~$0.15 a month). To force a refresh, delete the
+object in the Cloudflare dashboard (R2 → `ruralsim-data` → `osm/`).
