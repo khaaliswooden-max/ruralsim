@@ -145,6 +145,19 @@ def publish(fips: str, s3) -> dict:
     return latest
 
 
+def publish_log(s3, fips: str, path: str, run: str):
+    """Build log for one county and run, public, so failures can be read without
+    GitHub sign-in: logs/<run>/<fips5>.txt (D-032)."""
+    p = pathlib.Path(path)
+    if not p.exists():
+        print(f"no log at {p}; nothing to publish")
+        return
+    key = f"logs/{run}/{fips}.txt"
+    s3.upload_file(str(p), bucket(), key,
+                   ExtraArgs={"ContentType": "text/plain; charset=utf-8", "CacheControl": SHORT})
+    print(f"log: {key}")
+
+
 def rebuild_index(s3):
     counties = []
     pag = s3.get_paginator("list_objects_v2")
@@ -167,7 +180,14 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description="Publish county worlds to R2 (D-031)")
     ap.add_argument("fips", nargs="*")
     ap.add_argument("--rebuild-index", action="store_true")
+    ap.add_argument("--log", help="publish this build log for the single fips given (needs --run)")
+    ap.add_argument("--run", help="run id the log belongs to, e.g. the GitHub Actions run id")
     a = ap.parse_args(argv)
+    if a.log:
+        if len(a.fips) != 1 or not a.run:
+            ap.error("--log needs exactly one fips5 and --run")
+        publish_log(client(), a.fips[0], a.log, a.run)
+        return
     if not a.fips and not a.rebuild_index:
         ap.error("give one or more fips5 codes, or --rebuild-index")
     s3 = client()
