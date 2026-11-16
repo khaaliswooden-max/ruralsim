@@ -10,7 +10,8 @@ with Microsoft and Google machine-learned footprints and Esri Community Maps, gi
 the highest priority, under ODbL (the same licence RuralSim already carries for OSM).
 
 This step keeps RuralSim's own OSM layer as the primary source and takes from Overture
-only the footprints that did NOT come from OSM, inside the county's buffered bbox:
+only the footprints that did NOT come from OSM, whose centre lies in the county polygon
+plus ~1 km (not the whole buffered bbox, which can hold a neighbouring city):
 
     layers_raw/buildings_overture/overture_buildings_<fips>.geojson
         properties: overture_id, source (e.g. "Microsoft ML Buildings"), record_id,
@@ -109,6 +110,19 @@ def query(urls: list[str], bbox) -> list[dict]:
     return feats
 
 
+CLIP_BUFFER_DEG = 0.01  # ~1 km around the county polygon
+
+
+def clip_to_county(feats: list[dict], county_geom) -> list[dict]:
+    """Keep footprints whose centre is in the county (plus ~1 km). The bbox around a small
+    county can hold a whole neighbouring city: Salem NJ's held 215,000 Overture footprints
+    from the Wilmington and Philadelphia suburbs. OSM keeps the full bbox for context."""
+    from shapely.geometry import shape
+    from shapely.prepared import prep
+    area = prep(county_geom.buffer(CLIP_BUFFER_DEG))
+    return [f for f in feats if area.contains(shape(f["geometry"]).representative_point())]
+
+
 def main(fips=None):
     C = get(fips)
     out_dir = C.world / "layers_raw" / "buildings_overture"
@@ -124,7 +138,7 @@ def main(fips=None):
         urls = files_for(C.buf_bbox, file_index(release))
         if not urls:
             raise RuntimeError(f"no Overture {release} building file covers {C.buf_bbox}")
-        feats = query(urls, C.buf_bbox)
+        feats = clip_to_county(query(urls, C.buf_bbox), C.geom)
     except Exception as e:
         gap = {"layer": "buildings_overture", "file": out.name, "endpoint": STAC,
                "error": str(e)[:300], "utc": now}
