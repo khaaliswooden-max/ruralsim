@@ -35,7 +35,7 @@ with mock_aws():
     idx = json.loads(get("worlds/index.json"))
     assert idx["count"] == 2 and [c["fips5"] for c in idx["counties"]] == ["20019", "31173"], idx
     c = idx["counties"][1]
-    assert c["viewer"] == "worlds/31173_thurston_ne/current/viewer/"
+    assert c["viewer"] == "worlds/31173_thurston_ne/current/viewer/index.html"
     assert c["validation"]["checks"] > 0
 
     html = get("worlds/31173_thurston_ne/current/viewer/index.html").decode()

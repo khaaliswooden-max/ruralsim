@@ -170,7 +170,13 @@ def remote_worlds():
     except Exception as e:
         print(f"  remote worlds index unavailable ({e}); publishing pilots only")
         return {}
-    return {c["fips5"]: f"{base}/worlds/{c['dir']}/current/viewer/" for c in idx.get("counties", [])}
+    # R2 public URLs serve no index document, so a viewer link must name index.html (D-033);
+    # older index entries ending in "/" are completed here
+    out = {}
+    for c in idx.get("counties", []):
+        v = c.get("viewer") or f"worlds/{c['dir']}/current/viewer/index.html"
+        out[c["fips5"]] = f"{base}/{v + 'index.html' if v.endswith('/') else v}"
+    return out
 
 
 def county_dirs():
