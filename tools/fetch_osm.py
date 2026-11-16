@@ -320,12 +320,17 @@ def _md5(path: pathlib.Path) -> str:
     return h.hexdigest()
 
 
+# The U.S. part of Geofabrik's index-v1.json, committed (D-040): state outlines (buffered
+# 0.02 deg outward, then simplified, so selection is never narrower than the real outline)
+# and extract URLs. Run 43927499068 failed in the plan job because GitHub's runner could
+# not reach download.geofabrik.de even for the 4 MB index; with the extracts mirrored in
+# R2 (D-036) the index was the last thing a build needed from Geofabrik. State outlines
+# and URLs do not change; refresh with tools/refresh_geofabrik_index.py if they ever do.
+US_INDEX = REPO / "data" / "geofabrik_us_index.json"
+
+
 def geofabrik_index() -> list[dict]:
-    CACHE.mkdir(parents=True, exist_ok=True)
-    p = CACHE / "index-v1.json"
-    if not p.exists() or time.time() - p.stat().st_mtime > 30 * 86400:
-        _download(GEOFABRIK_INDEX, p, timeout=300)
-    feats = json.loads(p.read_text())["features"]
+    feats = json.loads(US_INDEX.read_text())["features"]
     # A state is any region whose extract sits exactly one level under
     # /north-america/us/ (California's norcal/socal sub-extracts sit deeper and are
     # skipped, so California downloads once). Matching on the URL, not `parent`,
@@ -333,8 +338,8 @@ def geofabrik_index() -> list[dict]:
     states = [f for f in feats if f.get("geometry")
               and _US_STATE_PBF.fullmatch(f["properties"].get("urls", {}).get("pbf", ""))]
     if len(states) < 50:
-        raise RuntimeError(f"Geofabrik index lists only {len(states)} U.S. state extracts "
-                           f"(expected 50 + DC); delete {p} and rerun, or check the index format")
+        raise RuntimeError(f"{US_INDEX.name} lists only {len(states)} U.S. state extracts "
+                           "(expected 50 + DC); regenerate it with tools/refresh_geofabrik_index.py")
     return states
 
 
