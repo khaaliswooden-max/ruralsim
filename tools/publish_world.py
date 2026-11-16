@@ -14,7 +14,8 @@ Bucket layout, per county directory <dir> = <fips5>_<slug>:
     worlds/<dir>/snapshots/<id>/...        the whole world (layers, layers_raw, stage,
                                            viewer, viewer_data, renders) + validation report
                                            + manifest.json; never overwritten
-    worlds/<dir>/current/viewer/           branded viewer, served to the public
+    worlds/<dir>/current/viewer/           branded viewer, served to the public; link to
+                                           .../viewer/index.html (R2 serves no index document)
     worlds/<dir>/current/viewer_data/      slimmed viewer data
     worlds/<dir>/latest.json               {snapshot, published_utc, validation summary}
     worlds/index.json                      every published county (rebuilt by --rebuild-index)
@@ -137,7 +138,7 @@ def publish(fips: str, s3) -> dict:
 
     latest = {"fips5": C.fips, "dir": C.dir_name, "name": C.county_name, "state": C.st,
               "snapshot": snap, "published_utc": manifest["published_utc"],
-              "viewer": f"{prefix}/current/viewer/", "validation": validation_summary(C.dir_name)}
+              "viewer": f"{prefix}/current/viewer/index.html", "validation": validation_summary(C.dir_name)}
     put_json(s3, latest, f"{prefix}/latest.json")
     nbytes = sum(f["bytes"] for f in manifest["files"])
     print(f"{C.dir_name}: snapshot {snap}, {len(manifest['files'])} files, {nbytes / 1e6:.1f} MB; "

@@ -45,5 +45,6 @@ National page. Without it the site builds exactly as before (pilots only).
 ## 6. First run
 GitHub → **Actions → Build county worlds → Run workflow**, counties `48301` (Loving TX),
 publish on. When it finishes, `<RURALSIM_DATA_BASE>/worlds/index.json` lists the county
-and its viewer is at `<RURALSIM_DATA_BASE>/worlds/48301_loving_tx/current/viewer/`.
+and its viewer is at `<RURALSIM_DATA_BASE>/worlds/48301_loving_tx/current/viewer/index.html`
+(R2 public URLs do not serve `index.html` for a bare folder path; always name the file).
 Redeploy the site (or push any commit) to pick up the new link.
