@@ -19,6 +19,7 @@ import json, pathlib, re, time, urllib.request, urllib.parse, datetime, sys
 import numpy as np
 import rasterio
 import rasterio.enums
+import rasterio.errors
 from rasterio.windows import from_bounds
 from rasterio.features import geometry_mask
 from shapely.geometry import mapping
@@ -93,9 +94,14 @@ def read_windows(paths_or_urls, decim=1):
         with rasterio.open(p) as src:
             win = from_bounds(W, S, E, N, src.transform)
             full = Window(0, 0, src.width, src.height)
-            win = win.intersection(full)
+            try:
+                win = win.intersection(full)
+            except rasterio.errors.WindowError:
+                win = None  # rasterio raises, not returns None, when there is no overlap
             if win is None:
-                continue   # tile does not overlap the bbox at all
+                # tile does not overlap the bbox at all: TNM's search returns neighbouring
+                # tiles too (Allen KS 20003 and Phillips KS 20147 failed here, run 43976729053)
+                continue
             win = win.round_offsets().round_lengths()
             wt = src.window_transform(win)   # transform of the CLIPPED window
             if decim > 1:
