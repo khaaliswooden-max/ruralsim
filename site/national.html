@@ -81,11 +81,15 @@
 </div>
 
 <script type="module">
-const [rows, pilots] = await Promise.all(['national', 'pilots'].map(async f => (await fetch(`/data/${f}.json`)).json()));
+const [rows, pilots, worlds] = await Promise.all(['national', 'pilots', 'worlds'].map(async f => {
+  try { return (await fetch(`/data/${f}.json`)).json(); } catch { return f === 'worlds' ? {} : []; }
+}));
 const pilotDir = Object.fromEntries(pilots.map(p => [p.fips, p.dir]));
+// county viewers hosted in object storage (D-031); pilots keep their on-site viewers
+const viewerUrl = fips => pilotDir[fips] ? `/worlds/${pilotDir[fips]}/viewer/` : worlds[fips];
 const n = (v, d = 0) => v == null ? '' : Number(v).toLocaleString('en-US', { maximumFractionDigits: d, minimumFractionDigits: d });
 const COLS = [
-  { k: 'name', t: 'County', f: (v, r) => pilotDir[r.fips] ? `<a href="/worlds/${pilotDir[r.fips]}/viewer/">${v}</a>` : v },
+  { k: 'name', t: 'County', f: (v, r) => viewerUrl(r.fips) ? `<a href="${viewerUrl(r.fips)}">${v}</a>` : v },
   { k: 'st', t: 'State' },
   { k: 'pop', t: 'People (2024)', f: v => n(v) },
   { k: 'chg', t: 'Change since 2020', f: v => v == null ? '' : `${v > 0 ? '+' : ''}${n(v, 1)}%` },
