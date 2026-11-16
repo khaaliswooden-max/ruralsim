@@ -328,10 +328,43 @@ def infer_height(props):
     if b in ("house", "residential", "detached", "yes", ""): return 4.5
     return 5.0
 
+OVT_FILE = RAW / "buildings_overture" / f"overture_buildings_{FIPS}.geojson"
+
+
+def overture_fill(osm_features):
+    """Overture non-OSM footprints whose centre is not inside an OSM building (D-037)."""
+    if not OVT_FILE.exists():
+        return []
+    ovt = json.loads(OVT_FILE.read_text()).get("features", [])
+    if not ovt:
+        return []
+    from shapely import STRtree
+    from shapely.geometry import shape as _shape
+    polys = [_shape(f["geometry"]) for f in osm_features
+             if f.get("geometry") and f["geometry"]["type"] in ("Polygon", "MultiPolygon")]
+    pts = [_shape(f["geometry"]).representative_point() for f in ovt]
+    dup = set()
+    if polys:
+        hit = STRtree(polys).query(pts, predicate="within")
+        dup = set(int(i) for i in hit[0])
+    keep = [f for i, f in enumerate(ovt) if i not in dup]
+    print(f"overture fill: {len(keep)} added, {len(dup)} already in OSM")
+    return keep
+
+
+def _ovt_height(p):
+    if p.get("height"):
+        return round(float(p["height"]), 1)
+    if p.get("num_floors"):
+        return round(3.0 * float(p["num_floors"]) + 1.5, 1)
+    return infer_height({"building": p.get("class") or ""})
+
+
 def build_buildings(stage):
     d = json.loads((RAW / "osm" / "buildings.geojson").read_text())
+    feats = [(f, "osm") for f in d["features"]] + [(f, "ovt") for f in overture_fill(d["features"])]
     n = 0; viewer = []
-    for f in d["features"]:
+    for f, src in feats:
         g = f["geometry"]
         if g["type"] == "Polygon":
             rings = [g["coordinates"][0]]
@@ -339,7 +372,7 @@ def build_buildings(stage):
             rings = [g["coordinates"][0][0]]
         else:
             continue
-        h = infer_height(f["properties"])
+        h = infer_height(f["properties"]) if src == "osm" else _ovt_height(f["properties"])
         xs, ys = zip(*enu_coords(rings[0]))
         cx, cy = float(np.mean(xs)), float(np.mean(ys))
         w = float(max(xs) - min(xs)); dep = float(max(ys) - min(ys))
@@ -354,13 +387,27 @@ def build_buildings(stage):
         xf.SetTranslate((cx, base + h / 2, cy))
         UsdGeom.Mesh(cube.GetPrim()).CreateDisplayColorAttr([(0.75, 0.72, 0.68)])
         n += 1
-        viewer.append({"c": [round(cx, 1), round(cy, 1)], "w": round(w, 1), "d": round(dep, 1),
-                       "h": h, "kind": f["properties"].get("building", "yes")})
+        v = {"c": [round(cx, 1), round(cy, 1)], "w": round(w, 1), "d": round(dep, 1), "h": h,
+             "kind": (f["properties"].get("building", "yes") if src == "osm"
+                      else f["properties"].get("class") or "yes")}
+        if src == "ovt":
+            v["src"] = f["properties"].get("source") or "Overture"
+        viewer.append(v)
     (VIEWER_DATA / "buildings.json").write_text(json.dumps(viewer))
     print("buildings extruded:", n)
-register("buildings", "OpenStreetMap building footprints", "observed (footprint), derived (height)",
-         "ODbL 1.0", "retrieved 2026-11-11",
-         "heights inferred from footprint class per manifest rule; MS footprints fallback not needed")
+_ovt_meta_f = RAW / "buildings_overture" / "_meta.json"
+if _ovt_meta_f.exists():  # D-037: OSM first, Overture (Microsoft/Google ML, Esri) fills gaps
+    _om = json.loads(_ovt_meta_f.read_text())
+    register("buildings", f"OpenStreetMap building footprints + Overture Maps buildings release "
+             f"{_om['release']} (non-OSM: {', '.join(sorted(_om.get('by_source', {})))})",
+             "observed (footprint), derived (height)", "ODbL 1.0",
+             f"OSM {_osm_meta.get('retrieved_utc', '')[:10] or 'per roads'}; Overture {_om['release']}",
+             "OSM first; Overture footprint kept only where its centre is not inside an OSM "
+             "building; heights from Overture height/floors when present, else footprint class")
+else:
+    register("buildings", "OpenStreetMap building footprints", "observed (footprint), derived (height)",
+             "ODbL 1.0", "retrieved 2026-11-11",
+             "heights inferred from footprint class per manifest rule; MS footprints fallback not needed")
 
 # ---------------- facilities: hospitals, schools, water systems ----------------
 def _geom_ll(f):

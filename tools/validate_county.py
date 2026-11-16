@@ -51,12 +51,25 @@ BUILDINGS_FLOOR, BUILDINGS_CEILING = 0.8, 5.0
 from shapely.prepared import prep
 _inside = prep(geom_wgs)
 _bfc = json.loads((RAW / "osm" / "buildings.geojson").read_text())["features"]
-n_b = sum(1 for f in _bfc if f.get("geometry")
-          and _inside.contains(shape(f["geometry"]).representative_point()))
+n_osm = sum(1 for f in _bfc if f.get("geometry")
+            and _inside.contains(shape(f["geometry"]).representative_point()))
+# Overture fill (D-037): the same footprints the stage draws — centre not inside an OSM building
+n_ovt = 0
+_of = RAW / "buildings_overture" / f"overture_buildings_{FIPS}.geojson"
+if _of.exists():
+    from shapely import STRtree
+    _ov = json.loads(_of.read_text()).get("features", [])
+    _polys = [shape(f["geometry"]) for f in _bfc
+              if f.get("geometry") and f["geometry"]["type"] in ("Polygon", "MultiPolygon")]
+    _pts = [shape(f["geometry"]).representative_point() for f in _ov]
+    _dup = set(int(i) for i in STRtree(_polys).query(_pts, predicate="within")[0]) if _polys and _pts else set()
+    n_ovt = sum(1 for i, pt in enumerate(_pts) if i not in _dup and _inside.contains(pt))
+n_b = n_osm + n_ovt
 hu = float(m["housing_units_2020"])
 ratio = n_b / hu if hu else float("inf")
 if ratio < BUILDINGS_FLOOR:
-    status, why = "FLAG", "below the 80% floor - OSM building completeness in rural counties is partial"
+    status, why = "FLAG", ("below the 80% floor - building footprint coverage is partial"
+                           + ("" if _of.exists() else " (OSM only; Overture fill not fetched)"))
 elif ratio > BUILDINGS_CEILING:
     status, why = "FLAG", ("over 5x housing units - many non-residential structures (farm, oil field, "
                            "industrial); households placed on building centroids may land on them")
@@ -64,7 +77,9 @@ else:
     status, why = "PASS", "within 80%-500% of housing units"
 results.append(("buildings vs housing_units_2020", n_b, int(hu),
                 round((n_b - hu) / hu * 100, 1) if hu else None, status,
-                f"OSM footprints inside the county {n_b} vs {int(hu)} housing units ({ratio*100:.0f}%); {why}"))
+                (f"footprints inside the county {n_b} (OSM {n_osm} + Overture {n_ovt})" if _of.exists()
+                 else f"OSM footprints inside the county {n_b}")
+                + f" vs {int(hu)} housing units ({ratio*100:.0f}%); {why}"))
 
 # 2b. source gaps: a public server that was down at build time (D-036). The layer was
 # written empty so the world could still be built; say so on the public page.

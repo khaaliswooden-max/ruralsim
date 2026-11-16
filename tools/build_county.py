@@ -20,6 +20,7 @@ PIPELINE = [
     # before water (water checks tribal lands to decide on tribal-primacy query)
     "tools/fetch_terrain.py",
     "tools/fetch_osm.py",            # roads/buildings/schools/healthcare/power/places/water/food_shops/bridges
+    "tools/fetch_buildings_overture.py",  # D-037: non-OSM footprints to fill OSM's rural gaps
     "tools/fetch_arcgis_layers.py",  # tribal, PAD-US, rail, NHD
     "tools/fetch_bridges.py",
     "tools/fetch_grid.py",
@@ -45,6 +46,7 @@ EXPECT = {
                                      "layers_raw/rail/rail_ntad_*.geojson",
                                      "layers_raw/hydrology/nhd_flowlines_*.geojson",
                                      "layers_raw/hydrology/nhd_waterbodies_*.geojson"],
+    "tools/fetch_buildings_overture.py": ["layers_raw/buildings_overture/overture_buildings_*.geojson"],
     "tools/fetch_bridges.py": ["layers_raw/bridges/nbi_*.geojson"],
     # county-file globs are FIPS-specific: eia860_plants_<ST>.csv (state extract)
     # also matches eia860_plants_*.csv and would mask a dropped county file
