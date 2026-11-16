@@ -51,8 +51,29 @@ BUILDINGS_FLOOR, BUILDINGS_CEILING = 0.8, 5.0
 from shapely.prepared import prep
 _inside = prep(geom_wgs)
 _bfc = json.loads((RAW / "osm" / "buildings.geojson").read_text())["features"]
+
+
+def _rep_point(g):
+    """A point on the footprint; OSM relations can carry degenerate rings (<4 points)
+    that shapely refuses, so fall back to the mean of the coordinates."""
+    from shapely.geometry import Point
+    try:
+        return shape(g).representative_point()
+    except (ValueError, TypeError):
+        xy = np.array([c for c in _flat(g["coordinates"])], dtype=float)
+        return Point(xy[:, 0].mean(), xy[:, 1].mean()) if len(xy) else None
+
+
+def _flat(c):
+    if c and isinstance(c[0], (int, float)):
+        yield c[:2]
+    else:
+        for x in c:
+            yield from _flat(x)
+
+
 n_b = sum(1 for f in _bfc if f.get("geometry")
-          and _inside.contains(shape(f["geometry"]).representative_point()))
+          and (pt := _rep_point(f["geometry"])) is not None and _inside.contains(pt))
 hu = float(m["housing_units_2020"])
 ratio = n_b / hu if hu else float("inf")
 if ratio < BUILDINGS_FLOOR:
