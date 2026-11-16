@@ -34,6 +34,24 @@ if existing:
     print(f"land_cover: {existing[0].name} already present, skipping (delete to re-fetch)")
     sys.exit(0)
 
+# The Cropland Data Layer covers the contiguous 48 states only. Alaska and Hawaii have no
+# CDL, so the canary rerun (43845007357) failed Hawaii HI and Aleutians East AK here with
+# "max() iterable argument is empty". Write an explicit "not covered" placeholder instead
+# (1 x 1 nodata raster; nothing downstream reads class values yet), and say so in _meta.
+if C.st in ("AK", "HI"):
+    out = OUT / f"cdl_{FIPS}_none.tif"
+    with rasterio.open(out, "w", driver="GTiff", height=1, width=1, count=1, dtype="uint8",
+                       crs="EPSG:4326", transform=rasterio.Affine(E - W, 0, W, 0, -(N - S), N),
+                       nodata=0) as dst:
+        dst.write(np.zeros((1, 1), dtype="uint8"), 1)
+    (OUT / "_meta.json").write_text(json.dumps({
+        "retrieved_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        "source": "none: USDA NASS Cropland Data Layer covers the contiguous U.S. only",
+        "license": "n/a", "provenance": "not covered",
+        "output": {"file": f"layers/land_cover/{out.name}", "year": None}}, indent=2))
+    print(f"land_cover: CDL does not cover {C.st}; wrote placeholder {out.name}")
+    sys.exit(0)
+
 CDL_NAMES = {1: "corn", 5: "soybeans", 176: "grass/pasture", 141: "deciduous forest",
              36: "alfalfa", 121: "developed/open", 122: "developed/low",
              195: "herbaceous wetlands", 190: "woody wetlands", 111: "open water",
