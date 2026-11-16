@@ -156,27 +156,84 @@ def brand_viewer_html(html, home="/"):
     return html.replace("<body>", "<body>\n" + disc, 1)
 
 
-def remote_worlds():
-    """Counties published to object storage (D-031): {fips5: viewer URL}. Read at build time
-    from <RURALSIM_DATA_BASE>/worlds/index.json; empty when the variable is unset or the
+_REMOTE_INDEX = None
+
+
+def remote_index():
+    """Published counties from <RURALSIM_DATA_BASE>/worlds/index.json (D-031), fetched once
+    per build: (base URL, list of county entries). Empty when the variable is unset or the
     index is unreachable, so the site still builds with the pilots alone."""
+    global _REMOTE_INDEX
+    if _REMOTE_INDEX is not None:
+        return _REMOTE_INDEX
     base = os.environ.get("RURALSIM_DATA_BASE", "").rstrip("/")
-    if not base:
-        return {}
-    try:
-        req = urllib.request.Request(f"{base}/worlds/index.json", headers={"User-Agent": "ruralsim-site-build"})
-        with urllib.request.urlopen(req, timeout=60) as r:
-            idx = json.load(r)
-    except Exception as e:
-        print(f"  remote worlds index unavailable ({e}); publishing pilots only")
-        return {}
+    counties = []
+    if base:
+        try:
+            req = urllib.request.Request(f"{base}/worlds/index.json", headers={"User-Agent": "ruralsim-site-build"})
+            with urllib.request.urlopen(req, timeout=60) as r:
+                counties = json.load(r).get("counties", [])
+        except Exception as e:
+            print(f"  remote worlds index unavailable ({e}); publishing pilots only")
+    _REMOTE_INDEX = (base, counties)
+    return _REMOTE_INDEX
+
+
+def _viewer_url(base, c):
     # R2 public URLs serve no index document, so a viewer link must name index.html (D-033);
     # older index entries ending in "/" are completed here
-    out = {}
-    for c in idx.get("counties", []):
-        v = c.get("viewer") or f"worlds/{c['dir']}/current/viewer/index.html"
-        out[c["fips5"]] = f"{base}/{v + 'index.html' if v.endswith('/') else v}"
-    return out
+    v = c.get("viewer") or f"worlds/{c['dir']}/current/viewer/index.html"
+    return f"{base}/{v + 'index.html' if v.endswith('/') else v}"
+
+
+def remote_worlds():
+    """{fips5: viewer URL} for every county published to object storage."""
+    base, counties = remote_index()
+    return {c["fips5"]: _viewer_url(base, c) for c in counties}
+
+
+def _summarise(checks):
+    st = [c.get("status") for c in checks]
+    return {"checks": len(st), "pass": st.count("PASS"), "flag": st.count("FLAG"), "fail": st.count("FAIL"),
+            "issues": [{"check": c.get("check"), "status": c.get("status"), "world": c.get("world"),
+                        "dataset": c.get("dataset"), "note": c.get("note")}
+                       for c in checks if c.get("status") in ("FLAG", "FAIL")]}
+
+
+def build_validation(dirs):
+    """One row per built county for the validation dashboard (D-034): the pilots from the
+    reports committed in validation/, every other county from the published index."""
+    rows = []
+    with open(ROOT / "pilots" / "pilot_counties.csv") as fh:
+        pil = {r["fips5"]: r for r in csv.DictReader(fh)}
+    for fips, name in dirs.items():
+        p = ROOT / "validation" / f"{name}_validation.json"
+        if not p.exists():
+            continue
+        r = pil.get(fips, {})
+        rows.append({"fips5": fips, "name": r.get("county_name", name), "state": r.get("state_abbr", ""),
+                     "kind": "pilot", "built": None, "viewer": f"/worlds/{name}/viewer/",
+                     "report": f"https://github.com/khaaliswooden-max/ruralsim/blob/main/validation/{name}_validation.md",
+                     **_summarise(json.loads(p.read_text()))})
+    base, counties = remote_index()
+    for c in counties:
+        if c["fips5"] in dirs:
+            continue  # pilots stay on this site
+        v = dict(c.get("validation") or {})
+        snap = c.get("snapshot", "")
+        report = f"{base}/worlds/{c['dir']}/snapshots/{snap}/validation/{c['dir']}_validation"
+        if "issues" not in v and snap:  # published before D-034: read the report once
+            try:
+                req = urllib.request.Request(report + ".json", headers={"User-Agent": "ruralsim-site-build"})
+                with urllib.request.urlopen(req, timeout=30) as r:
+                    v = _summarise(json.load(r))
+            except Exception:
+                v.setdefault("issues", [])
+        rows.append({"fips5": c["fips5"], "name": c.get("name", c["dir"]), "state": c.get("state", ""),
+                     "kind": "published", "built": (c.get("published_utc") or "")[:10],
+                     "viewer": _viewer_url(base, c), "report": report + ".md", **v})
+    rows.sort(key=lambda r: r["fips5"])
+    return rows
 
 
 def county_dirs():
@@ -345,6 +402,9 @@ def main():
     worlds = {f: u for f, u in remote_worlds().items() if f not in dirs}  # pilots stay on this site
     (data / "worlds.json").write_text(json.dumps(worlds, separators=(",", ":")))
     print(f"  remote 3D counties linked: {len(worlds)}")
+    val = build_validation(dirs)
+    (data / "validation.json").write_text(json.dumps({"universe": 3144, "counties": val}, separators=(",", ":")))
+    print(f"  validation dashboard: {len(val)} counties")
     (data / "experiments.json").write_text(json.dumps(build_experiments(pilots)))
     (data / "national.json").write_text(json.dumps(build_national(), separators=(",", ":")))
     shutil.copy2(ROOT / "national" / "tier_a_county_stats.csv", data / "tier_a_county_stats.csv")

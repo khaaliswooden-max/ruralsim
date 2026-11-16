@@ -5,7 +5,7 @@
     "dataset": 396.1,
     "diff_pct": 0.1,
     "status": "PASS",
-    "note": "Census 2023 cartographic polygon vs master land+water area"
+    "note": "Census 2023 cartographic boundary 1:500k (pilots/) polygon vs master land+water area"
   },
   {
     "check": "buildings vs housing_units_2020",
@@ -13,7 +13,7 @@
     "dataset": 2283,
     "diff_pct": -46.3,
     "status": "FLAG",
-    "note": "OSM footprints 1225 vs 2283 housing units (54%); manifest floor is 80% - OSM building completeness in rural counties is partial"
+    "note": "OSM footprints 1225 vs 2283 housing units (54%); below the 80% floor - OSM building completeness in rural counties is partial"
   },
   {
     "check": "hospitals placed",
@@ -88,12 +88,12 @@
     "note": "all years match county_year exactly"
   },
   {
-    "check": "water systems placed",
+    "check": "active water systems placed",
     "world": 9,
-    "dataset": 37,
-    "diff_pct": 75.7,
-    "status": "FLAG",
-    "note": "EPA SDWIS has no coordinates; markers placed at served-town centroids - systems whose town name did not match OSM places are unplaced (see DECISIONS)"
+    "dataset": 9,
+    "diff_pct": 0.0,
+    "status": "PASS",
+    "note": "EPA SDWIS has no coordinates; markers sit at served-town points (OSM place, else Census Gazetteer place, D-030); systems with no matching town stay unplaced"
   },
   {
     "check": "OSM generators vs EIA-860 plants",

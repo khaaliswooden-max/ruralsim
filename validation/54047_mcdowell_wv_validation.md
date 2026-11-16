@@ -5,8 +5,8 @@ Negative results are reported with the same prominence as passes.
 
 | check | world | dataset | diff % | status | note |
 |---|---|---|---|---|---|
-| county polygon area (sq mi) | 534.7 | 534.9 | 0.0 | **PASS** | Census 2023 cartographic polygon vs master land+water area |
-| buildings vs housing_units_2020 | 8938 | 9344 | -4.3 | **PASS** | OSM footprints 8938 vs 9344 housing units (96%); manifest floor is 80% - OSM building completeness in rural counties is partial |
+| county polygon area (sq mi) | 534.7 | 534.9 | 0.0 | **PASS** | Census 2023 cartographic boundary 1:500k (pilots/) polygon vs master land+water area |
+| buildings vs housing_units_2020 | 8938 | 9344 | -4.3 | **PASS** | OSM footprints 8938 vs 9344 housing units (96%); within 80%-500% of housing units |
 | hospitals placed | 1 | 1 | 0.0 | **PASS** | CMS bundle names geocoded via OSM name match, else town centroid (tagged) |
 | bridges placed | 225 | 225 | 0.0 | **PASS** | FHWA NBI 2024, DMS-parsed coordinates, bounds-checked |
 | road network in county (miles, baseline) | 1694.4 | None | — | **INFO** | OSM, clipped to county; no TIGER cross-check yet (Census blocked from build network) |
@@ -16,7 +16,7 @@ Negative results are reported with the same prominence as passes.
 | terrain max elevation (m) | 1074.5 | 1074.5 | 0.0 | **PASS** | vs DEM at matched ~160 m sampling (raw 20 m max 1083.7); extremes smooth under mesh resolution |
 | terrain coverage of county polygon (%) | 100.0 | 100.0 | 0.0 | **PASS** | DEM valid cells over county polygon; a crop at a 1-degree tile edge fails this |
 | population series 2010-2024 vs county_year | 15 | 15 | 0 | **PASS** | all years match county_year exactly |
-| water systems placed | 21 | 183 | 88.5 | **FLAG** | EPA SDWIS has no coordinates; markers placed at served-town centroids - systems whose town name did not match OSM places are unplaced (see DECISIONS) |
+| active water systems placed | 21 | 24 | 12.5 | **FLAG** | EPA SDWIS has no coordinates; markers sit at served-town points (OSM place, else Census Gazetteer place, D-030); systems with no matching town stay unplaced |
 | OSM generators vs EIA-860 plants | 2 | 0 | — | **INFO** | OSM counts individual wind turbines; EIA-860 counts plant-level records - different granularity, not an error; flagged for reader awareness |
 
 **Flags: 1** of 13 checks

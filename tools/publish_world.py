@@ -87,9 +87,14 @@ def validation_summary(world_dir_name: str) -> dict:
         return {"status": "missing"}
     v = json.loads(p.read_text())
     checks = v if isinstance(v, list) else (v.get("checks") or v.get("results") or [])
-    statuses = [c.get("status") for c in checks if isinstance(c, dict)]
+    checks = [c for c in checks if isinstance(c, dict)]
+    statuses = [c.get("status") for c in checks]
     return {"checks": len(statuses), "pass": statuses.count("PASS"), "flag": statuses.count("FLAG"),
-            "fail": statuses.count("FAIL")}
+            "fail": statuses.count("FAIL"),
+            # what failed or flagged, so the national dashboard needs no per-county fetch (D-034)
+            "issues": [{"check": c.get("check"), "status": c.get("status"), "world": c.get("world"),
+                        "dataset": c.get("dataset"), "note": c.get("note")}
+                       for c in checks if c.get("status") in ("FLAG", "FAIL")]}
 
 
 def publish(fips: str, s3) -> dict:

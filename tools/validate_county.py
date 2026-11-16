@@ -40,15 +40,25 @@ ref_area = float(m["land_area_sqmi"]) + float(m["water_area_sqmi"])
 cmp("county polygon area (sq mi)", round(area_sqmi, 1), round(ref_area, 1), thresh=1.0,
     note=f"{C.boundary_source} polygon vs master land+water area")
 
-# 2. buildings vs housing units (manifest: buildings >= 0.8 * housing_units_2020)
+# 2. buildings vs housing units (manifest floor: buildings >= 0.8 * housing_units_2020).
+# Two-sided since D-034: far MORE footprints than homes is also suspect, because the
+# harness places synthetic households on building centroids (Loving TX: 1,316 OSM
+# buildings vs 34 housing units, mostly oil-field structures, passed the one-sided check).
+BUILDINGS_FLOOR, BUILDINGS_CEILING = 0.8, 5.0
 bl = json.loads((VD / "buildings.json").read_text())
 hu = float(m["housing_units_2020"])
 n_b = len(bl)
-status = "PASS" if n_b >= 0.8 * hu else "FLAG"
+ratio = n_b / hu if hu else float("inf")
+if ratio < BUILDINGS_FLOOR:
+    status, why = "FLAG", "below the 80% floor - OSM building completeness in rural counties is partial"
+elif ratio > BUILDINGS_CEILING:
+    status, why = "FLAG", ("over 5x housing units - many non-residential structures (farm, oil field, "
+                           "industrial); households placed on building centroids may land on them")
+else:
+    status, why = "PASS", "within 80%-500% of housing units"
 results.append(("buildings vs housing_units_2020", n_b, int(hu),
-                round((n_b - hu) / hu * 100, 1), status,
-                f"OSM footprints {n_b} vs {int(hu)} housing units ({n_b/hu*100:.0f}%); "
-                "manifest floor is 80% - OSM building completeness in rural counties is partial"))
+                round((n_b - hu) / hu * 100, 1) if hu else None, status,
+                f"OSM footprints {n_b} vs {int(hu)} housing units ({ratio*100:.0f}%); {why}"))
 
 # 3. hospitals
 fac = json.loads((VD / "facilities.json").read_text())

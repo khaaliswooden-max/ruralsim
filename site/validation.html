@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Validation: RuralSim</title>
+<meta name="description" content="Every RuralSim county world checked against public data: what passed, what was flagged, and why.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/style.css">
+<style>
+  .head { padding: 60px 0 6px; }
+  .head h1 { font-size: clamp(36px, 4.6vw, 54px); max-width: 20ch; }
+  .head p { margin-top: 20px; max-width: 68ch; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 30px 0 8px; }
+  .tile { border: 1px solid var(--rule); border-radius: 6px; padding: 14px 16px; background: var(--sheet-2); }
+  .tile b { display: block; font: 600 28px/1.1 var(--sans); font-variant-numeric: tabular-nums; }
+  .tile span { font: 13px var(--sans); color: var(--dim); }
+  .controls { display: flex; flex-wrap: wrap; gap: 14px 20px; align-items: end; margin: 26px 0 14px; font: 14px var(--sans); }
+  .controls label { display: flex; flex-direction: column; gap: 6px; color: var(--dim); }
+  .controls input[type=search], .controls select { font: 15px var(--sans); color: var(--ink); background: var(--sheet-2);
+      border: 1px solid var(--rule); border-radius: 6px; padding: 9px 11px; min-width: 200px; }
+  .controls .count { margin-left: auto; color: var(--dim); padding-bottom: 9px; }
+  .tablewrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 6px; }
+  table { border-collapse: collapse; width: 100%; font: 14px/1.4 var(--sans); font-variant-numeric: tabular-nums; }
+  th, td { padding: 9px 12px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--rule); }
+  th.n, td.n { text-align: right; white-space: nowrap; }
+  thead th { position: sticky; top: 0; background: var(--sheet-2); font-weight: 500; color: var(--dim); white-space: nowrap; }
+  tbody tr:hover { background: rgba(27,37,46,.04); }
+  .st { display: inline-block; padding: 2px 8px; border-radius: 99px; font: 600 12px/1.6 var(--sans); white-space: nowrap; }
+  .st.clean { background: rgba(46,125,80,.14); color: #2e7d50; }
+  .st.flag { background: rgba(196,138,22,.16); color: #8a5d00; }
+  .st.fail { background: rgba(176,52,52,.14); color: #a02c2c; }
+  ul.issues { margin: 0; padding-left: 18px; }
+  ul.issues li { margin: 2px 0; }
+  ul.issues .why { color: var(--dim); font-size: 13px; }
+  td.links a { margin-right: 10px; white-space: nowrap; }
+  .empty { padding: 28px; text-align: center; color: var(--dim); }
+  .note { margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="bar">
+    <a class="mark" href="/"><img src="/brand/ruralsim-wordmark.svg" alt="RuralSim" width="108" height="22"></a>
+    <nav aria-label="Site">
+      <a href="/#counties">Counties</a>
+      <a href="/experiments.html">Experiments</a>
+      <a href="/national.html">Every county</a>
+      <a href="/validation.html" aria-current="page">Validation</a>
+      <a href="/company.html">Company</a>
+      <a href="https://github.com/khaaliswooden-max/ruralsim">Source</a>
+    </nav>
+  </header>
+
+  <div class="head">
+    <h1>Every world, checked against the record.</h1>
+    <p>Each county RuralSim builds is checked against public data before it is published: county area against the Census, terrain coverage, bridges against the federal bridge inventory, population history, buildings against housing units, and water systems placed. Flags are shown here with the same prominence as passes.</p>
+  </div>
+
+  <div class="tiles" id="tiles" aria-live="polite"></div>
+
+  <div class="controls">
+    <label>Find a county<input type="search" id="q" placeholder="Name, state or FIPS code" autocomplete="off"></label>
+    <label>Status<select id="status">
+      <option value="">All</option>
+      <option value="clean">No flags</option>
+      <option value="flag">Flagged</option>
+      <option value="fail">Failed</option>
+    </select></label>
+    <span class="count" id="count" aria-live="polite"></span>
+  </div>
+
+  <div class="tablewrap">
+    <table>
+      <thead><tr>
+        <th>County</th><th>Status</th><th class="n">Pass</th><th class="n">Flag</th><th class="n">Fail</th>
+        <th>What was flagged</th><th class="n">Built</th><th>Open</th>
+      </tr></thead>
+      <tbody id="rows"><tr><td colspan="8" class="empty">Loading…</td></tr></tbody>
+    </table>
+  </div>
+  <p class="small note">A flag means a world differs from its reference dataset by more than the check allows, or a record could not be placed. It is a reason to look, not a verdict on the county. Each report lists every check, the numbers on both sides, and the data sources. Pilot counties are checked from the reports in the repository; every other county from the snapshot it was published with.</p>
+
+  <footer class="foot">
+    <p class="disclose">RuralSim is a free, open-source project by Grid &amp; Grain's founder. Simulated, screening-grade results with assumed parameters. Decision support, not a finding.</p>
+    <p>Code: <a href="https://github.com/khaaliswooden-max/ruralsim/blob/main/LICENSE">Apache 2.0</a>. Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a> (ODbL). Other data keeps its publisher's terms; RuralSim's own results and writing are CC BY 4.0. <a href="https://github.com/khaaliswooden-max/ruralsim/blob/main/DATA_LICENSE.md">Details</a>.</p>
+  </footer>
+</div>
+<script type="module">
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let data = { universe: 3144, counties: [] };
+try { data = await (await fetch('/data/validation.json')).json(); } catch {}
+const rows = data.counties.map(c => ({ ...c, state_: c.fail ? 'fail' : c.flag ? 'flag' : 'clean' }));
+
+const n = k => rows.filter(r => r.state_ === k).length;
+const pct = (a, b) => b ? `${(100 * a / b).toFixed(a && a / b < 0.01 ? 2 : 1)}%` : '0%';
+$('tiles').innerHTML = [
+  [rows.length.toLocaleString(), `counties built of ${data.universe.toLocaleString()} (${pct(rows.length, data.universe)})`],
+  [n('clean'), 'with no flags'],
+  [n('flag'), 'flagged'],
+  [n('fail'), 'failed'],
+].map(([b, s]) => `<div class="tile"><b>${b}</b><span>${s}</span></div>`).join('');
+
+const label = { clean: 'No flags', flag: 'Flagged', fail: 'Failed' };
+const issue = i => `<li>${esc(i.check)}: ${esc(i.world)} vs ${esc(i.dataset ?? '—')}` +
+  (i.note ? `<br><span class="why">${esc(i.note)}</span>` : '') + '</li>';
+
+function render() {
+  const q = $('q').value.trim().toLowerCase(), st = $('status').value;
+  const list = rows.filter(r => (!st || r.state_ === st) &&
+    (!q || `${r.name} ${r.state} ${r.fips5}`.toLowerCase().includes(q)));
+  $('count').textContent = `${list.length.toLocaleString()} shown`;
+  $('rows').innerHTML = list.map(r => `<tr>
+    <td>${esc(r.name)}, ${esc(r.state)}<br><span class="small">${esc(r.fips5)}${r.kind === 'pilot' ? ' · pilot' : ''}</span></td>
+    <td><span class="st ${r.state_}">${label[r.state_]}</span></td>
+    <td class="n">${r.pass ?? ''}</td><td class="n">${r.flag ?? ''}</td><td class="n">${r.fail ?? ''}</td>
+    <td>${(r.issues || []).length ? `<ul class="issues">${r.issues.map(issue).join('')}</ul>` : '<span class="small">—</span>'}</td>
+    <td class="n">${esc(r.built || '')}</td>
+    <td class="links"><a href="${esc(r.viewer)}">3D</a><a href="${esc(r.report)}">Report</a></td>
+  </tr>`).join('') || '<tr><td colspan="8" class="empty">No county matches. Clear the search or the status filter.</td></tr>';
+}
+$('q').addEventListener('input', render);
+$('status').addEventListener('change', render);
+render();
+</script>
+</body>
+</html>

@@ -4,6 +4,7 @@
 # list of FIPS codes or a state. One job per county, up to 256 per run.
 #
 # Repository secrets: R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY
+#   optional VERCEL_DEPLOY_HOOK: redeploys ruralsim.io after the index is rebuilt
 # Bucket: ruralsim-data (not secret; set below). Public URL, used by the site build only:
 #   https://pub-b414cd9251804d11871e4bec734e096e.r2.dev  (Vercel env RURALSIM_DATA_BASE)
 name: Build county worlds
@@ -132,3 +133,12 @@ jobs:
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
           R2_BUCKET: ruralsim-data
         run: python tools/publish_world.py --rebuild-index
+      - name: Redeploy the site so it links the new counties
+        env:
+          VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$VERCEL_DEPLOY_HOOK" ]; then
+            echo "No VERCEL_DEPLOY_HOOK secret; redeploy ruralsim.io by hand to link new counties (docs/R2_SETUP.md)."
+          else
+            curl -fsS -X POST "$VERCEL_DEPLOY_HOOK" > /dev/null && echo "Vercel production redeploy triggered."
+          fi
