@@ -52,7 +52,7 @@ def _fake_env(tmp, mirror_has, geofabrik_fail_times):
             raise OSError("[Errno 101] Network is unreachable")
         dest.write_bytes(data)
 
-    fo.CACHE = pathlib.Path(tmp)
+    fo.CACHE = pathlib.Path(tmp) / "not-yet-created" / "osm"  # run 43928880530
     fo._mirror_get, fo._download = mirror_get, download
     fo.OSM_MIRROR = "https://example.invalid/osm"
     fo._replication_ts = lambda p: None
