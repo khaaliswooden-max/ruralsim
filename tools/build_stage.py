@@ -142,9 +142,13 @@ register("terrain", _dem_meta["source"], "observed", "public domain",
          f"{_dem_meta['output']['resolution_m']} m GeoTIFF payload retains nodata")
 
 # ---------------- boundaries ----------------
+COUNTY_PARTS = sorted(([geom_wgs] if geom_wgs.geom_type == "Polygon" else list(geom_wgs.geoms)),
+                      key=lambda g: -g.area)
 def build_boundaries(stage):
+    # a county can be several polygons (Monroe FL's Keys, the Aleutians): one curve each
     for prim_name, geom, color in [
-            ("County", geom_wgs, (0.9, 0.9, 0.9))]:
+            (f"County_{k}" if k else "County", part, (0.9, 0.9, 0.9))
+            for k, part in enumerate(COUNTY_PARTS)]:
         coords = list(geom.exterior.coords)
         pts = [Gf.Vec3f(float(x), demz(c[0], c[1]) + 3.0, float(y))
                for c, (x, y) in zip(coords, enu_coords(coords))]
@@ -173,7 +177,9 @@ def build_boundaries(stage):
         print("tribal boundaries skipped:", e)
     # viewer
     (VIEWER_DATA / "boundaries.json").write_text(json.dumps({
-        "county": [list(p) for p in enu_coords(list(geom_wgs.exterior.coords))],
+        # "county" stays one ring (the largest part) for older viewers; all parts below
+        "county": [list(p) for p in enu_coords(list(COUNTY_PARTS[0].exterior.coords))],
+        "county_parts": [[list(p) for p in enu_coords(list(part.exterior.coords))] for part in COUNTY_PARTS],
         "tribal": [{"name": r["namelsad"],
                     "rings": [[list(p) for p in enu_coords(list(poly.exterior.coords))]
                               for poly in ([r.geometry] if r.geometry.geom_type == "Polygon" else list(r.geometry.geoms))]}

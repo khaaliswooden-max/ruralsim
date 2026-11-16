@@ -18,6 +18,7 @@ Manifest layer: terrain. Provenance: observed (USGS 3DEP), public domain.
 import json, pathlib, re, time, urllib.request, urllib.parse, datetime, sys
 import numpy as np
 import rasterio
+import rasterio.enums
 from rasterio.windows import from_bounds
 from rasterio.features import geometry_mask
 from shapely.geometry import mapping
@@ -42,13 +43,41 @@ class SlowLink(Exception):
 
 
 def api(query):
+    """TNM product search, retried: it answered HTTP 500 for Garfield WA in the canary run
+    (43794676050) and the whole county failed on one bad response."""
     url = "https://tnmaccess.nationalmap.gov/api/v1/products?" + urllib.parse.urlencode(query)
     req = urllib.request.Request(url, headers={"User-Agent": "RuralSim-research/0.1"})
-    with urllib.request.urlopen(req, timeout=120) as r:
-        return json.load(r)
+    for attempt in range(5):
+        try:
+            with urllib.request.urlopen(req, timeout=120) as r:
+                return json.load(r)
+        except Exception as e:
+            if attempt == 4:
+                raise
+            print(f"  TNM search attempt {attempt + 1} failed: {e}; retrying", file=sys.stderr)
+            time.sleep(30 * (attempt + 1))
 
 
-def read_windows(paths_or_urls):
+# Memory budget (D-036). A GitHub runner has 16 GB; the mosaic, clip and mask each hold
+# one float32/bool grid, so one grid must stay under ~1.6 GB. At 1/3 arc-second (~10 m) the
+# largest counties need 4-9 GB per grid (San Bernardino CA, Aleutians East AK,
+# Yukon-Koyukuk AK were killed for memory in the canary run) and dozens of 400 MB tile
+# downloads. Above the budget we read 1 arc-second COGs instead, decimated on read if
+# even that is too big. The stage mesh is ~160 m, so nothing downstream loses detail.
+CELL_BUDGET = 400_000_000
+_cells_13 = (E - W) * (N - S) * 10800 ** 2
+_cells_1 = _cells_13 / 9
+DECIM = 1
+while _cells_1 / DECIM ** 2 > CELL_BUDGET:
+    DECIM += 1
+LARGE = _cells_13 > CELL_BUDGET
+if LARGE:
+    print(f"terrain: bbox needs ~{_cells_13 / 1e6:.0f} M cells at 1/3 arc-second, over the "
+          f"{CELL_BUDGET / 1e6:.0f} M budget; using 1 arc-second"
+          + (f" decimated {DECIM}x on read" if DECIM > 1 else ""), flush=True)
+
+
+def read_windows(paths_or_urls, decim=1):
     """Windowed read of the buffered bbox from each tile; returns (arrays, transforms).
 
     The window MUST be intersected with the tile extent before reading:
@@ -68,8 +97,15 @@ def read_windows(paths_or_urls):
             if win is None:
                 continue   # tile does not overlap the bbox at all
             win = win.round_offsets().round_lengths()
-            a = src.read(1, window=win).astype("float32")
             wt = src.window_transform(win)   # transform of the CLIPPED window
+            if decim > 1:
+                # averaged read at 1/decim resolution (uses COG overviews when present)
+                shape = (max(1, int(win.height) // decim), max(1, int(win.width) // decim))
+                a = src.read(1, window=win, out_shape=shape,
+                             resampling=rasterio.enums.Resampling.average).astype("float32")
+                wt = wt * rasterio.Affine.scale(win.width / shape[1], win.height / shape[0])
+            else:
+                a = src.read(1, window=win).astype("float32")
             nd = src.nodata
             if nd is not None:
                 a[a == nd] = np.nan
@@ -146,19 +182,26 @@ def fetch_pc():
         tiles_meta.append({"title": f"PC 3dep-seamless {it.id}", "url": href.split("?")[0],
                            "publicationDate": it.datetime.date().isoformat() if it.datetime else None})
         print(f"  window-reading {it.id}")
-    wa, wt = read_windows(urls)
-    return wa, wt, tiles_meta, ("USGS 3DEP via Planetary Computer 3dep-seamless, 1 arc-second (~30 m) "
-                                "— fallback during TNM egress throttle (D-021); source CRS EPSG:4269 "
+    wa, wt = read_windows(urls, decim=DECIM if LARGE else 1)
+    why = ("large county over the memory budget (D-036)" if LARGE
+           else "fallback during TNM egress throttle (D-021)")
+    res_note = f"~{30 * DECIM} m after {DECIM}x averaged read" if LARGE and DECIM > 1 else "~30 m"
+    return wa, wt, tiles_meta, (f"USGS 3DEP via Planetary Computer 3dep-seamless, 1 arc-second ({res_note}) "
+                                f"— {why}; source CRS EPSG:4269 "
                                 "treated as 4326 (<2 m datum shift, below the ~30 m pixel)")
 
 
-try:
-    win_arrays, win_transforms, tiles_meta, source_note = fetch_tnm()
-    SRC = "13"
-except SlowLink as ex:
-    print(f"TNM transfer too slow ({ex}); switching to Planetary Computer 1 arc-second (D-021)")
+if LARGE:
     win_arrays, win_transforms, tiles_meta, source_note = fetch_pc()
     SRC = "pc1"
+else:
+    try:
+        win_arrays, win_transforms, tiles_meta, source_note = fetch_tnm()
+        SRC = "13"
+    except SlowLink as ex:
+        print(f"TNM transfer too slow ({ex}); switching to Planetary Computer 1 arc-second (D-021)")
+        win_arrays, win_transforms, tiles_meta, source_note = fetch_pc()
+        SRC = "pc1"
 
 print("window shapes:", [a.shape for a in win_arrays])
 
@@ -196,7 +239,7 @@ if SRC == "13":
 else:
     # 1 arc-second fallback: payload stays at native ~30 m (no upsampling)
     small, t2 = clip, transform
-    out_res_m = 30
+    out_res_m = 30 * (DECIM if LARGE else 1)
 
 out_tif = OUTDIR / f"dem_{FIPS}_{out_res_m}m.tif"
 with rasterio.open(out_tif, "w", driver="GTiff", height=small.shape[0], width=small.shape[1], count=1,

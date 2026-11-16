@@ -33,15 +33,28 @@ UA = {"User-Agent": "RuralSim-research/0.1"}
 STAGE = pathlib.Path("/tmp/ruralsim_staging") / FIPS
 STAGE.mkdir(parents=True, exist_ok=True)
 
-def arcgis_query(url, extra=None, paginate=False):
-    """Envelope-intersect query, geojson out. paginate=True walks resultOffset."""
+def arcgis_query(url, extra=None, paginate=False, page=2000):
+    """Envelope-intersect query, geojson out. paginate=True walks resultOffset.
+
+    A server that answers HTTP 500 for a large page (NHD waterbodies over Cameron
+    Parish's coastal marsh, canary run 43794676050) is retried with smaller pages."""
+    try:
+        return _arcgis_query(url, extra, paginate, page)
+    except RuntimeError:
+        if not paginate or page <= 250:
+            raise
+        print(f"  retrying {url.rsplit('/', 3)[-3]} with {page // 4}-feature pages", file=sys.stderr)
+        return arcgis_query(url, extra, paginate, page // 4)
+
+
+def _arcgis_query(url, extra, paginate, page):
     base = {"geometry": ENV, "geometryType": "esriGeometryEnvelope", "inSR": "4326",
             "spatialRel": "esriSpatialRelIntersects", "outFields": "*",
             "returnGeometry": "true", "outSR": "4326", "f": "geojson",
             **(extra or {})}
     feats, offset = [], 0
     while True:
-        params = {**base, "resultRecordCount": 2000}
+        params = {**base, "resultRecordCount": page}
         if paginate:
             params["resultOffset"] = offset
         full = url + "?" + urllib.parse.urlencode(params)
@@ -52,15 +65,15 @@ def arcgis_query(url, extra=None, paginate=False):
                     gj = json.load(r)
                 break
             except Exception as e:
-                print(f"  retry {attempt+1}: {e}", file=sys.stderr); time.sleep(5 * (attempt + 1))
+                print(f"  retry {attempt+1}: {e}", file=sys.stderr); time.sleep(15 * (attempt + 1))
         else:
             raise RuntimeError(f"query failed after retries: {url}")
         if "features" not in gj:
             raise RuntimeError(f"ArcGIS error: {str(gj)[:300]}")
         feats.extend(gj["features"])
-        if not paginate or len(gj["features"]) < 2000:
+        if not paginate or len(gj["features"]) < page:
             break
-        offset += 2000
+        offset += page
     return {"type": "FeatureCollection", "features": feats}
 
 JOBS = [
@@ -102,17 +115,35 @@ def write_via_stage(out, payload):
     if not ok:
         raise RuntimeError(f"write did not persist: {out}")
 
+def _gap_of(path):
+    """The recorded gap if this file is a placeholder for a failed fetch, else None."""
+    if path.stat().st_size > 4096:
+        return None
+    try:
+        return json.loads(path.read_text()).get("ruralsim_gap")
+    except ValueError:
+        return None
+
+
+gaps = []
 for dirname, fname, url, extra, paginate, source, lic in JOBS:
     d = ROOT / dirname; d.mkdir(parents=True, exist_ok=True)
     out = d / fname
-    if out.exists():
+    if out.exists() and not _gap_of(out):
         print(f"{dirname}/{fname}: present, skipping")
         continue
     print(f"{dirname}/{fname}: querying ...", flush=True)
     try:
         gj = arcgis_query(url, extra, paginate)
     except RuntimeError as e:
-        print(f"  FAILED: {e}"); continue
+        # One federal server being down should not cost the whole county (D-036): write
+        # an empty layer, record the gap, and let validation flag it on the public page.
+        print(f"  FAILED: {e}; recording a source gap and continuing", flush=True)
+        gaps.append({"layer": dirname, "file": fname, "endpoint": url, "error": str(e)[:300],
+                     "utc": datetime.datetime.now(datetime.UTC).isoformat()})
+        write_via_stage(out, json.dumps({"type": "FeatureCollection", "features": [],
+                                         "ruralsim_gap": gaps[-1]}))
+        continue
     payload = json.dumps(gj)
     write_via_stage(out, payload)
     meta = {"retrieved_utc": datetime.datetime.now(datetime.UTC).isoformat(),
@@ -130,54 +161,16 @@ for dirname, fname, url, extra, paginate, source, lic in JOBS:
              for f in gj["features"][:12]]
     print(f"  {len(gj['features'])} features -> {[n for n in names if n][:8]}")
 
-# settle-and-heal: the portal mount's async delete can land ~8 s after a
-# verified write and clobber a rewrite, repeatedly for the same path (20019
-# nhd_waterbodies dropped on 4 consecutive recopies 2026-11-12). Wait out the
-# queue and recopy casualties from staging; copies are shielded so a mid-copy
-# portal ENOENT just defers to the next round. If one path keeps dropping it
-# is treated as cursed: heal once under an alternate glob-compatible name
-# (only for layers whose downstream reference is a glob, ALT_OK), which has
-# escaped the stuck delete queue in practice.
-ALT_OK = ("nhd_waterbodies",)   # build_county EXPECT globs it; nothing reads the exact name
-print("settle-and-heal: watching for portal-mount drops ...", flush=True)
-targets = [(ROOT / dn / fn, STAGE / fn) for dn, fn, *_ in JOBS]
-drops = {out.name: 0 for out, _ in targets}
-renamed = {}
-for rnd in range(1, 25):
-    time.sleep(12)
-    healed = []
-    for out, staged in targets:
-        cur = ROOT / out.parent.name / renamed.get(out.name, out.name)
-        # a healed alternate name counts as present for this target
-        if cur.exists() or out.exists():
-            continue
-        if not staged.exists():
-            continue
-        drops[out.name] += 1
-        dest = out
-        if drops[out.name] >= 5 and out.name.startswith(ALT_OK):
-            dest = out.with_name(out.stem + "_r" + out.suffix)
-            renamed[out.name] = dest.name
-            print(f"  {out.name}: dropped {drops[out.name]}x; escaping to {dest.name}", flush=True)
-        try:
-            shutil.copy2(staged, dest)
-            healed.append(dest.name)
-        except OSError as e:
-            print(f"  round {rnd}: copy of {dest.name} deferred ({e})", flush=True)
-    if not healed:
-        print(f"  round {rnd}: all files stable")
-        break
-    print(f"  round {rnd}: healed dropped files: {healed}", flush=True)
-missing = []
-for out, staged in targets:
-    cur = ROOT / out.parent.name / renamed.get(out.name, out.name)
-    if not out.exists() and not cur.exists():
-        missing.append(out.name)
-if missing:
-    raise RuntimeError(f"files missing after heal phase: {missing}")
-if renamed:
-    (ROOT / "_healed_renames.json").write_text(json.dumps(
-        {"note": "portal mount kept dropping the canonical path; healed under "
-                 "a glob-compatible alternate name (D-019 refined)",
-         "renames": renamed, "utc": datetime.datetime.now(datetime.UTC).isoformat()}, indent=2))
+# The settle-and-heal loop (D-019/D-023) that lived here guarded against the old build
+# sandbox's portal mount deleting fresh files. Builds now run on local disk (GitHub
+# runners), and the loop turned an upstream outage into a false "files missing" failure
+# (Cameron LA, canary run 43794676050), so it is gone (D-036). build_county.py still
+# verifies every expected output after each step.
+gp = ROOT / "_source_gaps.json"
+current = [g for dn, fn, *_ in JOBS if (ROOT / dn / fn).exists() and (g := _gap_of(ROOT / dn / fn))]
+if current:
+    gp.write_text(json.dumps(current, indent=2))
+    print(f"source gaps recorded: {[g['file'] for g in current]}")
+elif gp.exists():
+    gp.unlink()
 print("done")

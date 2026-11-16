@@ -45,9 +45,15 @@ cmp("county polygon area (sq mi)", round(area_sqmi, 1), round(ref_area, 1), thre
 # harness places synthetic households on building centroids (Loving TX: 1,316 OSM
 # buildings vs 34 housing units, mostly oil-field structures, passed the one-sided check).
 BUILDINGS_FLOOR, BUILDINGS_CEILING = 0.8, 5.0
-bl = json.loads((VD / "buildings.json").read_text())
+# Count only footprints inside the county polygon. The OSM layer covers the buffered
+# bbox, so a small county next to a town counted the neighbour's buildings too
+# (Esmeralda NV 21x, Issaquena MS 14x, Taliaferro GA 5x in the canary run; D-036).
+from shapely.prepared import prep
+_inside = prep(geom_wgs)
+_bfc = json.loads((RAW / "osm" / "buildings.geojson").read_text())["features"]
+n_b = sum(1 for f in _bfc if f.get("geometry")
+          and _inside.contains(shape(f["geometry"]).representative_point()))
 hu = float(m["housing_units_2020"])
-n_b = len(bl)
 ratio = n_b / hu if hu else float("inf")
 if ratio < BUILDINGS_FLOOR:
     status, why = "FLAG", "below the 80% floor - OSM building completeness in rural counties is partial"
@@ -58,7 +64,15 @@ else:
     status, why = "PASS", "within 80%-500% of housing units"
 results.append(("buildings vs housing_units_2020", n_b, int(hu),
                 round((n_b - hu) / hu * 100, 1) if hu else None, status,
-                f"OSM footprints {n_b} vs {int(hu)} housing units ({ratio*100:.0f}%); {why}"))
+                f"OSM footprints inside the county {n_b} vs {int(hu)} housing units ({ratio*100:.0f}%); {why}"))
+
+# 2b. source gaps: a public server that was down at build time (D-036). The layer was
+# written empty so the world could still be built; say so on the public page.
+_gp = RAW / "_source_gaps.json"
+for g in (json.loads(_gp.read_text()) if _gp.exists() else []):
+    results.append((f"source available at build: {g['file']}", 0, None, None, "FLAG",
+                    f"{g['layer']} layer is empty: {g['endpoint'].split('/rest/')[0]} failed "
+                    f"({g['error'][:120]}); rebuild the county to fill it"))
 
 # 3. hospitals
 fac = json.loads((VD / "facilities.json").read_text())

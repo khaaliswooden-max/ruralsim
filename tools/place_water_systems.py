@@ -13,7 +13,8 @@ layers_raw/water_systems/sdwis_locations_<fips>.csv, one row per active system:
 
 method is, in order of preference:
   osm_place     — the served town matches an OSM place node in the county's buffered bbox
-  census_place  — it matches a Census Gazetteer place (2024) in the same state whose
+  census_place  — it matches a Census Gazetteer place or county subdivision (2024; the
+                  township layer matters in NJ, PA, New England) in the same state whose
                   internal point lies inside the buffered bbox (so a same-named town
                   elsewhere in the state cannot capture it)
   census_zcta   — no served town matched, but the system's ZIP code is a Census ZCTA
@@ -42,16 +43,25 @@ GAZ_BASE = "https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2024_Gazet
 EF_BASE = "https://data.epa.gov/efservice"
 KEEP_WS_FIELDS = ("pws_name", "city_name", "zip_code")  # never contact fields
 UA = {"User-Agent": "RuralSim/1.0 (+https://www.ruralsim.io; county twin build)"}
-_SUFFIX = re.compile(r"\s+(city|town|village|borough|CDP|municipality|city and borough|"
+_SUFFIX = re.compile(r"\s+(city|town|village|borough|boro|CDP|municipality|city and borough|"
                      r"consolidated government|unified government|metro government|"
-                     r"urban county|plantation)(\s+\(balance\))?$", re.I)
+                     r"urban county|plantation|township|twp|charter township|gore|grant|"
+                     r"location|purchase|unorganized territory|CCD|precinct)(\s+\(balance\))?$", re.I)
+# New Jersey writes served towns with its municipal code: "ALLOWAY TWP-.1701",
+# "PITTSGROVE TWP.-1710", "LOWER ALLOWAYS CR.-1704". Salem NJ placed 0 of 105 systems
+# until the code, the period and the abbreviation were handled (canary run 43794676050).
+_MUNI_CODE = re.compile(r"[\s.]*-[\s.]*\d+\s*$")
+_ABBREV = {"CR": "CREEK", "CRK": "CREEK", "PT": "POINT", "HTS": "HEIGHTS", "SPGS": "SPRINGS",
+           "LK": "LAKE", "FT": "FORT", "TWP": "TOWNSHIP", "BORO": "BOROUGH"}
 
 
 def norm(name: str) -> str:
     s = re.sub(r"\(.*?\)", "", str(name)).strip()
-    s = _SUFFIX.sub("", s)
-    s = s.upper().replace("SAINT ", "ST ").replace("ST. ", "ST ").replace("MOUNT ", "MT ")
-    return re.sub(r"[^A-Z0-9 ]", "", s).strip()
+    s = _MUNI_CODE.sub("", s).upper()
+    s = s.replace("SAINT ", "ST ").replace("ST. ", "ST ").replace("MOUNT ", "MT ")
+    s = re.sub(r"[^A-Z0-9 ]", "", s)
+    s = " ".join(_ABBREV.get(w, w) for w in s.split())
+    return _SUFFIX.sub("", s).strip()
 
 
 def _s(v) -> str:
@@ -81,7 +91,15 @@ def _gaz(kind: str) -> pd.DataFrame:
 
 
 def gazetteer() -> pd.DataFrame:
+    """Census places plus county subdivisions. Townships (NJ, PA, New England, the
+    Midwest) are county subdivisions, not places, and are what SDWIS names there."""
     g = _gaz("place")
+    try:
+        c = _gaz("cousubs")
+        c = c[~c["NAME"].str.contains("unorganized|not defined", case=False, na=False)]
+        g = pd.concat([g, c[["USPS", "NAME", "lon", "lat"]]], ignore_index=True)
+    except Exception as e:  # places alone still work
+        print(f"  county-subdivision gazetteer unavailable: {e}", file=sys.stderr)
     g["key"] = g["NAME"].map(norm)
     return g[["USPS", "NAME", "key", "lon", "lat"]]
 

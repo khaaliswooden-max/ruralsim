@@ -152,7 +152,7 @@ function lineGroup(name, segs, colorFn, opacity=1.0){
     g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),
           new THREE.LineBasicMaterial({color})));
   };
-  mk(b.county, 0xe8e4da, 4);
+  for (const r of (b.county_parts || [b.county])) mk(r, 0xe8e4da, 4);
   for (const t of b.tribal) for (const r of t.rings) mk(r, 0xd9a441, 5);
 }
 
@@ -264,7 +264,8 @@ yr.oninput = upd; upd();
 // camera fit to county extent (or ?cam=x,z,h for a named framing)
 {
   const b = await fetchJ('boundaries.json');
-  const xs = b.county.map(p=>p[0]), ys = b.county.map(p=>p[1]);
+  const all = (b.county_parts || [b.county]).flat();
+  const xs = all.map(p=>p[0]), ys = all.map(p=>p[1]);
   const cx = (Math.min(...xs)+Math.max(...xs))/2, cy=(Math.min(...ys)+Math.max(...ys))/2;
   const span = Math.max(Math.max(...xs)-Math.min(...xs), Math.max(...ys)-Math.min(...ys));
   const camP = new URLSearchParams(location.search).get('cam');
