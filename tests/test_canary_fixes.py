@@ -159,3 +159,35 @@ def test_ws_lookup_fails_step_when_many_lookups_fail(monkeypatch, tmp_path):
         assert "10 of 10" in str(e)
     else:
         raise AssertionError("expected the step to fail")
+
+
+def test_sab_point_inside_county_part_only():
+    """D-041: the marker sits inside the part of the service area within the county."""
+    from shapely.geometry import box
+    county = box(0, 0, 1, 1)
+    inside = {"geometry": {"type": "Polygon", "coordinates": [[[0.5, 0.5], [2, 0.5], [2, 0.9], [0.5, 0.9], [0.5, 0.5]]]}}
+    outside = {"geometry": {"type": "Polygon", "coordinates": [[[3, 3], [4, 3], [4, 4], [3, 4], [3, 3]]]}}
+    x, y = pw.sab_point(inside, county)
+    assert 0.5 <= x <= 1 and 0.5 <= y <= 0.9
+    assert pw.sab_point(outside, county) is None
+
+
+def test_sab_lookup_queries_community_then_noncommunity(monkeypatch, tmp_path):
+    import io, json as _j, urllib.parse, urllib.request as ur
+    seen = []
+    def fake(req, timeout=0):
+        q = urllib.parse.parse_qs(req.data.decode())
+        ids = [x.strip("'") for x in q["where"][0][len("PWSID IN ("):-1].split(",")]
+        layer = "community" if "Water_System_Boundaries" in req.full_url else "non-community"
+        seen.append((layer, ids))
+        hit = {"community": "TX1", "non-community": "TX2"}[layer]
+        feats = [{"type": "Feature", "properties": {"PWSID": hit},
+                  "geometry": {"type": "Point", "coordinates": [0, 0]}}] if hit in ids else []
+        return io.BytesIO(_j.dumps({"type": "FeatureCollection", "features": feats}).encode())
+    monkeypatch.setattr(ur, "urlopen", fake)
+    out = pw.sab_lookup(["TX1", "TX2", "TX3"], tmp_path / "sab.geojson")
+    assert set(out) == {"TX1", "TX2"}
+    assert seen[0] == ("community", ["TX1", "TX2", "TX3"]) and seen[1] == ("non-community", ["TX2", "TX3"])
+    assert out["TX2"]["properties"]["ruralsim_layer"] == "non-community"
+    # cached: no new requests
+    n = len(seen); pw.sab_lookup(["TX1", "TX2", "TX3"], tmp_path / "sab.geojson"); assert len(seen) == n
