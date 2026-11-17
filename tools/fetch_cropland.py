@@ -6,15 +6,16 @@ mrlc.gov blocked; CDL includes all non-crop classes, so it doubles as land
 cover; DECISIONS D-011).
 
 Sources, in order:
-1. CropScape GetCDLFile (nassgeodata.gmu.edu) - manifest source, latest year.
-   NOTE: the service began returning 404 for all API paths on 2026-11-11.
+1. USDA NASS national CDL (default 2025, RURALSIM_CDL_YEAR), mirrored once into R2 as a
+   COG by tools/mirror_cdl.py; this county's window is read over HTTP (D-043).
+   CropScape GetCDLFile, the original source, has returned 404 since 2026-11-11.
 2. Planetary Computer usda-cdl ('cropland_*' items, 'cropland' asset = full
    CDL classes; 'cultivated_*' items are a derived mask - do not use those).
    PC coverage ends at 2021 - vintage recorded in _meta.json.
 
 Clipped to buffered county bbox. Provenance: observed (USDA NASS CDL).
 """
-import time, json, pathlib, urllib.request, re, datetime, sys
+import os, time, json, pathlib, urllib.request, re, datetime, sys
 import numpy as np
 import rasterio
 from rasterio.windows import from_bounds
@@ -80,34 +81,43 @@ def write_and_meta(arr, crs, transform, year, source):
     (OUT / "_meta.json").write_text(json.dumps(meta, indent=2))
     print("wrote", out.name, arr.shape, "| top classes:", top)
 
-# --- 1. CropScape ---
+# --- 1. National CDL mirrored in R2 as a COG (D-043) ---
+# CropScape GetCDLFile, the original per-county source, has answered 404 since
+# 2026-11-11 (replaced by CroplandCROS). tools/mirror_cdl.py copies NASS's national
+# raster into R2 once per release; read only this county's window over HTTP ranges.
 to5070 = pyproj.Transformer.from_crs(4326, 5070, always_xy=True)
-x1, y1 = to5070.transform(W, S); x2, y2 = to5070.transform(E, N)
-bbox5070 = f"{int(min(x1,x2))},{int(min(y1,y2))},{int(max(x1,x2))},{int(max(y1,y2))}"
-try:
-    api = ("https://nassgeodata.gmu.edu/webservice/nass_data_cache.php?service=CDL"
-           f"&request=GetCDLFile&year=2023&format=geotiff&bbox={bbox5070}")
-    req = urllib.request.Request(api, headers=UA)
-    with urllib.request.urlopen(req, timeout=120) as r:
-        resp = r.read().decode()
-    m = re.search(r"https?://[^\s<>\"']+\.tif", resp)
-    if not m:
-        raise RuntimeError(f"no tif URL in response: {resp[:200]}")
-    tmp = pathlib.Path(f"/tmp/ruralsim_cache/cdl_{FIPS}_2023.tif")
-    tmp.parent.mkdir(parents=True, exist_ok=True)
-    req = urllib.request.Request(m.group(0), headers=UA)
-    with urllib.request.urlopen(req, timeout=900) as r, open(tmp, "wb") as f:
-        while True:
-            c = r.read(1 << 20)
-            if not c: break
-            f.write(c)
-    with rasterio.open(tmp) as src:
-        arr, crs, transform = src.read(1), src.crs, src.transform
-    write_and_meta(arr, crs, transform, 2023,
-                   "USDA NASS Cropland Data Layer 2023 via CropScape GetCDLFile (nassgeodata.gmu.edu)")
-    sys.exit(0)
-except Exception as e:
-    print(f"CropScape unavailable ({e}); falling back to Planetary Computer usda-cdl 2021", file=sys.stderr)
+CDL_YEAR = int(os.environ.get("RURALSIM_CDL_YEAR", "2025"))
+DATA_BASE = (os.environ.get("RURALSIM_DATA_BASE")
+             or "https://pub-b414cd9251804d11871e4bec734e096e.r2.dev").rstrip("/")
+cog_url = f"{DATA_BASE}/cdl/{CDL_YEAR}_30m_cdls_cog.tif"
+_gdal_http = dict(GDAL_DISABLE_READDIR_ON_OPEN="EMPTY_DIR", CPL_VSIL_CURL_ALLOWED_EXTENSIONS=".tif",
+                  GDAL_HTTP_USERAGENT=UA["User-Agent"], GDAL_HTTP_MAX_RETRY="5",
+                  GDAL_HTTP_RETRY_DELAY="5", VSI_CACHE="TRUE")
+for attempt in range(3):
+    try:
+        with rasterio.Env(**_gdal_http), rasterio.open(f"/vsicurl/{cog_url}") as src:
+            t = pyproj.Transformer.from_crs(4326, src.crs, always_xy=True)
+            xs, ys = zip(*[t.transform(x, y) for x, y in ((W, S), (W, N), (E, S), (E, N))])
+            win = from_bounds(min(xs), min(ys), max(xs), max(ys), src.transform)
+            win = win.round_offsets().round_lengths()
+            arr = src.read(1, window=win, boundless=True, fill_value=0)
+            transform = src.window_transform(win)
+            crs = src.crs
+        if not (arr > 0).any():
+            raise RuntimeError("window is all nodata (county outside the CDL extent?)")
+        write_and_meta(arr, crs, transform, CDL_YEAR,
+                       f"USDA NASS Cropland Data Layer {CDL_YEAR}, national 30 m release, "
+                       f"windowed read of RuralSim's R2 copy ({cog_url}; tools/mirror_cdl.py)")
+        sys.exit(0)
+    except SystemExit:
+        raise
+    except Exception as e:
+        err = e
+        if "404" in str(e) or "No such file" in str(e) or "not recognized" in str(e):
+            break  # not mirrored yet: no point retrying
+        time.sleep(15 * (attempt + 1))
+print(f"CDL {CDL_YEAR} not readable from R2 ({str(err)[:160]}); "
+      "falling back to Planetary Computer usda-cdl 2021", file=sys.stderr)
 
 # --- 2. Planetary Computer ---
 from pystac_client import Client
