@@ -226,8 +226,9 @@ if (RAW / "water_systems" / f"sdwis_locations_{FIPS}.csv").exists():
     wsy = wsy.drop_duplicates("pwsid")
 n_sys = len(wsy)
 cmp("active water systems placed", len(fac["water_systems"]), n_sys, thresh=5.0,
-    note="EPA SDWIS has no coordinates; markers sit at served-town points (OSM place, "
-         "else Census Gazetteer place, D-030); systems with no matching town stay unplaced")
+    note="EPA SDWIS has no coordinates; markers sit inside the system's EPA service area "
+         "(PWS Service Areas v3, community systems), else at served-town points (OSM place, "
+         "Census place, ZIP; D-030); systems with neither stay unplaced")
 
 # 9. power: OSM generators vs EIA-860 plants
 plants_csv = RAW / "grid" / f"eia860_plants_{FIPS}.csv"

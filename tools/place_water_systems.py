@@ -12,6 +12,11 @@ layers_raw/water_systems/sdwis_locations_<fips>.csv, one row per active system:
     pwsid, pws_name, lon, lat, method, matched_town
 
 method is, in order of preference:
+  epa_service_area — the system's service area polygon from EPA's Public Water System
+                  Service Areas v3 (March 2026; ~44,000 community systems, ~56% state- or
+                  utility-sourced, the rest EPA-modelled). The marker sits at a point inside
+                  the part of that polygon within the county (plus ~1 km). The polygons
+                  are kept in epa_service_areas_<fips>.geojson with their source flags.
   osm_place     — the served town matches an OSM place node in the county's buffered bbox
   census_place  — it matches a Census Gazetteer place or county subdivision (2024; the
                   township layer matters in NJ, PA, New England) in the same state whose
@@ -41,6 +46,17 @@ REPO = pathlib.Path(__file__).resolve().parent.parent
 CACHE = pathlib.Path(os.environ.get("RURALSIM_CACHE", "/tmp/ruralsim_cache")) / "census"
 GAZ_BASE = "https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2024_Gazetteer/"
 EF_BASE = "https://data.epa.gov/efservice"
+# EPA ORD Public Water System Service Areas v3 (2026-03-17), public domain:
+# community systems (~44,000) and transient/non-transient non-community systems (~78,000,
+# parcel-level: camps, schools, gas stations, plants)
+_EPA_ORG = "https://services.arcgis.com/cJ9YHowT8TU7DUyn/arcgis/rest/services/"
+SAB_LAYERS = (
+    ("community", _EPA_ORG + "Water_System_Boundaries/FeatureServer/0/query",
+     ("PWSID", "PWS_Name", "Data_Provider_Type", "Model_Method", "Service_Area_Type")),
+    ("non-community", _EPA_ORG + "Transient_and_Non_Transient_Non_Community_Water_System_"
+     "Service_Areas/FeatureServer/0/query",
+     ("PWSID", "PWS_Name", "LOCATION_CONFIDENCE", "Data_Source", "SERVICE_AREA_TYPE")),
+)
 KEEP_WS_FIELDS = ("pws_name", "city_name", "zip_code")  # never contact fields
 UA = {"User-Agent": "RuralSim/1.0 (+https://www.ruralsim.io; county twin build)"}
 _SUFFIX = re.compile(r"\s+(city|town|village|borough|boro|CDP|municipality|city and borough|"
@@ -165,6 +181,68 @@ def ws_lookup(pwsids: list[str], cache_path: pathlib.Path) -> dict:
     return cache
 
 
+def sab_lookup(pwsids: list[str], cache_path: pathlib.Path) -> dict:
+    """{pwsid: GeoJSON feature} from EPA's service-area layers (community first, then
+    non-community), 100 IDs per POST, cached."""
+    import urllib.parse
+    if cache_path.exists():
+        fc = json.loads(cache_path.read_text())
+        cached = {f["properties"]["PWSID"]: f for f in fc["features"]}
+        if set(pwsids) <= set(cached) | set(fc.get("not_found", [])):
+            return cached
+    found, ids = {}, sorted(set(pwsids))
+    for kind, url, fields in SAB_LAYERS:
+        todo = [x for x in ids if x not in found and re.fullmatch(r"[A-Z0-9]+", x)]
+        for i in range(0, len(todo), 100):
+            chunk = todo[i:i + 100]
+            body = urllib.parse.urlencode({
+                "where": "PWSID IN (" + ",".join(f"'{x}'" for x in chunk) + ")",
+                "outFields": ",".join(fields), "returnGeometry": "true", "outSR": "4326",
+                "maxAllowableOffset": "0.0005", "geometryPrecision": "5", "f": "geojson"}).encode()
+            for attempt in range(5):
+                try:
+                    req = urllib.request.Request(url, data=body, headers=UA)
+                    with urllib.request.urlopen(req, timeout=180) as r:
+                        fc = json.load(r)
+                    if "error" in fc:
+                        raise RuntimeError(str(fc["error"])[:200])
+                    break
+                except Exception as e:
+                    if attempt == 4:
+                        raise
+                    print(f"  EPA {kind} service areas retry ({e})", flush=True)
+                    time.sleep(10 * (attempt + 1))
+            for f in fc.get("features", []):
+                props = f.get("properties") or {}
+                pid = props.get("PWSID")
+                if pid and f.get("geometry"):
+                    props["ruralsim_layer"] = kind
+                    found.setdefault(pid, f)  # a system can have several rows; keep the first
+    cache_path.write_text(json.dumps({"type": "FeatureCollection", "features": list(found.values()),
+                                      "not_found": [x for x in ids if x not in found],
+                                      "source": "EPA Public Water System Service Areas v3 (2026-03-17)",
+                                      "license": "public domain",
+                                      "urls": [u.rsplit("/query", 1)[0] for _, u, _ in SAB_LAYERS]}))
+    return found
+
+
+def sab_point(feature, area):
+    """A point inside the system's service area, within `area` (county + ~1 km) when the
+    two overlap; None when the service area lies wholly outside the county."""
+    from shapely.geometry import shape
+    try:
+        g = shape(feature["geometry"]).buffer(0)
+    except Exception:
+        return None
+    if g.is_empty:
+        return None
+    part = g.intersection(area)
+    if part.is_empty:
+        return None
+    p = part.representative_point()
+    return round(p.x, 6), round(p.y, 6)
+
+
 def served_towns(r) -> list[str]:
     raw = [_s(r.get("city_name")), _s(r.get("city_served"))]
     towns = []
@@ -199,8 +277,29 @@ def place(C) -> pathlib.Path:
     for _, g in gz.iterrows():
         census.setdefault(g.key, ((g.lon, g.lat), g.NAME))
 
-    # systems whose county record names no town: one WATER_SYSTEM lookup each (cached)
-    no_town = [_s(r.get("pwsid")) for _, r in wsy.iterrows() if not served_towns(r)]
+    # 1. EPA service-area polygons (v3). A failure here is not fatal: fall back to towns.
+    sab, area = {}, None
+    try:
+        area = C.geom.buffer(0.01)
+        sab = sab_lookup([_s(x) for x in wsy["pwsid"]],
+                         raw / "water_systems" / f"epa_service_areas_{C.fips}.geojson")
+    except Exception as e:
+        print(f"  EPA service areas unavailable ({e}); placing by served town only", flush=True)
+    sab_pts = {}
+    for pid, f in sab.items():
+        pt = sab_point(f, area) if area is not None else None
+        if pt:
+            pp = f.get("properties") or {}
+            if pp.get("ruralsim_layer") == "non-community":
+                src = "non-community, " + (_s(pp.get("LOCATION_CONFIDENCE")) or "parcel")
+            else:
+                src = "EPA-modelled" if _s(pp.get("Model_Method")) else (_s(pp.get("Data_Provider_Type")) or "authoritative")
+            sab_pts[pid] = (pt, src)
+
+    # systems with no service area and whose county record names no town: one
+    # WATER_SYSTEM lookup each (cached)
+    no_town = [_s(r.get("pwsid")) for _, r in wsy.iterrows()
+               if not served_towns(r) and _s(r.get("pwsid")) not in sab_pts]
     ws = ws_lookup(no_town, raw / "water_systems" / "_water_system_lookup.json") if no_town else {}
     zc = None
 
@@ -210,6 +309,11 @@ def place(C) -> pathlib.Path:
         extra = ws.get(pid, {})
         rec = {"pwsid": pid, "pws_name": _s(r.get("pws_name")) or _s(extra.get("pws_name")),
                "lon": "", "lat": "", "method": "unplaced", "matched_town": ""}
+        if pid in sab_pts:
+            (lon, lat), src = sab_pts[pid]
+            rec.update(lon=lon, lat=lat, method="epa_service_area", matched_town=f"service area ({src})")
+            rows.append(rec)
+            continue
         towns = served_towns(r) or ([_s(extra.get("city_name"))] if _s(extra.get("city_name")) else [])
         for town in towns:
             k = norm(town)
