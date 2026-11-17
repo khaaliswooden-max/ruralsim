@@ -53,7 +53,7 @@ CONSTRAINT_NAMES = {
     "protect_lowest_income_quintile": "Lowest-income fifth is not made worse off",
     "water_within_recharge": "Water use stays within recharge",
     "no_displacement": "No one is displaced",
-    "worst_off_decile_must_gain": "Worst-off tenth of households gains",
+    "worst_off_decile_must_gain": "Worst-off tenth of households is not made worse off",
     "political_variables_excluded": "Political variables excluded",
 }
 
