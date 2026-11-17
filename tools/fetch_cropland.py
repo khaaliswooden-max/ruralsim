@@ -14,7 +14,7 @@ Sources, in order:
 
 Clipped to buffered county bbox. Provenance: observed (USDA NASS CDL).
 """
-import json, pathlib, urllib.request, re, datetime, sys
+import time, json, pathlib, urllib.request, re, datetime, sys
 import numpy as np
 import rasterio
 from rasterio.windows import from_bounds
@@ -112,9 +112,25 @@ except Exception as e:
 # --- 2. Planetary Computer ---
 from pystac_client import Client
 import planetary_computer
-cat = Client.open("https://planetarycomputer.microsoft.com/api/stac/v1")
-items = [it for it in cat.search(collections=["usda-cdl"], bbox=[W, S, E, N]).items()
-         if it.id.startswith("cropland_")]
+
+
+def pc_retry(fn, what, tries=5):
+    """Planetary Computer's STAC API has brief outages (Texas run #12: 'Service is
+    unavailable', 'Backend returned 401' and an unresolvable root for ~2 minutes); ride them out."""
+    for attempt in range(tries):
+        try:
+            return fn()
+        except Exception as e:
+            if attempt + 1 == tries:
+                raise
+            wait = 30 * (attempt + 1)
+            print(f"  Planetary Computer {what} failed ({str(e)[:120]}); retry in {wait} s", flush=True)
+            time.sleep(wait)
+
+
+items = pc_retry(lambda: [it for it in Client.open("https://planetarycomputer.microsoft.com/api/stac/v1")
+                          .search(collections=["usda-cdl"], bbox=[W, S, E, N]).items()
+                          if it.id.startswith("cropland_")], "usda-cdl search")
 years = sorted({int(it.id.split("_")[1]) for it in items})
 year = max(years)
 tiles = [it for it in items if int(it.id.split("_")[1]) == year]
@@ -123,12 +139,15 @@ print(f"PC usda-cdl: year {year}, {len(tiles)} tile(s) cover buffered bbox")
 X1, Y1 = to5070.transform(W, S); X2, Y2 = to5070.transform(E, N)
 win_arrays, win_transforms = [], []
 for it in tiles:
-    href = planetary_computer.sign(it).assets["cropland"].href
-    with rasterio.open(href) as src:
-        win = from_bounds(min(X1, X2), min(Y1, Y2), max(X1, X2), max(Y1, Y2), src.transform)
-        win = win.round_offsets().round_lengths()
-        win_arrays.append(src.read(1, window=win))
-        win_transforms.append(src.window_transform(win))
+    def read_tile(it=it):
+        href = planetary_computer.sign(it).assets["cropland"].href
+        with rasterio.open(href) as src:
+            win = from_bounds(min(X1, X2), min(Y1, Y2), max(X1, X2), max(Y1, Y2), src.transform)
+            win = win.round_offsets().round_lengths()
+            return src.read(1, window=win), src.window_transform(win)
+    a, t = pc_retry(read_tile, f"read {it.id}")
+    win_arrays.append(a)
+    win_transforms.append(t)
 
 res = win_transforms[0].a
 x0 = min(t.c for t in win_transforms); y1m = max(t.f for t in win_transforms)
