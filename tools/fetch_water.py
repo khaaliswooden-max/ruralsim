@@ -20,7 +20,7 @@ REPO = pathlib.Path(__file__).resolve().parent.parent
 OUT = C.world / "layers_raw" / "water_systems"
 OUT.mkdir(parents=True, exist_ok=True)
 sys.path.insert(0, str(REPO / "tools"))
-from place_water_systems import place  # noqa: E402  (D-030)
+from place_water_systems import place, epa_get, EPA_WORKERS, MAX_FAIL_SHARE  # noqa: E402  (D-030)
 if (OUT / f"sdwis_systems_{FIPS}.csv").exists():
     print(f"water: sdwis_systems_{FIPS}.csv already present, skipping fetch (delete to re-fetch)")
     if not (OUT / f"sdwis_locations_{FIPS}.csv").exists():
@@ -41,19 +41,7 @@ print("county towns for matching:", sorted(TOWNS))
 def ef(path):
     # names with spaces ("New York", "District of Columbia", CT planning regions) must be
     # percent-encoded or urllib refuses the URL (canary run 43794676050)
-    req = urllib.request.Request(f"{BASE}/{urllib.parse.quote(path)}", headers=UA)
-    for attempt in range(4):
-        try:
-            with urllib.request.urlopen(req, timeout=300) as r:
-                raw = r.read()
-            break
-        except urllib.error.HTTPError as e:
-            if e.code < 500 or attempt == 3:
-                raise
-        except (urllib.error.URLError, TimeoutError):
-            if attempt == 3:
-                raise
-        time.sleep(20 * (attempt + 1))
+    raw = epa_get(f"{BASE}/{urllib.parse.quote(path)}", timeout=300)
     try:
         return json.loads(raw)
     except json.JSONDecodeError:
@@ -104,18 +92,26 @@ def viol(pid):
         return v if isinstance(v, list) else []
     except Exception as e:
         print("viol fail", pid, e)
-        return []
+        return None
 
 
-# eight requests at a time: Harris TX has ~2,500 systems, and one-at-a-time lookups ran
+# a few requests at a time (EPA_WORKERS): Harris TX has ~2,500 systems, and one-at-a-time lookups ran
 # past the 300-minute job limit (Texas run #12)
 import concurrent.futures as cf
 viol_all = []
 t0 = time.time()
-with cf.ThreadPoolExecutor(8) as ex:
+viol_failed = 0
+with cf.ThreadPoolExecutor(EPA_WORKERS) as ex:
     for v in ex.map(viol, list(systems["pwsid"])):
-        viol_all.extend(v)
-print(f"violation lookups: {len(systems)} systems in {time.time() - t0:.0f} s", flush=True)
+        if v is None:
+            viol_failed += 1
+        else:
+            viol_all.extend(v)
+print(f"violation lookups: {len(systems)} systems in {time.time() - t0:.0f} s, "
+      f"{viol_failed} failed", flush=True)
+if len(systems) and viol_failed / len(systems) > MAX_FAIL_SHARE:
+    sys.exit(f"violation lookups failed for {viol_failed} of {len(systems)} systems; "
+             "not publishing a partial count")
 vdf = pd.DataFrame(viol_all)
 vdf.to_csv(OUT / f"sdwis_violations_{FIPS}.csv", index=False)
 print("violations all-time:", len(vdf))

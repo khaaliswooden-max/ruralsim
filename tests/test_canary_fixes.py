@@ -132,3 +132,30 @@ def test_ws_lookup_parallel_keeps_cache_and_skips_failures(monkeypatch, tmp_path
     out = pw.ws_lookup([f"P{i}" for i in range(50)] + ["BAD", "OLD"], cp)
     assert out["OLD"]["city_name"] == "KEPT" and "BAD" not in out
     assert out["P7"]["city_name"] == "TOWNP7" and len(out) == 51
+
+
+def test_epa_get_retries_429_then_succeeds(monkeypatch):
+    """Run #13 (Harris TX): unretried HTTP 429 dropped 1,841 violation lookups."""
+    import io, urllib.error, urllib.request as ur
+    calls = []
+    def fake(req, timeout=0):
+        calls.append(1)
+        if len(calls) < 3:
+            raise urllib.error.HTTPError(req.full_url, 429, "Too Many Requests", {"Retry-After": "0"}, None)
+        return io.BytesIO(b"[]")
+    monkeypatch.setattr(ur, "urlopen", fake)
+    monkeypatch.setattr(pw.time, "sleep", lambda s: None)
+    assert pw.epa_get("https://data.epa.gov/efservice/X") == b"[]" and len(calls) == 3
+
+
+def test_ws_lookup_fails_step_when_many_lookups_fail(monkeypatch, tmp_path):
+    import urllib.request as ur
+    def fake(req, timeout=0):
+        raise OSError("down")
+    monkeypatch.setattr(ur, "urlopen", fake)
+    try:
+        pw.ws_lookup([f"P{i}" for i in range(10)], tmp_path / "ws.json")
+    except RuntimeError as e:
+        assert "10 of 10" in str(e)
+    else:
+        raise AssertionError("expected the step to fail")
