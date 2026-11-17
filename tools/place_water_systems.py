@@ -109,7 +109,29 @@ def zctas() -> pd.DataFrame:
     return g[["GEOID", "lon", "lat"]]
 
 
-EPA_WORKERS = 8  # concurrent Envirofacts requests (polite; was serial)
+EPA_WORKERS = 4  # concurrent Envirofacts requests; 8 drew HTTP 429 on Harris TX (run #13)
+MAX_FAIL_SHARE = 0.02  # more failed lookups than this fails the step instead of publishing a gap
+
+
+def epa_get(url: str, timeout: int = 120, tries: int = 6):
+    """GET + JSON from Envirofacts, retrying 429 (rate limit) and 5xx/network errors with
+    backoff. Honours Retry-After. Run #13 (Harris TX) lost 1,841 violation and 1,319
+    WATER_SYSTEM lookups to unretried 429s and still published."""
+    import random, urllib.error
+    for attempt in range(tries):
+        try:
+            with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=timeout) as r:
+                return r.read()
+        except urllib.error.HTTPError as e:
+            if (e.code != 429 and e.code < 500) or attempt + 1 == tries:
+                raise
+            ra = e.headers.get("Retry-After") if e.headers else None
+            wait = float(ra) if ra and ra.isdigit() else 5 * 2 ** attempt
+        except (urllib.error.URLError, TimeoutError, ConnectionError):
+            if attempt + 1 == tries:
+                raise
+            wait = 5 * 2 ** attempt
+        time.sleep(wait + random.uniform(0, 2))
 
 
 def ws_lookup(pwsids: list[str], cache_path: pathlib.Path) -> dict:
@@ -121,9 +143,7 @@ def ws_lookup(pwsids: list[str], cache_path: pathlib.Path) -> dict:
 
     def one(pid):
         try:
-            req = urllib.request.Request(f"{EF_BASE}/WATER_SYSTEM/PWSID/{pid}/JSON", headers=UA)
-            with urllib.request.urlopen(req, timeout=120) as r:
-                recs = json.load(r)
+            recs = json.loads(epa_get(f"{EF_BASE}/WATER_SYSTEM/PWSID/{pid}/JSON"))
             rec = recs[0] if isinstance(recs, list) and recs else {}
             return pid, {k: rec.get(k) for k in KEEP_WS_FIELDS}
         except Exception as e:
@@ -131,10 +151,16 @@ def ws_lookup(pwsids: list[str], cache_path: pathlib.Path) -> dict:
             return pid, None
 
     todo = [pid for pid in pwsids if pid not in cache]
+    failed = 0
     with cf.ThreadPoolExecutor(EPA_WORKERS) as ex:
         for pid, rec in ex.map(one, todo):
             if rec is not None:
                 cache[pid] = rec
+            else:
+                failed += 1
+    cache_path.write_text(json.dumps(cache, indent=1))  # keep what worked for the retry
+    if todo and failed / len(todo) > MAX_FAIL_SHARE:
+        raise RuntimeError(f"WATER_SYSTEM lookups failed for {failed} of {len(todo)} systems")
     cache_path.write_text(json.dumps(cache, indent=1))
     return cache
 
