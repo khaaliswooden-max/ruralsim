@@ -109,21 +109,32 @@ def zctas() -> pd.DataFrame:
     return g[["GEOID", "lon", "lat"]]
 
 
+EPA_WORKERS = 8  # concurrent Envirofacts requests (polite; was serial)
+
+
 def ws_lookup(pwsids: list[str], cache_path: pathlib.Path) -> dict:
-    """city/ZIP/name from EPA WATER_SYSTEM for systems whose county record has no town."""
+    """city/ZIP/name from EPA WATER_SYSTEM for systems whose county record has no town.
+    Eight lookups at a time: Harris TX has ~2,500 systems and one-at-a-time lookups ran
+    past the 300-minute job limit (Texas run #12)."""
+    import concurrent.futures as cf
     cache = json.loads(cache_path.read_text()) if cache_path.exists() else {}
-    for pid in pwsids:
-        if pid in cache:
-            continue
+
+    def one(pid):
         try:
             req = urllib.request.Request(f"{EF_BASE}/WATER_SYSTEM/PWSID/{pid}/JSON", headers=UA)
             with urllib.request.urlopen(req, timeout=120) as r:
                 recs = json.load(r)
             rec = recs[0] if isinstance(recs, list) and recs else {}
-            cache[pid] = {k: rec.get(k) for k in KEEP_WS_FIELDS}
+            return pid, {k: rec.get(k) for k in KEEP_WS_FIELDS}
         except Exception as e:
             print(f"  WATER_SYSTEM lookup failed for {pid}: {e}", file=sys.stderr)
-        time.sleep(0.3)
+            return pid, None
+
+    todo = [pid for pid in pwsids if pid not in cache]
+    with cf.ThreadPoolExecutor(EPA_WORKERS) as ex:
+        for pid, rec in ex.map(one, todo):
+            if rec is not None:
+                cache[pid] = rec
     cache_path.write_text(json.dumps(cache, indent=1))
     return cache
 

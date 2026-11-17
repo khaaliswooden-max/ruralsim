@@ -116,3 +116,19 @@ def test_cropland_pc_retry_rides_out_outage(monkeypatch):
             raise RuntimeError('{"error":"Service is unavailable."}')
         return "ok"
     assert ns["pc_retry"](flaky, "search") == "ok" and len(calls) == 3
+
+
+def test_ws_lookup_parallel_keeps_cache_and_skips_failures(monkeypatch, tmp_path):
+    """Harris TX (run #12): ~2,500 WATER_SYSTEM lookups now run 8 at a time; failures are skipped."""
+    import io, json as _j, urllib.request as ur
+    def fake(req, timeout=0):
+        pid = req.full_url.split("/PWSID/")[1].split("/")[0]
+        if pid == "BAD":
+            raise OSError("HTTP Error 500")
+        return io.BytesIO(_j.dumps([{"city_name": f"TOWN{pid}", "zip_code": "77001"}]).encode())
+    monkeypatch.setattr(ur, "urlopen", fake)
+    cp = tmp_path / "ws.json"
+    cp.write_text(_j.dumps({"OLD": {"city_name": "KEPT"}}))
+    out = pw.ws_lookup([f"P{i}" for i in range(50)] + ["BAD", "OLD"], cp)
+    assert out["OLD"]["city_name"] == "KEPT" and "BAD" not in out
+    assert out["P7"]["city_name"] == "TOWNP7" and len(out) == 51
