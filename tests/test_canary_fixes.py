@@ -191,3 +191,21 @@ def test_sab_lookup_queries_community_then_noncommunity(monkeypatch, tmp_path):
     assert out["TX2"]["properties"]["ruralsim_layer"] == "non-community"
     # cached: no new requests
     n = len(seen); pw.sab_lookup(["TX1", "TX2", "TX3"], tmp_path / "sab.geojson"); assert len(seen) == n
+
+
+def test_plan_accepts_state_lists():
+    """Runs 44087225127 / 44198783636: --state "AL, GA, MS" selected nothing."""
+    import contextlib, io, json as _j, plan_build
+    def plan(s):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            plan_build.main(["--state", s])
+        return _j.loads(out.getvalue().strip().splitlines()[-1])
+    assert len(plan("AL, MS")) == 67 + 82 and len(plan("al")) == 67
+    for bad in ("AL, GA, MS", "XX"):  # 308 counties > 256; unknown code
+        try:
+            plan(bad)
+        except SystemExit:
+            pass
+        else:
+            raise AssertionError(bad)

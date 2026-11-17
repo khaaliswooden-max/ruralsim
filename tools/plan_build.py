@@ -28,14 +28,21 @@ def current_counties() -> dict[str, str]:
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--counties", default="", help="comma-separated fips5 codes")
-    ap.add_argument("--state", default="", help="two-letter state: every current county in it")
+    ap.add_argument("--state", default="", help="two-letter state(s), comma- or space-separated: "
+                    "every current county in them")
     ap.add_argument("--prefetch", action="store_true", help="download shared inputs into $RURALSIM_CACHE")
     a = ap.parse_args(argv)
 
     universe = current_counties()
     fipses = [f.strip().zfill(5) for f in a.counties.split(",") if f.strip()]
-    if a.state:
-        fipses += [f for f, st in universe.items() if st == a.state.strip().upper()]
+    # "AL, GA, MS" used to match nothing and stop the plan (runs 44087225127, 44198783636)
+    states = [x.upper() for x in a.state.replace(",", " ").split()]
+    known = set(universe.values())
+    unknown = [x for x in states if x not in known]
+    if unknown:
+        raise SystemExit(f"unknown state code(s): {unknown}; use two-letter codes, e.g. AL, GA, MS")
+    for st_code in states:
+        fipses += [f for f, st in universe.items() if st == st_code]
     fipses = sorted(set(fipses))
     bad = [f for f in fipses if f not in universe]
     if bad:
@@ -43,7 +50,8 @@ def main(argv=None):
     if not fipses:
         raise SystemExit("no counties selected: give --counties and/or --state")
     if len(fipses) > MATRIX_MAX:
-        raise SystemExit(f"{len(fipses)} counties exceeds the {MATRIX_MAX}-job matrix limit; split the batch")
+        raise SystemExit(f"{len(fipses)} counties exceeds GitHub's {MATRIX_MAX}-job matrix limit; "
+                         "split the batch into separate runs (e.g. one state per run)")
 
     if a.prefetch:
         from county_config import get

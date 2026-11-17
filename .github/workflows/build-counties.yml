@@ -17,7 +17,7 @@ on:
         required: false
         default: ""
       state:
-        description: "Or a state code: build every current county in it (e.g. NE)"
+        description: "Or state code(s), e.g. NE or AL, MS: every current county in them (max 256 counties per run)"
         required: false
         default: ""
       publish:
