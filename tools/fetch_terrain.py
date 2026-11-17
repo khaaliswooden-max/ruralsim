@@ -175,9 +175,19 @@ def fetch_pc():
     """Windowed read of USGS 3DEP 1 arc-second COGs from Planetary Computer."""
     from pystac_client import Client
     import planetary_computer
-    client = Client.open("https://planetarycomputer.microsoft.com/api/stac/v1")
-    search = client.search(collections=["3dep-seamless"], bbox=[W, S, E, N], limit=20)
-    its = [it for it in search.items() if it.id.endswith("-1")]
+    def find():
+        client = Client.open("https://planetarycomputer.microsoft.com/api/stac/v1")
+        search = client.search(collections=["3dep-seamless"], bbox=[W, S, E, N], limit=20)
+        return [it for it in search.items() if it.id.endswith("-1")]
+    for attempt in range(5):  # PC STAC has brief outages (Texas run #12)
+        try:
+            its = find()
+            break
+        except Exception as e:
+            if attempt == 4:
+                raise
+            print(f"  Planetary Computer search failed ({str(e)[:120]}); retry in {30 * (attempt + 1)} s", flush=True)
+            time.sleep(30 * (attempt + 1))
     if not its:
         raise RuntimeError("PC 3dep-seamless: no 1 arc-second items over bbox")
     urls, tiles_meta = [], []

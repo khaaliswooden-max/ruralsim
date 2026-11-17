@@ -99,3 +99,20 @@ if __name__ == "__main__":
     test_nj_town_names()
     test_mirror_then_fallback()
     print("ok")
+
+
+def test_cropland_pc_retry_rides_out_outage(monkeypatch):
+    """Texas run #12: PC STAC returned 'Service is unavailable' for ~2 min; pc_retry must retry."""
+    import ast, time as _t
+    src = (REPO / "tools" / "fetch_cropland.py").read_text()
+    fn = next(n for n in ast.parse(src).body if isinstance(n, ast.FunctionDef) and n.name == "pc_retry")
+    ns = {"time": _t}
+    exec(compile(ast.Module([fn], []), "pc_retry", "exec"), ns)
+    monkeypatch.setattr(_t, "sleep", lambda s: None)
+    calls = []
+    def flaky():
+        calls.append(1)
+        if len(calls) < 3:
+            raise RuntimeError('{"error":"Service is unavailable."}')
+        return "ok"
+    assert ns["pc_retry"](flaky, "search") == "ok" and len(calls) == 3
