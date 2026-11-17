@@ -98,15 +98,24 @@ else:
 systems.to_csv(OUT / f"sdwis_systems_{FIPS}.csv", index=False)
 print("total systems:", len(systems))
 
-viol_all = []
-for pid in systems["pwsid"]:
+def viol(pid):
     try:
         v = ef(f"VIOLATION/PWSID/{pid}/JSON")
-        if isinstance(v, list):
-            viol_all.extend(v)
+        return v if isinstance(v, list) else []
     except Exception as e:
         print("viol fail", pid, e)
-    time.sleep(0.3)
+        return []
+
+
+# eight requests at a time: Harris TX has ~2,500 systems, and one-at-a-time lookups ran
+# past the 300-minute job limit (Texas run #12)
+import concurrent.futures as cf
+viol_all = []
+t0 = time.time()
+with cf.ThreadPoolExecutor(8) as ex:
+    for v in ex.map(viol, list(systems["pwsid"])):
+        viol_all.extend(v)
+print(f"violation lookups: {len(systems)} systems in {time.time() - t0:.0f} s", flush=True)
 vdf = pd.DataFrame(viol_all)
 vdf.to_csv(OUT / f"sdwis_violations_{FIPS}.csv", index=False)
 print("violations all-time:", len(vdf))

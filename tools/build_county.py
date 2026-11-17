@@ -69,12 +69,14 @@ def outputs_ok(script):
         print(f"  MISSING after {script}: {g}")
     return not missing
 
-import os
+import os, time
 for script in PIPELINE:
     for attempt in range(3):
         print(f"=== {script} {FIPS} (attempt {attempt+1})")
+        t0 = time.time()
         r = subprocess.run([sys.executable, str(REPO / script), FIPS], cwd=REPO)
         os.sync()
+        print(f"--- {script} {FIPS}: {time.time() - t0:.0f} s (exit {r.returncode})", flush=True)
         if r.returncode != 0:
             print(f"FAILED: {script} (exit {r.returncode}) — stop; fix and rerun (fetch is resumable)")
             sys.exit(r.returncode)
