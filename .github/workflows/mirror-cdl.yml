@@ -1,0 +1,41 @@
+# Copy USDA NASS's national Cropland Data Layer into R2 as a Cloud-Optimized GeoTIFF (D-043).
+# Run once per CDL release from the Actions tab: "Mirror Cropland Data Layer" -> Run workflow.
+# County builds then read their window from cdl/<year>_30m_cdls_cog.tif in R2.
+name: Mirror Cropland Data Layer
+
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: "CDL year (NASS publishes each year's layer the following February)"
+        required: false
+        default: "2025"
+      force:
+        description: "Replace the copy already in R2"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Download, convert to COG, upload
+        env:
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET: ruralsim-data
+          PYTHONUNBUFFERED: "1"
+        run: |
+          df -h "$RUNNER_TEMP"
+          python tools/mirror_cdl.py --year "${{ inputs.year }}" --work "$RUNNER_TEMP/cdl" ${{ inputs.force && '--force' || '' }}
