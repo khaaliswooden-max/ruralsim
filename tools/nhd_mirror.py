@@ -84,9 +84,13 @@ def convert(gpkg: pathlib.Path, out_dir: pathlib.Path) -> dict:
     counts = {}
     for name, (layer, cols) in LAYERS.items():
         out = out_dir / f"{name}.parquet"
+        # the geometry column is SHAPE in the 2023 state packages and geom in the 2025 ones
+        # (Arkansas): take whichever column is typed GEOMETRY
+        desc = con.sql(f"DESCRIBE SELECT * FROM st_read('{gpkg}', layer='{layer}')").fetchall()
+        gcol = next(c for c, t, *_ in desc if str(t).upper().startswith("GEOMETRY"))
         con.sql(f"""COPY (
-            WITH s AS (SELECT {cols}, ST_Force2D(SHAPE) AS g
-                       FROM st_read('{gpkg}', layer='{layer}') WHERE SHAPE IS NOT NULL)
+            WITH s AS (SELECT {cols}, ST_Force2D("{gcol}") AS g
+                       FROM st_read('{gpkg}', layer='{layer}') WHERE "{gcol}" IS NOT NULL)
             SELECT {cols}, ST_XMin(g) AS xmin, ST_YMin(g) AS ymin, ST_XMax(g) AS xmax,
                    ST_YMax(g) AS ymax, ST_AsWKB(g) AS geom
             FROM s ORDER BY floor(ST_YMin(g) * 10), ST_XMin(g)
@@ -114,28 +118,37 @@ def mirror(regions: list[dict], work: str | None = None, force: bool = False) ->
         t0 = time.time()
         tmp = pathlib.Path(tempfile.mkdtemp(prefix="nhd_", dir=work))
         try:
-            url = f"{S3}NHD_H_{nhd_name(rid)}_State_GPKG.zip"
-            zp = tmp / "nhd.zip"
-            hdr = _download(url, zp)
-            with zipfile.ZipFile(zp) as z:
-                member = next(i.filename for i in z.infolist() if i.filename.endswith(".gpkg"))
-                z.extract(member, tmp)
-            zp.unlink()
-            counts = convert(tmp / member, tmp)
-            for name in LAYERS:
-                s3.upload_file(str(tmp / f"{name}.parquet"), bucket(), key(rid, name),
-                               ExtraArgs={"ContentType": "application/octet-stream",
-                                          "CacheControl": "public, max-age=86400"})
-            s3.put_object(Bucket=bucket(), Key=meta_key, ContentType="application/json",
-                          Body=json.dumps({"region": rid, "source": url, "upstream": hdr,
-                                           "counts": counts, "license": "public domain (USGS)",
-                                           "written_utc": datetime.datetime.now(datetime.timezone.utc).isoformat()},
-                                          indent=2).encode())
-            print(f"  NHD {rid}: mirrored {counts} in {time.time() - t0:.0f} s", flush=True)
+            _mirror_one(s3, rid, meta_key, tmp, t0)
             done.append(rid)
+        except Exception as e:  # one state's failure must not stop the others
+            print(f"  NHD {rid}: FAILED ({str(e)[:200]}); its counties will query USGS directly",
+                  flush=True)
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
     return done
+
+
+def _mirror_one(s3, rid, meta_key, tmp, t0):
+    """Download, convert and upload one state; raises on any failure."""
+    from publish_world import bucket
+    url = f"{S3}NHD_H_{nhd_name(rid)}_State_GPKG.zip"
+    zp = tmp / "nhd.zip"
+    hdr = _download(url, zp)
+    with zipfile.ZipFile(zp) as z:
+        member = next(i.filename for i in z.infolist() if i.filename.endswith(".gpkg"))
+        z.extract(member, tmp)
+    zp.unlink()
+    counts = convert(tmp / member, tmp)
+    for name in LAYERS:
+        s3.upload_file(str(tmp / f"{name}.parquet"), bucket(), key(rid, name),
+                       ExtraArgs={"ContentType": "application/octet-stream",
+                                  "CacheControl": "public, max-age=86400"})
+    s3.put_object(Bucket=bucket(), Key=meta_key, ContentType="application/json",
+                  Body=json.dumps({"region": rid, "source": url, "upstream": hdr,
+                                   "counts": counts, "license": "public domain (USGS)",
+                                   "written_utc": datetime.datetime.now(datetime.timezone.utc).isoformat()},
+                                  indent=2).encode())
+    print(f"  NHD {rid}: mirrored {counts} in {time.time() - t0:.0f} s", flush=True)
 
 
 class NotMirrored(RuntimeError):
