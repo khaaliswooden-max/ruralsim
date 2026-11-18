@@ -65,6 +65,13 @@ def main(argv=None):
             print(f"prefetch: mirroring {len(regions)} OSM extract(s) to R2: "
                   f"{', '.join(r['id'] for r in regions)}", file=sys.stderr)
             mirror_osm.mirror(regions)
+            # D-045: NHD flowlines/waterbodies per state, so county jobs skip hydro.nationalmap.gov
+            import nhd_mirror
+            try:
+                nhd_mirror.mirror(regions)
+            except Exception as e:  # county jobs fall back to the ArcGIS service
+                print(f"prefetch: NHD mirror failed ({e}); county jobs will query USGS directly",
+                      file=sys.stderr)
         elif len(regions) <= OSM_PREFETCH_MAX:
             print(f"prefetch: {len(regions)} OSM extract(s): {', '.join(r['id'] for r in regions)}", file=sys.stderr)
             for r in regions:

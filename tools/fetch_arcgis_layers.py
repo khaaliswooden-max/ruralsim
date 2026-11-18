@@ -144,6 +144,31 @@ for dirname, fname, url, extra, paginate, source, lic in JOBS:
         print(f"{dirname}/{fname}: present, skipping")
         continue
     print(f"{dirname}/{fname}: querying ...", flush=True)
+    if dirname == "hydrology":
+        # D-045: read the per-state NHD copy in R2 first; the ArcGIS service is the fallback
+        layer = "flowline" if "flowlines" in fname else "waterbody"
+        try:
+            import nhd_mirror
+            rids = nhd_mirror.regions_for(C.buf_bbox)
+            t0 = time.time()
+            gj = nhd_mirror.read(layer, C.buf_bbox, rids)
+            src_note = (f"USGS NHD state GeoPackages ({', '.join(nhd_mirror.nhd_name(r) for r in rids)}), "
+                        "RuralSim's R2 copy (tools/nhd_mirror.py, D-045)")
+            print(f"  NHD {layer} from the R2 copy: {len(gj['features'])} features in {time.time() - t0:.0f} s",
+                  flush=True)
+            write_via_stage(out, json.dumps(gj))
+            meta = {"retrieved_utc": datetime.datetime.now(datetime.UTC).isoformat(),
+                    "source": src_note, "license": lic, "provenance": "observed",
+                    "endpoint": nhd_mirror.DATA_BASE + "/" + nhd_mirror.PREFIX, "features": len(gj["features"])}
+            mp = d / "_meta.json"
+            if mp.exists():
+                prev = json.loads(mp.read_text())
+                prev["features_total"] = prev.get("features_total", prev.pop("features", 0)) + len(gj["features"])
+                meta = {**prev, **meta, "features_total": prev["features_total"]}
+            mp.write_text(json.dumps(meta, indent=2))
+            continue
+        except Exception as e:
+            print(f"  NHD R2 copy not usable ({str(e)[:160]}); querying the ArcGIS service", flush=True)
     try:
         gj = arcgis_query(url, extra, paginate)
     except RuntimeError as e:
