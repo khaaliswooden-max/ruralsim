@@ -209,3 +209,26 @@ def test_plan_accepts_state_lists():
             pass
         else:
             raise AssertionError(bad)
+
+
+def test_eia_download_retries_and_never_keeps_a_partial(monkeypatch, tmp_path):
+    """Run #22: Avery NC failed on one DNS error fetching the EIA-860 zip (D-044)."""
+    import io, urllib.error, urllib.request as ur, eia_files
+    monkeypatch.setattr(eia_files, "CACHE", tmp_path)
+    monkeypatch.setattr(eia_files.time, "sleep", lambda s: None)
+    calls = []
+    class Resp(io.BytesIO):
+        headers = {"Content-Length": "5"}
+        def __enter__(self): return self
+        def __exit__(self, *a): return False
+    def fake(req, timeout=0):
+        calls.append(1)
+        if len(calls) == 1:
+            raise urllib.error.URLError("[Errno -3] Temporary failure in name resolution")
+        if len(calls) == 2:
+            return Resp(b"abc")  # cut off: 3 of 5 bytes
+        return Resp(b"abcde")
+    monkeypatch.setattr(ur, "urlopen", fake)
+    p = eia_files.ensure("https://www.eia.gov/x/f.zip")
+    assert p.read_bytes() == b"abcde" and len(calls) == 3
+    assert not (tmp_path / "f.zip.part").exists()

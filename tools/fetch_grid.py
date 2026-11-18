@@ -28,16 +28,11 @@ CACHE = pathlib.Path("/tmp/ruralsim_cache/eia"); CACHE.mkdir(parents=True, exist
 STAGE = pathlib.Path("/tmp/ruralsim_staging") / FIPS / "grid"; STAGE.mkdir(parents=True, exist_ok=True)
 UA = {"User-Agent": "RuralSim-research/0.1"}
 
-def get(url, dest):
-    if not dest.exists():
-        print(f"downloading {url} ...", flush=True)
-        req = urllib.request.Request(url, headers=UA)
-        with urllib.request.urlopen(req, timeout=900) as r, open(dest, "wb") as f:
-            while True:
-                c = r.read(1 << 20)
-                if not c: break
-                f.write(c)
-    return dest
+import eia_files  # noqa: E402  (retrying, shared download; D-044)
+
+
+def get(url, dest=None):
+    return eia_files.ensure(url)
 
 # --- EIA-860 ---
 z860 = get("https://www.eia.gov/electricity/data/eia860/archive/xls/eia8602024.zip", CACHE / "eia8602024.zip")
