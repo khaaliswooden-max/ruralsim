@@ -75,6 +75,8 @@ def main(argv=None):
             print(f"prefetch: {len(regions)} OSM extracts needed; over {OSM_PREFETCH_MAX}, "
                   "so each county job downloads its own", file=sys.stderr)
         fetch_climate.climdiv_files()
+        import eia_files
+        eia_files.prefetch()  # D-044: once per batch, not once per county
         place_water_systems.gazetteer()
         place_water_systems.zctas()
 
