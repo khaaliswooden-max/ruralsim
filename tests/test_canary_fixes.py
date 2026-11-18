@@ -232,3 +232,35 @@ def test_eia_download_retries_and_never_keeps_a_partial(monkeypatch, tmp_path):
     p = eia_files.ensure("https://www.eia.gov/x/f.zip")
     assert p.read_bytes() == b"abcde" and len(calls) == 3
     assert not (tmp_path / "f.zip.part").exists()
+
+
+def test_nhd_state_names_match_usgs_staged_products():
+    """D-045: Geofabrik region ids map to the names in NHD_H_<name>_State_GPKG.zip."""
+    import nhd_mirror as nm
+    assert nm.nhd_name("us/north-carolina") == "North_Carolina"
+    assert nm.nhd_name("us/district-of-columbia") == "District_of_Columbia"
+    assert nm.nhd_name("us/us-virgin-islands") == "United_States_Virgin_Islands"
+    assert nm.key("us/new-york", "flowline") == "nhd/new-york_flowline.parquet"
+
+
+def test_nhd_read_dedupes_across_states_and_clips_to_envelope(tmp_path, monkeypatch):
+    """Neighbouring states' GeoPackages share border watersheds; keep each feature once."""
+    import duckdb, nhd_mirror as nm
+    con = duckdb.connect(); con.sql("INSTALL spatial; LOAD spatial;")
+    for st in ("a", "b"):
+        con.sql(f"""COPY (SELECT * FROM (VALUES
+            ('1', 'Shared Creek', 460, 46000, 'r1', 1.0, 'LINESTRING(0.1 0.1, 0.2 0.2)'),
+            ('{st}2', NULL, 460, 46000, 'r2', 1.0, 'LINESTRING(5 5, 6 6)')) t(permanent_identifier,
+            gnis_name, ftype, fcode, reachcode, lengthkm, w)
+          ) TO '{tmp_path}/raw_{st}.parquet' (FORMAT parquet)""")
+        con.sql(f"""COPY (SELECT permanent_identifier, gnis_name, ftype, fcode, reachcode, lengthkm,
+              ST_XMin(ST_GeomFromText(w)) xmin, ST_YMin(ST_GeomFromText(w)) ymin,
+              ST_XMax(ST_GeomFromText(w)) xmax, ST_YMax(ST_GeomFromText(w)) ymax,
+              ST_AsWKB(ST_GeomFromText(w)) geom FROM '{tmp_path}/raw_{st}.parquet')
+          TO '{tmp_path}/{st}_flowline.parquet' (FORMAT parquet)""")
+    monkeypatch.setattr(nm, "DATA_BASE", str(tmp_path))
+    monkeypatch.setattr(nm, "PREFIX", "")
+    monkeypatch.setattr(nm.urllib.request, "Request", lambda *a, **k: None)  # HEAD check
+    monkeypatch.setattr(nm.urllib.request, "urlopen", lambda *a, **k: None)
+    fc = nm.read("flowline", (0, 0, 1, 1), ["us/a", "us/b"])
+    assert [f["properties"]["gnis_name"] for f in fc["features"]] == ["Shared Creek"]
