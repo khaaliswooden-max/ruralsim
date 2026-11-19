@@ -41,12 +41,18 @@ SHORT = "public, max-age=300"
 
 
 def client():
+    """R2 S3 client. Retries 503 ServiceUnavailable / throttling with adaptive backoff: run #29
+    lost three published counties (05139, 37057, 21019) to 'ServiceUnavailable ... reached max
+    retries: 2' under the default retry budget, with 20 jobs uploading at once (D-047)."""
     import boto3
+    from botocore.config import Config
     acct = os.environ["R2_ACCOUNT_ID"]
     return boto3.client("s3", endpoint_url=f"https://{acct}.r2.cloudflarestorage.com",
                         aws_access_key_id=os.environ["R2_ACCESS_KEY_ID"],
                         aws_secret_access_key=os.environ["R2_SECRET_ACCESS_KEY"],
-                        region_name="auto")
+                        region_name="auto",
+                        config=Config(retries={"mode": "adaptive", "max_attempts": 10},
+                                      connect_timeout=30, read_timeout=120))
 
 
 def bucket():
