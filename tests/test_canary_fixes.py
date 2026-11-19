@@ -264,3 +264,34 @@ def test_nhd_read_dedupes_across_states_and_clips_to_envelope(tmp_path, monkeypa
     monkeypatch.setattr(nm.urllib.request, "urlopen", lambda *a, **k: None)
     fc = nm.read("flowline", (0, 0, 1, 1), ["us/a", "us/b"])
     assert [f["properties"]["gnis_name"] for f in fc["features"]] == ["Shared Creek"]
+
+
+def test_osm_mirror_survives_geofabrik_down(monkeypatch, tmp_path):
+    """Runs #27/#28: Geofabrik reset every connection and the first missing state failed the
+    whole plan. Now a stale R2 copy is kept and a state that cannot be fetched is skipped (D-046)."""
+    import datetime, fetch_osm, mirror_osm as mo
+    old = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=30)
+    class S3:
+        uploads = []
+        def head_object(self, Bucket, Key):
+            if "kentucky" in Key:
+                return {"LastModified": old}  # stale copy exists
+            raise Exception("404")
+        def upload_file(self, *a, **k): self.uploads.append(a[2])
+        def put_object(self, **k): self.uploads.append(k["Key"])
+    s3 = S3()
+    monkeypatch.setattr(mo, "client", lambda: s3)
+    monkeypatch.setattr(mo, "bucket", lambda: "b")
+    monkeypatch.setattr(mo, "geofabrik_up", lambda timeout=30: False)
+    monkeypatch.setattr(fetch_osm, "CACHE", tmp_path)
+    def fake_cut(r, dest, regional):
+        if "west-virginia" in r["id"]:
+            dest.write_bytes(b"pbf" * 10)
+            return "https://download.openstreetmap.fr/x"
+        raise RuntimeError("no region")
+    monkeypatch.setattr(mo, "_from_osmfr", fake_cut)
+    regions = [{"id": f"us/{s}", "urls": {"pbf": f"https://download.geofabrik.de/north-america/us/{s}-latest.osm.pbf"}}
+               for s in ("kentucky", "west-virginia", "alaska")]
+    done = mo.mirror(regions)
+    assert done == ["kentucky-latest.osm.pbf", "west-virginia-latest.osm.pbf"]
+    assert s3.uploads[-1] == "osm/west-virginia-latest.osm.pbf.md5"  # md5 written last
