@@ -47,6 +47,8 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
       - run: pip install -r requirements.txt
+      - name: osmium-tool (cuts state extracts when Geofabrik is down, D-046)
+        run: sudo apt-get install -y -q osmium-tool
       - name: Plan the batch, mirror OSM extracts to R2, pre-download shared inputs once
         id: plan
         env:
