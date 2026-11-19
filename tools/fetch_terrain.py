@@ -148,20 +148,31 @@ def fetch_tnm():
         if not fn.exists() or fn.stat().st_size == 0:
             print(f"  downloading {title} ...", flush=True)
             req = urllib.request.Request(it["downloadURL"], headers={"User-Agent": "RuralSim-research/0.1"})
-            t0 = time.time(); got = 0
-            try:
-                with urllib.request.urlopen(req, timeout=1800) as r, open(part, "wb") as f:
-                    while True:
-                        chunk = r.read(1 << 20)
-                        if not chunk:
-                            break
-                        f.write(chunk); got += len(chunk)
-                        el = time.time() - t0
-                        if el > 90 and got < 4_000_000:
-                            raise SlowLink(f"{got/el/1024:.0f} KB/s sustained")
-            except SlowLink:
-                part.unlink(missing_ok=True)
-                raise
+            # Alleghany VA (run #29) lost its build to one HTTP 503 from the USGS tile store;
+            # retry 5xx and dropped connections with backoff (a slow link still falls back)
+            for attempt in range(5):
+                t0 = time.time(); got = 0
+                try:
+                    with urllib.request.urlopen(req, timeout=1800) as r, open(part, "wb") as f:
+                        while True:
+                            chunk = r.read(1 << 20)
+                            if not chunk:
+                                break
+                            f.write(chunk); got += len(chunk)
+                            el = time.time() - t0
+                            if el > 90 and got < 4_000_000:
+                                raise SlowLink(f"{got/el/1024:.0f} KB/s sustained")
+                    break
+                except SlowLink:
+                    part.unlink(missing_ok=True)
+                    raise
+                except Exception as e:
+                    part.unlink(missing_ok=True)
+                    code = getattr(e, "code", None)
+                    if (code is not None and code < 500) or attempt == 4:
+                        raise
+                    print(f"    tile download failed ({e}); retry in {30 * (attempt + 1)} s", flush=True)
+                    time.sleep(30 * (attempt + 1))
             part.rename(fn)
         tiles_meta.append({"title": title, "url": it["downloadURL"],
                            "publicationDate": it.get("publicationDate"), "file": fn.name})
