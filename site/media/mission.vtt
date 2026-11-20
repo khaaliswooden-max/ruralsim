@@ -1,0 +1,45 @@
+WEBVTT
+
+1
+00:00:00.600 --> 00:00:05.123
+Rural America runs on infrastructure nobody tested for it.
+
+2
+00:00:08.600 --> 00:00:16.216
+66.3 million Americans live in rural places. 1,958 counties are nonmetro.
+
+3
+00:00:16.566 --> 00:00:19.425
+719 counties have no Medicare-registered hospital.
+
+4
+00:00:20.825 --> 00:00:25.604
+RuralSim is a reproducible digital twin of rural America.
+
+5
+00:00:25.953 --> 00:00:33.270
+Five pilot counties rebuilt in 3D from public data, and a table for every county in the nation.
+
+6
+00:00:34.671 --> 00:00:36.207
+Test before you build.
+
+7
+00:00:36.557 --> 00:00:42.509
+Ten experiments. Each pass bar is set before it runs, and every miss is published.
+
+8
+00:00:44.671 --> 00:00:47.167
+Measured on people, not averages.
+
+9
+00:00:47.517 --> 00:00:51.720
+If the worst-off 10% end up worse off, the plan fails.
+
+10
+00:00:53.671 --> 00:01:02.460
+Hard limits, by design. Synthetic people only. No one relocated. Political variables never enter the objective.
+
+11
+00:01:03.860 --> 00:01:07.423
+RuralSim. The test range for rural America.
