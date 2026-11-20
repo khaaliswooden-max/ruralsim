@@ -95,22 +95,63 @@ def viol(pid):
         return None
 
 
-# a few requests at a time (EPA_WORKERS): Harris TX has ~2,500 systems, and one-at-a-time lookups ran
-# past the 300-minute job limit (Texas run #12)
+# All violations of the county's state-primacy systems in one joined Envirofacts query
+# (GEOGRAPHIC_AREA -> VIOLATION on pwsid), paged 5,000 rows at a time (D-049). One request per
+# system took Cook IL 15,285 s for 3,105 systems (run #38) and Harris TX past the job limit;
+# the joined query returns the same 7,167 Cook rows in ~15 s. Tribal-primacy systems, and
+# every system if the joined query fails or comes back short, still go one PWSID at a time.
+GEO_ONLY = ["geo_id", "tribal_code", "state_served", "ansi_entity_code", "zip_code_served",
+            "city_served", "area_type_code", "county_served"]
+PAGE = 5000
+
+
+def county_violations():
+    """Violations of the state-primacy systems serving the county, or None to fall back."""
+    q = f"GEOGRAPHIC_AREA/COUNTY_SERVED/{C.name_short}/PRIMACY_AGENCY_CODE/{C.st}/VIOLATION"
+    try:
+        n = int(ef(f"{q}/COUNT/JSON")[0]["TOTALQUERYRESULTS"])
+        rows = []
+        for a in range(0, n, PAGE):
+            page = ef(f"{q}/ROWS/{a}:{min(a + PAGE, n) - 1}/JSON")
+            rows.extend(page if isinstance(page, list) else [])
+    except Exception as e:
+        print(f"joined violation query failed ({str(e)[:160]}); looking up one system at a time", flush=True)
+        return None
+    if len(rows) != n:
+        print(f"joined violation query returned {len(rows)} of {n} rows; looking up one system at a time", flush=True)
+        return None
+    seen, out = set(), []
+    for r in rows:  # a system listed twice for the county would repeat its violations
+        k = (r.get("pwsid"), r.get("violation_id"))
+        if k not in seen:
+            seen.add(k)
+            out.append({c: v for c, v in r.items() if c not in GEO_ONLY})
+    return out
+
+
 import concurrent.futures as cf
 viol_all = []
 t0 = time.time()
 viol_failed = 0
+per_system = list(systems["pwsid"])
+joined = county_violations() if len(ne) else []
+if joined is not None:
+    viol_all.extend(joined)
+    state_ids = set(ne["pwsid"])
+    per_system = [p for p in per_system if p not in state_ids]  # tribal-primacy systems only
+    print(f"violation lookup (joined): {len(state_ids)} {C.st}-primacy systems, {len(joined)} rows "
+          f"in {time.time() - t0:.0f} s", flush=True)
+# a few requests at a time (EPA_WORKERS)
 with cf.ThreadPoolExecutor(EPA_WORKERS) as ex:
-    for v in ex.map(viol, list(systems["pwsid"])):
+    for v in ex.map(viol, per_system):
         if v is None:
             viol_failed += 1
         else:
             viol_all.extend(v)
-print(f"violation lookups: {len(systems)} systems in {time.time() - t0:.0f} s, "
-      f"{viol_failed} failed", flush=True)
-if len(systems) and viol_failed / len(systems) > MAX_FAIL_SHARE:
-    sys.exit(f"violation lookups failed for {viol_failed} of {len(systems)} systems; "
+print(f"violation lookups: {len(systems)} systems in {time.time() - t0:.0f} s "
+      f"({len(per_system)} one at a time), {viol_failed} failed", flush=True)
+if len(per_system) and viol_failed / len(per_system) > MAX_FAIL_SHARE:
+    sys.exit(f"violation lookups failed for {viol_failed} of {len(per_system)} systems; "
              "not publishing a partial count")
 vdf = pd.DataFrame(viol_all)
 vdf.to_csv(OUT / f"sdwis_violations_{FIPS}.csv", index=False)
