@@ -107,6 +107,10 @@ def climdiv_normals(st: str, fips: str, files: dict[str, pathlib.Path]):
     return normals.round(2)
 
 
+# the longest Retry-After worth waiting for; longer means the daily quota is spent (D-050)
+MAX_RETRY_WAIT = 600
+
+
 def openmeteo_daily(lat, lon, attempts: int):
     params = {
         "latitude": lat, "longitude": lon,
@@ -127,7 +131,13 @@ def openmeteo_daily(lat, lon, attempts: int):
         except urllib.error.HTTPError as e:
             if e.code not in (429, 502, 503, 504) or attempt == attempts - 1:
                 raise
-            wait = int(e.headers.get("Retry-After") or 0) or min(30 * 2 ** attempt, 600)
+            ra = (e.headers.get("Retry-After") if e.headers else None) or ""
+            wait = int(ra) if ra.isdigit() else min(30 * 2 ** attempt, 600)
+            if wait > MAX_RETRY_WAIT:
+                # Open-Meteo's daily quota is spent: it asks for the wait until the reset
+                # (66,812 s for Clayton IA in run #38, which then hit the 6-hour job limit)
+                raise RuntimeError(f"Open-Meteo HTTP {e.code} asks to retry in {wait} s "
+                                   f"(over {MAX_RETRY_WAIT} s: daily quota spent); not waiting") from e
             print(f"  Open-Meteo HTTP {e.code}; retrying in {wait}s ({attempt + 1}/{attempts})", flush=True)
             time.sleep(wait)
 
