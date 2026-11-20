@@ -322,3 +322,29 @@ def test_rebrand_replaces_only_the_founder_line():
     assert rv.one(s3, "b", e, dry=False) == ("20019", "updated")
     p = s3.puts[0]
     assert p["Key"] == e["viewer"] and p["ContentType"].startswith("text/html") and rv.NEW in p["Body"].decode()
+
+
+def test_openmeteo_gives_up_on_a_quota_length_retry_after(monkeypatch):
+    import email.message, urllib.error
+    import fetch_climate as fc
+    slept = []
+    monkeypatch.setattr(fc.time, "sleep", lambda s: slept.append(s))
+
+    def refuse(wait):
+        def f(url, timeout=300):
+            h = email.message.Message(); h["Retry-After"] = str(wait)
+            raise urllib.error.HTTPError(url, 429, "Too Many Requests", h, None)
+        return f
+    monkeypatch.setattr(fc, "_fetch", refuse(66812))  # run #38, Clayton IA
+    try:
+        fc.openmeteo_daily(42.8, -91.3, attempts=3)
+        assert False, "should give up"
+    except RuntimeError as e:
+        assert "daily quota" in str(e)
+    assert slept == []
+    monkeypatch.setattr(fc, "_fetch", refuse(5))  # a short wait is still honoured
+    try:
+        fc.openmeteo_daily(42.8, -91.3, attempts=3)
+    except urllib.error.HTTPError:
+        pass
+    assert slept == [5, 5]
