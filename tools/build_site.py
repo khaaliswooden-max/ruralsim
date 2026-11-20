@@ -152,7 +152,7 @@ def brand_viewer_html(html, home="/", overture=False):
     html = html.replace("<body>", "<body>\n" + osm, 1)
     disc = ('<div id="disclose" style="position:fixed;z-index:10;right:12px;bottom:28px;max-width:44ch;'
             'text-align:right;font:12px/1.35 \'Public Sans\',system-ui,sans-serif;color:#c3cbd2">'
-            "RuralSim is a free, open-source project by Grid &amp; Grain's founder. "
+            "RuralSim is a free, open-source project by Aldrich K. Wooden, Sr., founder of Get Rural America Done. "
             "Simulated, screening-grade results with assumed parameters. Decision support, not a finding.</div>")
     return html.replace("<body>", "<body>\n" + disc, 1)
 
