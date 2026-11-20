@@ -295,3 +295,30 @@ def test_osm_mirror_survives_geofabrik_down(monkeypatch, tmp_path):
     done = mo.mirror(regions)
     assert done == ["kentucky-latest.osm.pbf", "west-virginia-latest.osm.pbf"]
     assert s3.uploads[-1] == "osm/west-virginia-latest.osm.pbf.md5"  # md5 written last
+
+
+def test_rebrand_replaces_only_the_founder_line():
+    import io
+    import rebrand_viewers as rv
+    from build_site import brand_viewer_html
+    # the new line is exactly what new publishes carry
+    assert rv.NEW in brand_viewer_html("<html><head></head><body></body></html>")
+    old = ('<div id="disclose" style="x">RuralSim is a free, open-source project by Grid &amp; Grain\'s founder. '
+           'Simulated, screening-grade results with assumed parameters. Decision support, not a finding.</div>')
+    html = f"<html><body>\n{old}\n<script>var a=1;</script></body></html>"
+    out, status = rv.rebrand(html)
+    assert status == "updated" and rv.NEW in out and "Grain's founder" not in out
+    assert out.replace(rv.NEW, "X") == html.replace(rv.OLD[0], "X")  # nothing else changed
+    assert rv.rebrand(out) == (out, "current")
+    assert rv.rebrand("<html></html>")[1] == "missing"
+
+    class S3:
+        def __init__(self): self.puts = []
+        def get_object(self, Bucket, Key): return {"Body": io.BytesIO(html.encode())}
+        def put_object(self, **kw): self.puts.append(kw)
+    e = {"fips5": "20019", "dir": "20019_chautauqua_ks", "viewer": "worlds/20019_chautauqua_ks/current/viewer/index.html"}
+    s3 = S3()
+    assert rv.one(s3, "b", e, dry=True) == ("20019", "updated") and s3.puts == []
+    assert rv.one(s3, "b", e, dry=False) == ("20019", "updated")
+    p = s3.puts[0]
+    assert p["Key"] == e["viewer"] and p["ContentType"].startswith("text/html") and rv.NEW in p["Body"].decode()
