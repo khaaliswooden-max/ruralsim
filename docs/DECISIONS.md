@@ -192,3 +192,25 @@ D-101 left two outputs of EXP-0011 indeterminate.
 - **LR-10.** Pioneer Electric Coop (Wilcox AL) and Caney Valley El Coop (Chautauqua KS) file EIA's short form (EIA-861S), so Sales_Ult_Cust has no row for them. Both are co-ops, which is the card's question. `tools/mirror_eia.py` now also writes `eia/2024/eia861_short_form.parquet`: all 1,724 short-form utilities, none of which appear in Sales_Ult_Cust. The short form reports totals only, with no split by sector, so its rate column is named for what it is, `avg_rate_all_sectors_usd_per_kwh` (Pioneer $0.204/kWh, Caney Valley $0.162/kWh). The engine has to label it as a stand-in for a residential rate.
 - **LR-11.** The SAIPE-calibrated lognormal in `tools/harness/households.py` puts the bottom quintile's mean income near $1,200 in Wilcox and $500 in McDowell. ACS 2020–2024 5-year says $7,714 ± $1,566 and $6,960 ± $1,594. New `tools/mirror_acs.py` writes `acs/2024/income_quintiles.parquet`: tables B19081 (mean income of each quintile and the top 5%) and B19080 (quintile limits) for all 3,144 counties, each with its margin of error. Census sentinel codes become null, which leaves 9 counties with no bottom-quintile mean, among them Loving TX and Kalawao HI. The 250,000 top-code is flagged. The tables come from the Census table-based summary files on www2.census.gov, because api.census.gov now requires a key and keys stay out of the build.
 Both run in the same manual workflow, now named "Mirror EIA and ACS tables". County builds are unchanged. `households.py` is not changed here: whether other experiment cards should move to the ACS quintiles is the step-2 chat's call.
+
+## D-054 (2026-11-21) — Cooling-water inputs: daily wet-bulb per county and a national SDWIS table (LR-3, LR-5)
+The step-2 cooling-water module needs humidity and the size and source of each water system. No published county file has either.
+- **LR-3, wet-bulb.** New `tools/mirror_power.py` takes NASA POWER's daily T2M, T2MDEW and T2MWET for 1991–2020 at each county centroid. NASA POWER is MERRA-2 reanalysis, about 0.5° × 0.625°, public, with no key; one request takes about 1.5 s and the tool runs 4 at a time. It writes `climate/power/daily/<fips5>.parquet` (10,958 days, about 130 KB per county) and `climate/power/summary.parquet`, which holds per county:
+  - annual and monthly mean wet-bulb
+  - the 99th and 99.6th percentiles and the maximum of the *daily-mean* wet-bulb
+  - days per year at or above 20, 22 and 24 °C
+
+  Daily means understate hourly design values such as ASHRAE's 0.4% wet-bulb, so the columns are named `tw_dailymean_*`. Five-county check (99th percentile of the daily-mean wet-bulb, and days per year with a daily-mean wet-bulb of 24 °C or more):
+
+  | County | 99th pct | Days ≥ 24 °C |
+  |---|---|---|
+  | Wilcox AL | 26.6 °C | 71 |
+  | Maricopa AZ | 25.9 °C | 32 |
+  | Chautauqua KS | 26.0 °C | 36 |
+  | McDowell WV | 23.0 °C | 0.5 |
+  | Teton ID | 15.4 °C | 0 |
+
+  A county already in R2 is skipped, so an interrupted run resumes.
+- **LR-5, water systems.** New `tools/mirror_sdwis.py` writes `water/sdwis/water_systems.parquet` from EPA Envirofacts WATER_SYSTEM for every primacy agency: the 50 states, DC, territories, Navajo Nation and EPA regions 01–10. That is 434,757 rows, equal to the table's national count, of which 143,024 are active and every active system has population served. It has one column set for every county, from an allow-list of 19 fields that excludes contacts (administrator, organisation, address, phone, fax, email), as in `place_water_systems.py`. The engine joins on pwsid. A local build took 18 minutes. The tool refuses to upload if any agency failed.
+- Both run in the manual workflow "Mirror cooling-water inputs", as two parallel jobs. County builds are unchanged.
+- **Still open for the cooling-water module:** LR-4 (USGS modelled water use by HUC12, aggregated to county) and LR-6 (stream flow for NHD flowlines). Both need larger national datasets and come next.
