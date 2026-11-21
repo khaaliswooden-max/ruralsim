@@ -1,4 +1,5 @@
-"""EIA-860 and EIA-861 national files used by fetch_grid.py, downloaded once (D-044).
+"""National files every county job reads, downloaded once per batch (D-044, D-052):
+EIA-860 and EIA-861 (fetch_grid.py) and the FHWA National Bridge Inventory (fetch_bridges.py).
 
 Run #22 (NC/SC) lost Avery NC (37011) to one DNS failure on www.eia.gov ("Temporary
 failure in name resolution"): every county job downloaded both zips itself, with no
@@ -14,11 +15,16 @@ CACHE = pathlib.Path(os.environ.get("RURALSIM_CACHE", "/tmp/ruralsim_cache")) / 
 UA = {"User-Agent": "RuralSim/1.0 (+https://www.ruralsim.io; county twin build)"}
 EIA860 = "https://www.eia.gov/electricity/data/eia860/archive/xls/eia8602024.zip"
 EIA861 = "https://www.eia.gov/electricity/data/eia861/archive/zip/f8612024.zip"
+# Runs #41/#42 lost 7 counties (MN, NE) when www.fhwa.dot.gov refused connections and
+# answered 503 for four minutes: every county job downloaded this 53 MB zip itself, once,
+# with no retry (D-052).
+NBI = "https://www.fhwa.dot.gov/bridge/nbi/2024del.zip"
 
 
-def ensure(url: str, tries: int = 6) -> pathlib.Path:
-    CACHE.mkdir(parents=True, exist_ok=True)
-    dest = CACHE / url.rsplit("/", 1)[1]
+def ensure(url: str, tries: int = 6, sub: str = "eia") -> pathlib.Path:
+    d = CACHE if sub == "eia" else CACHE.parent / sub  # $RURALSIM_CACHE/<sub>
+    d.mkdir(parents=True, exist_ok=True)
+    dest = d / url.rsplit("/", 1)[1]
     if dest.exists() and dest.stat().st_size > 0:
         return dest
     part = dest.with_name(dest.name + ".part")
@@ -48,3 +54,4 @@ def ensure(url: str, tries: int = 6) -> pathlib.Path:
 def prefetch() -> None:
     for u in (EIA860, EIA861):
         ensure(u)
+    ensure(NBI, sub="nbi")
