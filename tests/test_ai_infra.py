@@ -85,17 +85,20 @@ def test_interconnection_class_thresholds():
 
 
 def _cand(transmission_owner):
-    return [{"utility_number": 1, "utility_name": "Example EMC", "ownership": "Cooperative",
+    return [{"utility_number": 1, "utility_name": "Example EMC", "ownership": "Cooperative", "rate_basis": "residential",
              "transmission_owner": transmission_owner, "residential_revenue_usd": 30e6, "residential_mwh": 2e5,
              "residential_customers": 15000, "total_mwh": 3e5, "residential_avg_rate_usd_per_kwh": 0.15,
              "residential_kwh_per_customer": 13300, "industrial_avg_rate_usd_per_kwh": 0.08},
             {"utility_number": 2, "utility_name": "Tiny Coop", "ownership": "Cooperative", "short_form": True,
-             "transmission_owner": False, "data": "missing: short form"}]
+             "transmission_owner": False, "data": "missing: short form"},
+            {"utility_number": 3, "utility_name": "Short Form EMC", "ownership": "Cooperative", "short_form": True,
+             "transmission_owner": False, "rate_basis": "all_sectors_stand_in", "all_sector_revenue_usd": 20e6,
+             "all_sector_mwh": 1e5, "all_sector_customers": 8000, "avg_rate_all_sectors_usd_per_kwh": 0.2,
+             "kwh_per_customer_all_sectors": 12500}]
 
 
 def test_rate_allocations_ordered_with_common_draws_and_missing_is_indeterminate():
-    row = {"median_hh_income_2023_ci90_lo": 40000, "median_hh_income_2023_ci90_hi": 42000,
-           "poverty_rate_2023_ci90_lo": 15, "poverty_rate_2023_ci90_hi": 17}
+    row = {"mean_q1": 8000.0, "mean_q1_moe": 1500.0}
     ups = [{"type": "substation", "subtype": "new customer substation", "kv": 115, "mva": 30},
            {"type": "line_new", "kv": 115, "km": 10}]
     site = {"peak_mw_net": 25, "grid_mwh": 150000}
@@ -104,7 +107,19 @@ def test_rate_allocations_ordered_with_common_draws_and_missing_is_indeterminate
     d = {a: r[a]["per_utility"][0]["lowest_quintile_rate_change_pct"] for a in r}
     assert d["direct_assignment"] <= d["large_load_tariff"] <= d["socialized"]
     assert r["socialized"]["per_utility"][1]["status"] == "indeterminate"
+    sf = r["socialized"]["per_utility"][2]
+    assert sf["status"] == "computed" and sf["rate_basis"] == "all_sectors_stand_in"
+    x = r["socialized"]["per_utility"][0]
+    inc = r["socialized"]["q1_mean_income_usd"]
+    assert 2000 <= inc <= 14000                                  # ACS mean +/- a few sd, floored
+    assert x["lowest_quintile_energy_cost_share_change_pp"] == pytest.approx(
+        100 * x["lowest_quintile_bill_change_usd_per_yr"] / inc)
     assert r["socialized"]["local_tax_effect"] == "not_modelled"
+
+
+def test_income_missing_is_indeterminate():
+    assert rate_impact.q1_income(None, np.random.default_rng(0)) is None
+    assert rate_impact.q1_income({"mean_q1": float("nan"), "mean_q1_moe": 1.0}, np.random.default_rng(0)) is None
 
 
 def test_ownership_from_name():
@@ -132,3 +147,13 @@ def test_judge_bar_is_inclusive_at_exactly_ten_percent():
     card = {"criterion": {"grid_clean_seed_share": 0.9, "rate_change_pct_max": 2.0}}
     misses, passes = run.judge(card, rec)
     assert not misses and len(passes) == 2
+
+
+def test_site_larger_than_utility_is_outside_validity():
+    row = {"mean_q1": 8000.0, "mean_q1_moe": 1500.0}
+    site = {"peak_mw_net": 25, "grid_mwh": 150000}          # 1.5x the stand-in utility's 1e5 MWh
+    r = rate_impact.run(_cand(False), [], site, {}, "socialized", row, CFG, np.random.default_rng(1))
+    sf = r["per_utility"][2]
+    assert sf["site_share_of_utility_sales"] == pytest.approx(1.5) and sf["outside_validity"]
+    big = r["per_utility"][0]                               # 1.5e5 / 3e5 = 0.5 > 0.25
+    assert big["site_share_of_utility_sales"] == pytest.approx(0.5) and big["outside_validity"]

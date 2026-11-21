@@ -7,8 +7,14 @@ costs, cost recovery and cost allocation are assumed and drawn per seed.
 
 Rate change = net annual cost landing on the utility's customers, times the residential
 share of its energy sales, divided by its residential revenue. Under a single residential
-tariff the lowest quintile sees the same percentage change; its income effect uses incomes
-calibrated to SAIPE (D-008).
+tariff the lowest quintile sees the same percentage change.
+
+Short-form utilities (EIA-861S, LR-10) report totals only. For them the rate base, average
+rate and kWh per customer are all-sector figures, used as stand-ins for residential ones and
+labelled `rate_basis: all_sectors_stand_in` wherever they appear (D-102).
+
+The income effect divides the lowest-quintile bill change by ACS 2020-2024 mean income of the
+lowest quintile (B19081, LR-11), drawn per seed inside its margin of error (D-102).
 """
 from __future__ import annotations
 
@@ -22,12 +28,7 @@ from .power_flow import cost_band, u
 
 ALLOCATIONS = ("direct_assignment", "large_load_tariff", "socialized")
 
-# The SAIPE-calibrated lognormal shared with tools/harness/households.py puts the lowest
-# quintile's mean income at ~$1,200 in Wilcox AL and ~$500 in McDowell WV (sigma 2.7-3.4),
-# far below what ACS reports. Until ACS B19081 (mean income by quintile) is a layer (LR-11),
-# the income-share output is withheld rather than reported from that tail.
-INCOME_SHARE_STATUS = "indeterminate: lowest-quintile income model implausible in high-poverty counties (LR-11)"
-
+INCOME_MISSING = "indeterminate: ACS has no lowest-quintile mean income for this county"
 
 def _ownership_from_name(name: str) -> str:
     n = name.lower()
@@ -44,6 +45,7 @@ def candidates(fips5: str, state: str, eia) -> list[dict]:
     terr = eia("eia861_service_territory")
     sales = eia("eia861_sales_ult_cust")
     ud = eia("eia861_utility_data")
+    sf = eia("eia861_short_form")
     rows = terr[terr.county_fips == fips5].drop_duplicates("utility_number")
     out = []
     for _, t in rows.iterrows():
@@ -51,17 +53,24 @@ def candidates(fips5: str, state: str, eia) -> list[dict]:
         s = sales[(sales.utility_number == un) & (sales.state == state)]
         s = s[s.part == "A"] if (s.part == "A").any() else s
         d = ud[ud.utility_number == un]
-        own = d.ownership_type.iloc[0] if len(d) else None
+        f = sf[(sf.utility_number == un) & (sf.state == state)]
+        if not len(f):
+            f = sf[sf.utility_number == un]
         c = {"utility_number": un, "utility_name": t.utility_name, "short_form": t.short_form == "Y"}
-        if own:
-            c["ownership"], c["ownership_provenance"] = own, "observed (EIA-861 Utility_Data)"
+        if len(d):
+            c["ownership"], c["ownership_provenance"] = d.ownership_type.iloc[0], "observed (EIA-861 Utility_Data)"
             c["transmission_owner"] = bool((d.transmission == "Y").any())
+        elif len(f) and f.ownership.iloc[0]:
+            c["ownership"], c["ownership_provenance"] = f.ownership.iloc[0], "observed (EIA-861 Short_Form)"
+            c["transmission_owner"] = False
+            c["transmission_owner_provenance"] = "assumed (short-form filers are small distribution utilities)"
         else:
             c["ownership"], c["ownership_provenance"] = _ownership_from_name(t.utility_name), "derived (name)"
             c["transmission_owner"] = False
         if len(s) and s.residential_revenue_kusd.sum() > 0 and s.residential_mwh.sum() > 0:
             g = s.sum(numeric_only=True)
             c.update(
+                rate_basis="residential",
                 residential_revenue_usd=float(g.residential_revenue_kusd) * 1000,
                 residential_mwh=float(g.residential_mwh),
                 residential_customers=float(g.residential_customers),
@@ -71,23 +80,31 @@ def candidates(fips5: str, state: str, eia) -> list[dict]:
                 industrial_avg_rate_usd_per_kwh=(float(g.industrial_revenue_kusd / g.industrial_mwh)
                                                  if g.industrial_mwh > 0 else float(g.total_revenue_kusd / g.total_mwh)),
                 data="observed (EIA-861 Sales_Ult_Cust 2024)")
+        elif len(f) and f.total_revenue_thousand_dollars.iloc[0] > 0 and f.total_sales_mwh.iloc[0] > 0:
+            g = f.iloc[0]
+            c.update(
+                rate_basis="all_sectors_stand_in",
+                all_sector_revenue_usd=float(g.total_revenue_thousand_dollars) * 1000,
+                all_sector_mwh=float(g.total_sales_mwh),
+                all_sector_customers=float(g.total_customers),
+                avg_rate_all_sectors_usd_per_kwh=float(g.avg_rate_all_sectors_usd_per_kwh),
+                kwh_per_customer_all_sectors=float(g.kwh_per_customer_all_sectors),
+                data="observed (EIA-861 Short_Form 2024), all-sector totals used as residential stand-ins")
         else:
-            c["data"] = ("missing: EIA-861 short-form utility, no Sales_Ult_Cust row (layer request LR-10)"
-                         if c["short_form"] else "missing: no Sales_Ult_Cust row for this state")
+            c["data"] = ("missing: short-form utility not in EIA-861 Short_Form" if c["short_form"]
+                         else "missing: no Sales_Ult_Cust row for this state")
         out.append(c)
     return out
 
 
-def q1_income(county_row, rng):
-    """Mean income of the lowest quintile, lognormal calibrated to SAIPE median and poverty,
-    each drawn inside its 90% interval (D-008). Same calibration as tools/harness/households.py."""
-    med = rng.uniform(county_row["median_hh_income_2023_ci90_lo"], county_row["median_hh_income_2023_ci90_hi"])
-    pov = rng.uniform(county_row["poverty_rate_2023_ci90_lo"], county_row["poverty_rate_2023_ci90_hi"]) / 100
-    p = min(max(pov, 0.02), 0.48)
-    sigma = math.log(1 / 0.30) / abs(norm.ppf(p))
-    mu = math.log(med)
-    q20 = math.exp(mu + sigma * norm.ppf(0.2))
-    return math.exp(mu + sigma ** 2 / 2) * norm.cdf((math.log(q20) - mu - sigma ** 2) / sigma) / 0.2
+def q1_income(acs_row, rng):
+    """ACS 2020-2024 mean income of the lowest quintile (B19081), drawn from a normal with the
+    Census 90% margin of error (sd = MOE / 1.645), floored at a quarter of the estimate."""
+    if acs_row is None or acs_row.get("mean_q1") is None or not np.isfinite(acs_row.get("mean_q1", np.nan)):
+        return None
+    m = float(acs_row["mean_q1"])
+    sd = float(acs_row.get("mean_q1_moe") or 0) / 1.645
+    return max(rng.normal(m, sd), 0.25 * m)
 
 
 def unit_costs(cfg, rng):
@@ -123,7 +140,7 @@ def upgrade_cost_usd(upgrades, cfg, rng):
     return total, items
 
 
-def run(cands, upgrades, site, onsite, allocation, county_row, cfg, rng):
+def run(cands, upgrades, site, onsite, allocation, acs_row, cfg, rng):
     """site: {peak_mw_net, grid_mwh}. Returns one result per candidate utility."""
     r = cfg["rates"]
     r_cost, rng = rng.spawn(2)
@@ -134,23 +151,34 @@ def run(cands, upgrades, site, onsite, allocation, county_row, cfg, rng):
     capacity = site["peak_mw_net"] * u(rng, r["capacity_cost_usd_per_mw_yr"]) * u(rng, r["capacity_cost_unrecovered_share"])
     margin_share = u(rng, r["margin_on_new_sales_share"])
     q1_share = u(rng, r["lowest_quintile_kwh_share"])
-    inc = q1_income(county_row, rng)  # kept in the record for diagnosis; not used for any output
+    inc = q1_income(acs_row, rng)
     dist_share = u(rng, r["retail_share_if_distribution_only"])
     res = []
     for c in cands:
-        if "residential_revenue_usd" not in c:
+        if "rate_basis" not in c:
             res.append({"utility_number": c["utility_number"], "status": "indeterminate", "reason": c["data"]})
             continue
         retail = r["retail_share_if_transmission_owner"] if c["transmission_owner"] else dist_share
-        margin = site["grid_mwh"] * 1000 * c["industrial_avg_rate_usd_per_kwh"] * margin_share
+        if c["rate_basis"] == "residential":
+            ind_rate, rev, share = c["industrial_avg_rate_usd_per_kwh"], c["residential_revenue_usd"], (
+                c["residential_mwh"] / c["total_mwh"] if c["total_mwh"] else 1.0)
+            rate, kwh = c["residential_avg_rate_usd_per_kwh"], c["residential_kwh_per_customer"]
+        else:  # all-sector stand-in: costs spread evenly across sectors by energy
+            ind_rate, rev, share = c["avg_rate_all_sectors_usd_per_kwh"], c["all_sector_revenue_usd"], 1.0
+            rate, kwh = c["avg_rate_all_sectors_usd_per_kwh"], c["kwh_per_customer_all_sectors"]
+        util_mwh = c["total_mwh"] if c["rate_basis"] == "residential" else c["all_sector_mwh"]
+        site_share = site["grid_mwh"] / util_mwh if util_mwh else float("inf")
+        margin = site["grid_mwh"] * 1000 * ind_rate * margin_share
         net = cap * crf * alloc * retail + capacity - margin
-        res_share = c["residential_mwh"] / c["total_mwh"] if c["total_mwh"] else 1.0
-        d_rate = 100 * net * res_share / c["residential_revenue_usd"]
-        bill = c["residential_kwh_per_customer"] * q1_share * c["residential_avg_rate_usd_per_kwh"]
-        res.append({"utility_number": c["utility_number"], "status": "computed",
+        d_rate = 100 * net * share / rev
+        bill = kwh * q1_share * rate
+        d_bill = bill * d_rate / 100
+        res.append({"utility_number": c["utility_number"], "status": "computed", "rate_basis": c["rate_basis"],
+                    "site_share_of_utility_sales": site_share,
+                    "outside_validity": site_share > r["max_site_share_of_utility_sales"],
                     "lowest_quintile_rate_change_pct": d_rate,
-                    "lowest_quintile_bill_change_usd_per_yr": bill * d_rate / 100,
-                    "lowest_quintile_energy_cost_share_change_pp": INCOME_SHARE_STATUS,
+                    "lowest_quintile_bill_change_usd_per_yr": d_bill,
+                    "lowest_quintile_energy_cost_share_change_pp": (100 * d_bill / inc) if inc else INCOME_MISSING,
                     "net_annual_cost_to_customers_usd": net,
                     "components_usd_per_yr": {"upgrades": cap * crf * alloc * retail, "capacity_unrecovered": capacity,
                                               "margin_on_site_sales": -margin}})
