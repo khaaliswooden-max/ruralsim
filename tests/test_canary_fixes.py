@@ -409,3 +409,22 @@ def test_acs_quintiles_parse_counties_sentinels_and_topcodes(tmp_path):
     assert df.loc["51013", "upper_q4_topcoded"] and df.loc["51013", "upper_q4"] == 250001
     assert df.loc["51013", "upper_q4_moe"] != df.loc["51013", "upper_q4_moe"]   # sentinel -> NaN
     assert df.loc["48301", "upper_q1"] != df.loc["48301", "upper_q1"]
+
+
+def test_power_daily_parse_and_wetbulb_summary():
+    import mirror_power as mp
+    days = {f"2020{m:02d}{d:02d}": v for m, d, v in ((1, 1, 2.0), (7, 1, 25.0), (7, 2, 23.0), (7, 3, -999.0))}
+    payload = {"properties": {"parameter": {"T2M": days, "T2MDEW": days, "T2MWET": days}}}
+    df = mp.to_frame(payload)
+    assert len(df) == 4 and df["t2mwet_c"].isna().sum() == 1       # -999 fill -> NaN
+    s = mp.summarize("01131", df)
+    assert s["days"] == 3 and s["tw_dailymean_max_c"] == 25.0
+    assert s["days_per_year_tw_ge_24c"] == 1.0 and s["tw_mean_m07_c"] == 24.0
+
+
+def test_sdwis_table_never_keeps_contact_fields():
+    import mirror_sdwis as ms
+    banned = {"admin_name", "org_name", "address_line1", "address_line2", "phone_number",
+              "alt_phone_number", "phone_ext_number", "fax_number", "email_addr"}
+    assert not banned & set(ms.KEEP)
+    assert {"population_served_count", "gw_sw_code", "primary_source_code"} <= set(ms.KEEP)
