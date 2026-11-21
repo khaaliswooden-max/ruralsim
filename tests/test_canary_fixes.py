@@ -348,3 +348,23 @@ def test_openmeteo_gives_up_on_a_quota_length_retry_after(monkeypatch):
     except urllib.error.HTTPError:
         pass
     assert slept == [5, 5]
+
+
+def test_eia_county_names_match_census_names():
+    import pandas as pd
+    import mirror_eia as me
+    master = pd.DataFrame({"fips5": ["17163", "01115", "29186", "22031", "51159", "51760", "24033"],
+                           "state_abbr": ["IL", "AL", "MO", "LA", "VA", "VA", "MD"],
+                           "county_name": ["St. Clair County", "St. Clair County", "Ste. Genevieve County",
+                                           "De Soto Parish", "Richmond County", "Richmond city",
+                                           "Prince George's County"]})
+    lk = me.county_lookup(master)
+    # EIA-861 spellings seen in Service_Territory_2024
+    assert me.match_name(lk, "IL", "St Clair") == "17163"
+    assert me.match_name(lk, "AL", "St Clair") == "01115"
+    assert me.match_name(lk, "MO", "Ste Genevieve") == "29186"
+    assert me.match_name(lk, "LA", "DeSoto") == "22031"
+    assert me.match_name(lk, "VA", "Richmond") == "51159"        # the county
+    assert me.match_name(lk, "VA", "Richmond City") == "51760"   # the independent city
+    assert me.match_name(lk, "MD", "Prince Georges") == "24033"
+    assert me.match_name(lk, "IL", "Clay") is None               # no substring matches (LR-9)
