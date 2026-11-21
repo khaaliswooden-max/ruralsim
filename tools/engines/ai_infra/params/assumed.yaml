@@ -17,6 +17,7 @@ onsite:
   storage_duration_h: 4
   storage_peak_availability: [0.5, 1.0]
   solar_peak_credit: 0.0
+  solar_capacity_factor: [0.18, 0.25]
 
 interconnection:
   # Minimum voltage class for a facility peak (MW). Each boundary is scaled by a factor

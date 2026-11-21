@@ -127,7 +127,10 @@ def run_county(card, fips5, seeds, cfg, activsg, backtest_id=None):
     for si, sc in enumerate(card["scenarios"]):
         per_seed = []
         for seed in range(seeds):
-            rng = np.random.default_rng([int(fips5), seed, si])
+            # Common random numbers: one stream per component, keyed on (county, seed) only, so
+            # both scenarios and all three allocations see identical draws except the on-site ones.
+            r_load, r_on, r_cty, r_pf = (np.random.default_rng([int(fips5), seed, k]) for k in (1, 2, 3, 4))
+            rng = r_load
             L = cfg["load"]
             pue = power_flow.u(rng, L["pue"])
             lf = power_flow.u(rng, L["facility_load_factor"])
@@ -140,22 +143,22 @@ def run_county(card, fips5, seeds, cfg, activsg, backtest_id=None):
             avg = peak * lf
             on = sc.get("onsite") or {}
             o = cfg["onsite"]
-            st_credit = on.get("storage_mwh", 0) / o["storage_duration_h"] * power_flow.u(rng, o["storage_peak_availability"])
+            st_credit = on.get("storage_mwh", 0) / o["storage_duration_h"] * power_flow.u(r_on, o["storage_peak_availability"])
             net_peak = max(peak - on.get("firm_mw", 0) - st_credit - on.get("solar_mw", 0) * o["solar_peak_credit"], 0.0)
-            solar_mwh = on.get("solar_mw", 0) * 8760 * power_flow.u(rng, [0.18, 0.25])
+            solar_mwh = on.get("solar_mw", 0) * 8760 * power_flow.u(r_on, cfg["onsite"]["solar_capacity_factor"])
             grid_mwh = max(avg * 8760 - solar_mwh, 0.0)
-            onsite_capex = (on.get("solar_mw", 0) * power_flow.u(rng, cfg["costs"]["solar_musd_per_mw"])
-                            + on.get("storage_mwh", 0) * power_flow.u(rng, cfg["costs"]["storage_musd_per_mwh"])
-                            + on.get("firm_mw", 0) * power_flow.u(rng, cfg["costs"]["firm_musd_per_mw"])) * 1e6
-            cpeak, cinfo = county_load(fips5, cands, tier, cfg, rng)
-            cpf = power_flow.u(rng, L["county_power_factor"])
+            onsite_capex = (on.get("solar_mw", 0) * power_flow.u(r_on, cfg["costs"]["solar_musd_per_mw"])
+                            + on.get("storage_mwh", 0) * power_flow.u(r_on, cfg["costs"]["storage_musd_per_mwh"])
+                            + on.get("firm_mw", 0) * power_flow.u(r_on, cfg["costs"]["firm_musd_per_mw"])) * 1e6
+            cpeak, cinfo = county_load(fips5, cands, tier, cfg, r_cty)
+            cpf = power_flow.u(r_cty, L["county_power_factor"])
             if cpeak is None:
                 pfo = {"status": "blocked", "reason": cinfo["reason"]}
             else:
-                pfo = power_flow.run(net, (sx, sy), net_peak, pf, cpeak, cpf, cfg, activsg, state, rng)
+                pfo = power_flow.run(net, (sx, sy), net_peak, pf, cpeak, cpf, cfg, activsg, state, r_pf)
             rates = {}
             for ai, alloc in enumerate(rate_impact.ALLOCATIONS):
-                rr = np.random.default_rng([int(fips5), seed, si, 100])  # common draws across allocations
+                rr = np.random.default_rng([int(fips5), seed, 5])  # same draws for every allocation and scenario
                 if pfo.get("status") == "computed":
                     rates[alloc] = rate_impact.run(cands, pfo.get("required_upgrades"),
                                                    {"peak_mw_net": net_peak, "grid_mwh": grid_mwh},

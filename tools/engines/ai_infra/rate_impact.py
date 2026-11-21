@@ -90,21 +90,32 @@ def q1_income(county_row, rng):
     return math.exp(mu + sigma ** 2 / 2) * norm.cdf((math.log(q20) - mu - sigma ** 2) / sigma) / 0.2
 
 
-def upgrade_cost_usd(upgrades, cfg, rng):
+def unit_costs(cfg, rng):
+    """Draw every unit cost once, in a fixed order, so two upgrade lists priced in the same
+    seed use the same unit costs (common random numbers)."""
     c = cfg["costs"]
+    return {"line": {k: u(rng, v) for k, v in c["line_musd_per_km"].items()},
+            "rebuild_share": u(rng, c["line_rebuild_share_of_new"]),
+            "substation": {k: u(rng, v) for k, v in c["new_substation_musd"].items()},
+            "trafo_per_mva": u(rng, c["transformer_expansion_usd_per_mva"]),
+            "var_per_mvar": u(rng, c["voltage_support_usd_per_mvar"])}
+
+
+def upgrade_cost_usd(upgrades, cfg, rng):
+    uc = unit_costs(cfg, rng)
     total, items = 0.0, []
     for up in upgrades or []:
         t, kv = up["type"], up.get("kv", 0)
         if t == "line_new":
-            usd = up["km"] * u(rng, c["line_musd_per_km"][cost_band(kv)]) * 1e6
+            usd = up["km"] * uc["line"][cost_band(kv)] * 1e6
         elif t == "line_rebuild":
-            usd = up["km"] * u(rng, c["line_musd_per_km"][cost_band(kv)]) * 1e6 * u(rng, c["line_rebuild_share_of_new"])
+            usd = up["km"] * uc["line"][cost_band(kv)] * 1e6 * uc["rebuild_share"]
         elif t == "substation" and up.get("subtype") == "transformer expansion":
-            usd = up["mva"] * u(rng, c["transformer_expansion_usd_per_mva"])
+            usd = up["mva"] * uc["trafo_per_mva"]
         elif t == "substation":
-            usd = u(rng, c["new_substation_musd"][cost_band(kv)]) * 1e6
+            usd = uc["substation"][cost_band(kv)] * 1e6
         elif t == "voltage_support":
-            usd = up["mvar"] * u(rng, c["voltage_support_usd_per_mvar"])
+            usd = up["mvar"] * uc["var_per_mvar"]
         else:
             usd = 0.0
         items.append({**up, "usd": usd})
@@ -115,7 +126,8 @@ def upgrade_cost_usd(upgrades, cfg, rng):
 def run(cands, upgrades, site, onsite, allocation, county_row, cfg, rng):
     """site: {peak_mw_net, grid_mwh}. Returns one result per candidate utility."""
     r = cfg["rates"]
-    cap, items = upgrade_cost_usd(upgrades, cfg, rng)
+    r_cost, rng = rng.spawn(2)
+    cap, items = upgrade_cost_usd(upgrades, cfg, r_cost)
     crf = u(rng, r["capital_recovery_factor"])
     alloc = {"direct_assignment": 0.0, "large_load_tariff": u(rng, r["large_load_tariff_ratepayer_share"]),
              "socialized": 1.0}[allocation]
