@@ -26,6 +26,7 @@ rebuilt: the engine joins them on plant code, utility number or county FIPS. Wri
     eia/2024/eia860_plants.parquet           with county_fips, county_fips_method
     eia/2024/eia861_utility_data.parquet
     eia/2024/eia861_sales_ult_cust.parquet   with residential_avg_rate_usd_per_kwh
+    eia/2024/eia861_short_form.parquet       EIA-861S small utilities: totals only (LR-10)
     eia/2024/eia861_service_territory.parquet with county_fips
     eia/2024/_meta.json                      sources, row counts, match rates (written last)
 
@@ -170,6 +171,23 @@ def read_sales(z: zipfile.ZipFile) -> pd.DataFrame:
     return strings(s)
 
 
+def read_short_form(z: zipfile.ZipFile) -> pd.DataFrame:
+    """EIA-861S, the short form small utilities file instead of the full 861 (LR-10).
+    It has totals only, no split by sector: avg_rate_all_sectors_usd_per_kwh is total
+    revenue / total MWh, and stands in for a residential rate only with that caveat."""
+    f = pd.read_excel(io.BytesIO(z.read("Short_Form_2024.xlsx")), header=0)
+    f = f[pd.to_numeric(f["Utility Number"], errors="coerce").notna()].copy()
+    f.columns = [snake(c) for c in f.columns]
+    f["utility_number"] = f["utility_number"].astype(int)
+    for c in ("total_revenue_thousand_dollars", "total_sales_mwh", "total_customers"):
+        f[c] = pd.to_numeric(f[c], errors="coerce")  # "." means not reported
+    f["avg_rate_all_sectors_usd_per_kwh"] = (f["total_revenue_thousand_dollars"] / f["total_sales_mwh"]).where(
+        f["total_sales_mwh"] > 0)
+    f["kwh_per_customer_all_sectors"] = (f["total_sales_mwh"] * 1000 / f["total_customers"]).where(
+        f["total_customers"] > 0)
+    return strings(f)
+
+
 def read_territory(z: zipfile.ZipFile, lookup: dict) -> pd.DataFrame:
     t = pd.read_excel(io.BytesIO(z.read("Service_Territory_2024.xlsx")), sheet_name=None)
     t = pd.concat(t.values(), ignore_index=True)
@@ -201,6 +219,7 @@ def build(out: pathlib.Path) -> dict:
         "eia860_plants": read_plants(z860, lookup, counties),
         "eia861_utility_data": read_utility_data(z861),
         "eia861_sales_ult_cust": read_sales(z861),
+        "eia861_short_form": read_short_form(z861),
         "eia861_service_territory": read_territory(z861, lookup),
     }
     for name, df in tables.items():

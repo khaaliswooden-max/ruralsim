@@ -392,3 +392,20 @@ def test_nbi_comes_from_the_shared_cache_with_retries(monkeypatch, tmp_path):
     assert p == tmp_path / "nbi" / "2024del.zip" and p.read_bytes() == b"nbi" and len(calls) == 3
     src = (pathlib.Path(eia_files.__file__).parent / "fetch_bridges.py").read_text()
     assert "eia_files.ensure(URL, sub=\"nbi\")" in src and "urlopen" not in src
+
+
+def test_acs_quintiles_parse_counties_sentinels_and_topcodes(tmp_path):
+    import mirror_acs as ma
+    f = tmp_path / "b19080.dat"
+    f.write_text("GEO_ID|B19080_E001|B19080_M001|B19080_E002|B19080_M002|B19080_E003|B19080_M003|"
+                 "B19080_E004|B19080_M004|B19080_E005|B19080_M005\n"
+                 "0100000US|1|1|2|2|3|3|4|4|5|5\n"
+                 "0500000US01131|13024|1942|32585|9398|53194|4797|93254|11403|166719|37417\n"
+                 "0500000US51013|62142|2449|113625|2564|172424|3927|250001|-333333333|250001|-333333333\n"
+                 "0500000US48301|-666666666|-222222222|1|1|1|1|1|1|1|1\n")
+    df = ma.parse(f, "b19080").set_index("fips5")
+    assert list(df.index) == ["01131", "51013", "48301"]       # the nation row is dropped
+    assert df.loc["01131", "upper_q1"] == 13024 and df.loc["01131", "upper_q1_moe"] == 1942
+    assert df.loc["51013", "upper_q4_topcoded"] and df.loc["51013", "upper_q4"] == 250001
+    assert df.loc["51013", "upper_q4_moe"] != df.loc["51013", "upper_q4_moe"]   # sentinel -> NaN
+    assert df.loc["48301", "upper_q1"] != df.loc["48301", "upper_q1"]

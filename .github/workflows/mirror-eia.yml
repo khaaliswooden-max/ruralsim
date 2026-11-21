@@ -1,7 +1,8 @@
-# National EIA-860 / EIA-861 tables in R2 for the AI-infrastructure engine (D-051).
+# National EIA-860 / EIA-861 tables (D-051) and ACS income quintiles (D-053) in R2 for the
+# AI-infrastructure engine.
 # Run once per EIA release from the Actions tab: "Mirror EIA tables" -> Run workflow.
-# Writes eia/<year>/*.parquet and eia/<year>/_meta.json; county builds are unchanged.
-name: Mirror EIA tables
+# Writes eia/<year>/ and acs/<year>/ (parquet + _meta.json); county builds are unchanged.
+name: Mirror EIA and ACS tables
 
 on:
   workflow_dispatch:
@@ -28,4 +29,6 @@ jobs:
           R2_BUCKET: ruralsim-data
           RURALSIM_CACHE: ${{ runner.temp }}/cache
           PYTHONUNBUFFERED: "1"
-        run: python tools/mirror_eia.py
+        run: |
+          python tools/mirror_eia.py
+          python tools/mirror_acs.py
