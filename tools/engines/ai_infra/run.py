@@ -24,7 +24,6 @@ from shapely.ops import nearest_points, unary_union
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 from tools.engines.ai_infra import data, gate, network, power_flow, rate_impact  # noqa: E402
-from tools.harness import households  # noqa: E402  (county_row strips political columns, D-007)
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
@@ -112,7 +111,9 @@ def run_county(card, fips5, seeds, cfg, activsg, backtest_id=None):
     masked = []
     net = network.build(feats, f_enu, poly, cfg["network"], masked_sub_ids=[m["osm_id"] for m in masked])
     cands = rate_impact.candidates(fips5, state, data.eia)
-    crow = households.county_row(fips5)
+    acs = data.acs_income_quintiles()
+    arow = acs[acs.fips5 == fips5]
+    arow = arow.iloc[0].to_dict() if len(arow) else None
 
     rec = {"county": {**county.record(), "state": state, "rucc_2023": int(trow.rucc_2023)},
            "network": net.summary, "candidate_utilities": cands, "backtest": bt}
@@ -162,7 +163,7 @@ def run_county(card, fips5, seeds, cfg, activsg, backtest_id=None):
                 if pfo.get("status") == "computed":
                     rates[alloc] = rate_impact.run(cands, pfo.get("required_upgrades"),
                                                    {"peak_mw_net": net_peak, "grid_mwh": grid_mwh},
-                                                   {"capex_usd": onsite_capex}, alloc, crow, cfg, rr)
+                                                   {"capex_usd": onsite_capex}, alloc, arow, cfg, rr)
                 else:
                     rates[alloc] = {"status": "blocked", "reason": f"power_flow {pfo.get('status')}"}
             per_seed.append({"seed": seed, "inputs": {"it_load_mw": it, "pue": pue, "facility_load_factor": lf,
@@ -226,7 +227,12 @@ def summarise(per_seed, cands):
                 "reason": None if comp_u else (xs[0]["reason"] if xs else "power_flow not computed"),
                 "lowest_quintile_rate_change_pct": band([x["lowest_quintile_rate_change_pct"] for x in comp_u]),
                 "lowest_quintile_bill_change_usd_per_yr": band([x["lowest_quintile_bill_change_usd_per_yr"] for x in comp_u]),
-                "lowest_quintile_energy_cost_share_change_pp": rate_impact.INCOME_SHARE_STATUS,
+                "rate_basis": c.get("rate_basis"),
+                "site_share_of_utility_sales": band([x["site_share_of_utility_sales"] for x in comp_u]),
+                "share_seeds_outside_validity": (sum(x["outside_validity"] for x in comp_u) / len(comp_u)) if comp_u else None,
+                "lowest_quintile_energy_cost_share_change_pp": (
+                    band([x["lowest_quintile_energy_cost_share_change_pp"] for x in comp_u])
+                    or (rate_impact.INCOME_MISSING if comp_u else None)),
             }
         rates[alloc] = {"upgrade_capex_usd": band(cap), "per_utility": out_u,
                         "sensitivity_spearman": sensitivity(per_seed, alloc, cands)}
@@ -328,10 +334,19 @@ def judge(card, rec):
         for alloc, r in sc["summary"]["rate_impact"].items():
             for un, x in r["per_utility"].items():
                 item = {"county": f, "scenario": name, "allocation": alloc, "utility": f"{x['utility_name']} ({un})",
+                        "rate_basis": x.get("rate_basis"),
                         "criterion": "protect_lowest_income_quintile", "threshold": f"p50 <= {crit['rate_change_pct_max']}%"}
                 b = x["lowest_quintile_rate_change_pct"]
+                ov = x.get("share_seeds_outside_validity")
                 if b is None:
                     misses.append({**item, "status": "indeterminate", "value": x["reason"]})
+                elif ov and ov > 0.5:
+                    sh = x["site_share_of_utility_sales"]["p50"]
+                    lim = yaml.safe_load((HERE / "params" / "assumed.yaml").read_text())["rates"]["max_site_share_of_utility_sales"]
+                    misses.append({**item, "status": "indeterminate", "value": b,
+                                   "note": f"site would be {sh:.2f}x this utility's annual sales, above the rate "
+                                           f"model's validity limit of {lim}; the outcome depends on the large-load "
+                                           "contract, which is not modelled"})
                 elif b["p50"] > crit["rate_change_pct_max"]:
                     misses.append({**item, "status": "miss", "value": b})
                 else:
@@ -373,6 +388,7 @@ def main(argv=None):
         "params_sha256": sha(HERE / "params" / "assumed.yaml"),
         "activsg_sha256": sha(HERE / "params" / "activsg_distributions.json"),
         "eia_tables": {"year": 2024, "meta": data.eia_meta(2024)},
+        "acs_tables": {"year": 2024, "meta": data.acs_meta(2024)},
         "grade": "SPECULATIVE", "disclosure": DISCLOSURE,
         "seeds": a.seeds, "mode": "promotable-count" if a.seeds >= 20 else "screening",
         "provenance_floor": "assumed",
