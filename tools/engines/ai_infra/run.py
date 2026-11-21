@@ -313,7 +313,7 @@ def judge(card, rec):
                            "status": "indeterminate", "value": pf["status_counts"]})
         for key, label in (("share_seeds_any_voltage_violation", "voltage"), ("share_seeds_any_thermal_overload", "thermal")):
             v = pf[key]
-            thr = 1 - crit["grid_clean_seed_share"]
+            thr = round(1 - crit["grid_clean_seed_share"], 9)  # 1 - 0.9 is 0.0999... in floating point
             item = {"county": f, "scenario": name, "criterion": f"no {label} violation in >= {crit['grid_clean_seed_share']:.0%} of seeds",
                     "threshold": f"share of seeds with a violation <= {thr:.0%}", "value": v}
             if v is None:
@@ -321,7 +321,7 @@ def judge(card, rec):
             elif label == "voltage" and (pf["share_seeds_voltage_indeterminate"] or 0) > 0:
                 misses.append({**item, "status": "indeterminate",
                                "note": f"voltage indeterminate in {pf['share_seeds_voltage_indeterminate']:.0%} of computed seeds (DC fallback)"})
-            elif v > thr:
+            elif round(v, 9) > thr:
                 misses.append({**item, "status": "miss"})
             else:
                 passes.append({**item, "status": "pass"})

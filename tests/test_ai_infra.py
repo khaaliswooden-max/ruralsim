@@ -121,3 +121,14 @@ def test_gate_refuses_backtest_sites_and_candidates():
     with pytest.raises(gate.Refused, match="T0-1"):
         gate.check("40097", "BT-01", lambda y: False)       # registered, but no 2006 EIA tables
     assert gate.check("01131", None, lambda y: True) is None
+
+
+def test_judge_bar_is_inclusive_at_exactly_ten_percent():
+    from tools.engines.ai_infra import run
+    pf = {"status_counts": {"computed": 20}, "share_seeds_any_voltage_violation": 0.0,
+          "share_seeds_voltage_indeterminate": 0.0, "share_seeds_any_thermal_overload": 2 / 20}
+    rec = {"county": {"fips5": "00000"}, "site": {"note": "x"},
+           "scenarios": {"s": {"summary": {"power_flow": pf, "rate_impact": {}}}}}
+    card = {"criterion": {"grid_clean_seed_share": 0.9, "rate_change_pct_max": 2.0}}
+    misses, passes = run.judge(card, rec)
+    assert not misses and len(passes) == 2
