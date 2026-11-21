@@ -368,3 +368,27 @@ def test_eia_county_names_match_census_names():
     assert me.match_name(lk, "VA", "Richmond City") == "51760"   # the independent city
     assert me.match_name(lk, "MD", "Prince Georges") == "24033"
     assert me.match_name(lk, "IL", "Clay") is None               # no substring matches (LR-9)
+
+
+def test_nbi_comes_from_the_shared_cache_with_retries(monkeypatch, tmp_path):
+    """Runs #41/#42: 7 counties lost to four minutes of FHWA 503s / refused connections (D-052)."""
+    import io, pathlib, urllib.error, urllib.request as ur, eia_files
+    monkeypatch.setattr(eia_files, "CACHE", tmp_path / "eia")
+    monkeypatch.setattr(eia_files.time, "sleep", lambda s: None)
+    calls = []
+    class Resp(io.BytesIO):
+        headers = {"Content-Length": "3"}
+        def __enter__(self): return self
+        def __exit__(self, *a): return False
+    def fake(req, timeout=0):
+        calls.append(1)
+        if len(calls) == 1:
+            raise urllib.error.HTTPError(req.full_url, 503, "Service Unavailable", {}, None)
+        if len(calls) == 2:
+            raise urllib.error.URLError("[Errno 111] Connection refused")
+        return Resp(b"nbi")
+    monkeypatch.setattr(ur, "urlopen", fake)
+    p = eia_files.ensure(eia_files.NBI, sub="nbi")
+    assert p == tmp_path / "nbi" / "2024del.zip" and p.read_bytes() == b"nbi" and len(calls) == 3
+    src = (pathlib.Path(eia_files.__file__).parent / "fetch_bridges.py").read_text()
+    assert "eia_files.ensure(URL, sub=\"nbi\")" in src and "urlopen" not in src

@@ -20,18 +20,9 @@ if (OUT / f"nbi_{FIPS}.geojson").exists():
 # bounds sanity filter: county bbox +- 0.75 deg
 BW, BS, BE, BN = C.bbox
 LAT_LO, LAT_HI, LON_LO, LON_HI = BS - 0.75, BN + 0.75, -BE - 0.75, -BW + 0.75  # lon stored west-positive below
-URL = "https://www.fhwa.dot.gov/bridge/nbi/2024del.zip"
-zp = pathlib.Path("/tmp/ruralsim_cache/nbi2024.zip"); zp.parent.mkdir(parents=True, exist_ok=True)
-
-if not zp.exists():
-    print("downloading NBI 2024 (~53 MB) ...", flush=True)
-    req = urllib.request.Request(URL, headers={"User-Agent": "RuralSim-research/0.1"})
-    with urllib.request.urlopen(req, timeout=900) as r, open(zp, "wb") as f:
-        while True:
-            c = r.read(1 << 20)
-            if not c:
-                break
-            f.write(c)
+import eia_files  # noqa: E402  (shared, retrying national downloads; D-052)
+URL = eia_files.NBI
+zp = eia_files.ensure(URL, sub="nbi")
 print("zip size MB:", zp.stat().st_size / 1e6)
 
 zf = zipfile.ZipFile(zp)
