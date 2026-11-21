@@ -1,0 +1,100 @@
+# Assumed parameters for the AI-infrastructure screening engine (spec v0.1, D-100, D-101).
+# Every value here is provenance `assumed` unless it says otherwise. Each run draws every
+# range per seed (uniform). Changing this file changes the engine: the run record carries
+# its sha256, and under the back-test pre-registration (§4.3) any change after the first
+# back-test run voids grading on the channels it touches.
+
+load:
+  pue: [1.1, 1.5]
+  facility_load_factor: [0.7, 0.95]        # facility average / peak
+  facility_power_factor: [0.95, 0.99]
+  county_load_factor: [0.50, 0.65]          # county average / peak, for the existing load
+  county_power_factor: [0.92, 0.97]
+
+onsite:
+  # Credit at the peak hour. Solar is given none (the peak can fall at night); storage is
+  # credited at its 4-hour power rating times an availability draw; firm generation in full.
+  storage_duration_h: 4
+  storage_peak_availability: [0.5, 1.0]
+  solar_peak_credit: 0.0
+
+interconnection:
+  # Minimum voltage class for a facility peak (MW). Each boundary is scaled by a factor
+  # drawn from [0.7, 1.3] per seed (spec: +/-30%).
+  thresholds_mw: {distribution_max: 10, subtransmission_max: 50, hv_max: 300}
+  threshold_scale: [0.7, 1.3]
+  classes_kv:
+    distribution: [12, 35]
+    subtransmission: [44, 70]
+    hv: [100, 170]
+    ehv: [200, 800]
+  routing_factor: [1.2, 1.5]                # route length / straight-line distance
+  new_line_min_km: 0.3                      # shorter than this counts as "at the substation"
+
+network:
+  snap_substation_m: 300                    # line endpoint to substation centroid (point substations)
+  snap_substation_polygon_buffer_m: 150
+  merge_endpoint_m: 60                      # endpoints closer than this are one junction
+  tap_m: 40                                 # an endpoint this close to another line's interior taps it
+  outside_bus_is_source: true               # buses outside the county polygon become slack (strong grid)
+  ext_grid_vm_pu: [1.00, 1.03]
+  background_utilisation: [0.2, 0.6]        # share of each rating already used by regional
+                                            # through-flow, which the county model cannot see
+  x_ohm_per_km:                             # overhead line reactance by voltage class (typical
+    "<=69": [0.38, 0.48]                    # single-conductor 0.37-0.50, bundled EHV ~0.3).
+    "100-230": [0.36, 0.46]                 # R is X divided by an ACTIVSg X/R draw.
+    ">=345": [0.28, 0.36]
+  b_uS_per_km: 3.0
+  ratings_from: activsg_distributions.json  # rateA p10..p90 by kV; 70k east, 10k west (CC BY 4.0)
+  ratings_below_69kv_mva:                   # ACTIVSg has no lines under 69 kV
+    "34.5": [25, 45]
+    "46": [35, 60]
+    "<34.5": [8, 20]
+  transformer_mva_fallback: [40, 120]       # voltage pairs absent from ACTIVSg
+  transformer_vk_percent: [8, 12]
+  voltage_band_pu: [0.95, 1.05]             # ANSI C84.1 Range A
+  # Existing voltage regulation (tap changers, capacitors) is not in OSM. It is emulated as a
+  # voltage-controlled reactive source at each existing load substation, holding a set point
+  # within a reactive limit proportional to the local load. The site gets no new support
+  # unless an upgrade adds it.
+  regulation_vm_pu: [0.99, 1.02]
+  regulation_q_share_of_load: [0.3, 1.0]
+  regulation_calibration_steps: 4           # x1.5 each, so at most ~5x the drawn limit (calibrated)
+
+costs:
+  # 2024 USD. Ranges bracket figures in public RTO / utility cost guides; the citation table
+  # is OPEN (D-101) and must land before any back-test run.
+  line_musd_per_km:
+    "<=69": [0.6, 1.2]
+    "100-170": [0.9, 1.8]
+    "200-300": [1.3, 2.4]
+    ">=345": [1.8, 3.5]
+  line_rebuild_share_of_new: [0.4, 0.8]
+  new_substation_musd:
+    "<=69": [4, 10]
+    "100-170": [8, 20]
+    "200-300": [15, 35]
+    ">=345": [25, 60]
+  transformer_expansion_usd_per_mva: [15000, 35000]
+  voltage_support_usd_per_mvar: [20000, 60000]
+  solar_musd_per_mw: [1.0, 1.5]
+  storage_musd_per_mwh: [0.25, 0.45]
+  firm_musd_per_mw: [1.0, 1.8]
+
+rates:
+  capital_recovery_factor: [0.06, 0.11]
+  margin_on_new_sales_share: [-0.10, 0.25]  # share of site revenue (at the utility's observed
+                                            # industrial average rate) left over for fixed costs.
+                                            # Negative: a discounted large-load / economic-development
+                                            # rate below embedded cost. Widened from [0, 0.25] after the
+                                            # development run showed this one input sets the sign (D-101).
+  capacity_cost_usd_per_mw_yr: [40000, 120000]
+  capacity_cost_unrecovered_share: [0.0, 0.15]
+  large_load_tariff_ratepayer_share: [0.0, 0.3]
+  # Share of upgrade cost that lands on the retail utility's own customers. Vertically
+  # integrated utilities (EIA-861 transmission = Y) carry all of it; distribution-only
+  # co-ops and municipals pass it to a G&T or transmission zone that spreads it wider.
+  retail_share_if_transmission_owner: 1.0
+  retail_share_if_distribution_only: [0.05, 0.5]
+  lowest_quintile_kwh_share: [0.7, 1.0]
+  residential_allocation: energy_share      # residential share = residential MWh / total MWh (observed)
