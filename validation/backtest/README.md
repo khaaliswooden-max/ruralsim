@@ -8,7 +8,7 @@ Back-test of the AI-infrastructure engine (rollout step 2) against rural data ce
 | `SITES.md` | Sourced fact sheets for all eleven candidate sites, and why each was or was not selected. |
 | `sites.yaml` | Machine-readable inputs (`before:`) and observations (`observed:`), kept apart. The engine reads only `before:`. |
 | `tools/eia861_series.py` | Parses EIA-861 annual files 2001–2024 into a per-utility sales and residential price series. |
-| `tools/derive_observed.py` | Applies the pre-registered L1 and R1 rules to EIA-861. Writes `observed/observed_values.json`. |
+| `tools/derive_observed.py` | Applies the pre-registered load (L_obs), R1 and water-year load rules to EIA-861. Writes `observed/observed_values.json`. |
 | `observed/` | Derived observed values, the EIA-861 series, and SHA-256 hashes of the source zips. |
 
 Rebuild the observed values (EIA zips from https://www.eia.gov/electricity/data/eia861/, saved as `f861_<year>.zip`):

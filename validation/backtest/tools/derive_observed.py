@@ -1,10 +1,11 @@
-"""Compute the pre-registered observed quantities L1 and R1 from EIA-861.
+"""Compute the pre-registered quantities L_obs and R1 from EIA-861.
 
-Rules are PREREGISTRATION.md §6.1 (L1) and §6.3 (R1); this file implements them
+Rules are PREREGISTRATION.md §6.1 (L_obs, the load input of the conditional run),
+§6.3 (R1) and §6.4 (load for each water-observation year); this file implements them
 and nothing else. It reads sites.yaml and the EIA-861 annual zips, and writes
 observed/observed_values.json. It never reads engine output.
 
-  L1_obs_aMW  = (mean retail MWh of the serving utility over E+1..E+2
+  L_obs_aMW   = (mean retail MWh of the serving utility over E+1..E+2
                  - mean over T0-3..T0-1) / 8760
   R1_obs_pp   = 100 * [ (p_u(E+5) / p_u(T0-1) - 1) - (p_peer(E+5) / p_peer(T0-1) - 1) ]
                 p_u    = the rate utility's bundled residential revenue / sales
@@ -83,25 +84,33 @@ def main():
     ap.add_argument("--out", default=os.path.join(here, "..", "observed", "observed_values.json"))
     a = ap.parse_args()
     sites = yaml.safe_load(open(a.sites))
-    out = {"rules": "PREREGISTRATION.md §6.1, §6.3", "source": "EIA Form 861, Part A (bundled) rows", "sites": {}}
+    out = {"rules": "PREREGISTRATION.md §6.1, §6.3, §6.4", "source": "EIA Form 861, Part A (bundled) rows", "sites": {}}
     for s in sites["scored_sites"] + sites.get("contrast_sites", []):
         sid, t0, es = s["id"], s.get("T0"), s.get("E") or []
         obs = s.get("observed", {})
-        rec = {"fips5": s["fips5"], "T0": t0, "E": es, "L1": [], "R1": []}
-        uid = obs.get("L1_load_utility_eia_id")
+        rec = {"fips5": s["fips5"], "T0": t0, "E": es, "L_obs": [], "R1": [], "W1_load": []}
+        uid = obs.get("load_utility_eia_id")
         if isinstance(uid, int) and t0:
             pre = [tot_mwh(a.zips, uid, y) for y in range(t0 - 3, t0)]
             for E in es:
                 post = [tot_mwh(a.zips, uid, y) for y in (E + 1, E + 2)]
                 if None in pre or None in post:
-                    rec["L1"].append({"E": E, "status": "NOT SCORED: missing EIA year"})
+                    rec["L_obs"].append({"E": E, "status": "NOT SCORED: missing EIA year"})
                     continue
                 d = (sum(post) / 2 - sum(pre) / 3) / 8760
-                rec["L1"].append({"E": E, "utility_eia_id": uid, "pre_years": [t0 - 3, t0 - 1],
+                rec["L_obs"].append({"E": E, "utility_eia_id": uid, "pre_years": [t0 - 3, t0 - 1],
                                   "post_years": [E + 1, E + 2], "pre_mean_mwh": round(sum(pre) / 3),
-                                  "post_mean_mwh": round(sum(post) / 2), "L1_obs_aMW": round(d, 1)})
+                                  "post_mean_mwh": round(sum(post) / 2), "L_obs_aMW": round(d, 1)})
         else:
-            rec["L1"].append({"status": f"NOT SCORED: L1 utility {uid!r}"})
+            rec["L_obs"].append({"status": f"NO LOAD INPUT, site cannot run: load utility {uid!r}"})
+        # §6.4: load for each water-observation year (utility increment over the pre-T0 mean)
+        if isinstance(uid, int) and t0:
+            pre_mean = sum(tot_mwh(a.zips, uid, y) for y in range(t0 - 3, t0)) / 3
+            for w in obs.get("W1_water") or []:
+                yrs = [2024, 2025] if str(w["period"]).startswith("FY2025") else [int(w["period"])]
+                vals = [v for v in (tot_mwh(a.zips, uid, y) for y in yrs if y <= 2024) if v is not None]
+                rec["W1_load"].append({"period": w["period"], "years_used": [y for y in yrs if y <= 2024],
+                                       "load_aMW": round((sum(vals) / len(vals) - pre_mean) / 8760, 1)})
         ru = obs.get("R1_rate_utility")
         rid = ru.get("eia_id") if isinstance(ru, dict) else None
         if isinstance(rid, int) and t0:

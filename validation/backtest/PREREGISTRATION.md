@@ -1,6 +1,6 @@
 # Back-test pre-registration: AI-infrastructure engine against built rural data centers
 
-Rollout step 3 · version 1.0 · registered 2026-11-21 · decision **D-200**
+Rollout step 3 · version 1.0 · registered 2026-11-21 · decisions **D-200**, **D-201**
 Status: **registered, no runs.** The engine (rollout step 2) does not exist yet.
 
 This document fixes, before any run: which sites, what the engine is allowed to know, which engine outputs are compared with which observed quantities, the pass bar for each comparison, and what passing allows us to say. It must merge before the step-2 engine runs on any site listed here. Once the first back-test run is recorded, nothing in it changes. A later version can only govern new, held-out sites (§8).
@@ -40,16 +40,16 @@ For each site the engine receives only the `before:` block of `sites.yaml`. That
 - announced investment, acreage, floor area, jobs, and announced MW where any were announced
 - the stated water source and cooling plan, where stated
 
-Two exceptions widen the date, each the same for every site:
-- **L1 (load):** the information set is every data-center project served by the same utility whose public announcement is dated ≤ E+2, each limited to facts published at its own announcement. The observed load window runs to E+2, so projects announced inside it belong in the run.
-- **W1 (water):** for an observation in year Y, the engine may use cumulative publicly announced investment as of Y. It may never use any observed water figure.
+**This is a conditional back-test (D-201).** The step-2 engine takes the site's load as an input (`it_load_mw`). It does not predict load. So the back-test does not ask whether the engine can size a data center from a press release. It asks: given the load that actually arrived, did the engine get the grid build, the rate effect and the water right? Two design attributes of the built plant are therefore inputs, taken from the record whatever their date:
+- **Load.** The facility average load is set to the observed load increment `L_obs` (§6.1). Per seed, `it_load_mw = L_obs / (pue × load_factor)`, with `pue` and `load_factor` drawn from the engine's own assumed ranges. So the facility average equals `L_obs` in every seed. For a W1 observation in year Y, `L_obs` is the same increment computed with Y in place of E+1..E+2 (§6.4).
+- **Cooling type.** Taken from the record if stated (any date). Otherwise every engine value (`dry`, `adiabatic_hybrid`, `evaporative`) is run, and W1 passes only if it passes for all of them. Water use is the measured outcome; cooling type is a design fact.
 
-Never allowed as input: any quantity in an `observed:` block; any later estimate of the site's MW (for example the 2008 "~30 MW" for The Dalles); EIA, PUD or press figures on the site's actual consumption.
+Never allowed as input: any grid-build, rate, tariff or water-volume quantity in an `observed:` block; any cost-allocation or tariff fact dated after T0 (§6.3 says how cost allocation is set).
 
 ### 4.2 World layers: vintage and masking
 Published worlds are current (OSM 2026, EIA-860/861 2024, Overture 2026-10, CDL 2025). They contain the data centers themselves and their interconnections. Each back-test run must therefore:
 1. use **EIA-860 and EIA-861 tables of year T0−1** in place of the 2024 tables;
-2. **mask the site:** remove buildings inside the site parcel, and remove every OSM `power=substation` within 2 km of the parcel, and every `power=line` or `power=minor_line` ending at one, unless a dated source shows it existed before T0. Transmission lines longer than 10 km that pass within the 2 km buffer without ending there stay. Every masked feature is listed in the run record;
+2. **mask the site:** remove buildings inside the site parcel. Remove every OSM `power=substation` within 2 km of the parcel, and every one anywhere in the county whose `operator` or `name` tag names the data-center owner or its holding company (e.g. Design LLC). Remove every `power=line` or `power=minor_line` ending at a removed substation. A feature stays if a dated source shows it existed before T0. Transmission lines longer than 10 km that pass within the 2 km buffer without ending there also stay. Every masked feature is listed in the run record;
 3. use Census/ACS values of the vintage nearest to and not after T0 for the synthetic population;
 4. keep terrain, hydrology, climate normals (1991–2020) and land tenure as published. Their post-T0 change is small against the site. The climate normals overlap the outcome years, and this is recorded.
 
@@ -58,31 +58,29 @@ If the engine cannot apply 4.2.1–4.2.3, the affected channel is **NOT SCORED**
 ### 4.3 Frozen engine
 - One tagged commit of the engine and its parameter files, named in the run record before the first site runs.
 - No parameter may be set, fitted or tuned using any back-test site. A change to the engine after the first back-test run voids grading for every channel it touches. A rerun on these sites is then reported but cannot raise a grade.
-- 20 seeds per site. The prediction is the **median** across seeds; p10 and p90 are reported. A median pass with the observed value outside p10–p90 is recorded as "pass, interval miss" and does not change the grade.
+- 20 seeds per site. **Scoring uses the p50 (median) across seeds**, not the band: the observed value need not fall inside p10–p90. The band is reported. A p50 pass with the observed value outside p10–p90 is recorded as "pass, interval miss" and does not change the grade.
 
-## 5. Engine outputs required
+## 5. Engine outputs compared
 
-Proposed to step 2 for its output schema. Field names may be mapped to step 2's names by amendment before the run; the quantities and bars may not change.
+Mapped to step 2's `output_schema` in `specs/ai_infra_engine.yaml` (PR #50, D-100). **Only the outputs in this table are compared with the record.** Everything else the engine emits is recorded in the results file and not scored, including `interconnection_voltage_class_kv`, `nearest_substation_of_class`, fiber, flood and the hard constraints. Step 2 does not model the construction timeline, so T1 is never scored against this engine (§6.5).
 
-| Field | Unit | Used by |
+| Engine output (step 2 name) | Derived quantity | Used by |
 |---|---|---|
-| `site_load_avg_mw` | average MW at full announced build of the information set | L1 |
-| `new_substation_required` | boolean per seed | G1 |
-| `new_transmission_required` (≥ 69 kV) | boolean per seed | G1 |
-| `residential_rate_change_pct_y5` | % change in residential price attributable to the site, year E+5 against T0−1 | R1 |
-| `site_water_withdrawal_gal_yr` | gallons per year, at the stated investment level | W1 |
-| `months_to_energize` | months from T0 | T1 (context) |
+| `power_flow.required_upgrades` (type, kV, km or MVA) | per seed: `new_substation` = any upgrade of type substation (new or expansion) | G1 |
+| `power_flow.new_line_km` with `required_upgrades` kV | per seed: `new_line` = new_line_km > 0 at ≥ 69 kV | G1 |
+| `rate_impact.lowest_quintile_rate_change_pct`, for the rate utility named in `sites.yaml` | p50, in % | R1 |
+| `cooling_water.annual_withdrawal_m3` | p50 × 264.172 = gallons per year | W1 |
 
-Each output carries the `observed | assumed` provenance tags the harness already uses.
+A module that returns `indeterminate` or `blocked` makes its comparison **NOT SCORED** for that site. Each record must carry `backtest: {site_id, preregistration_commit}` and the engine commit.
 
 ## 6. Comparisons and pass bars
 
 Every comparison scores **PASS**, **MISS** or **NOT SCORED**. NOT SCORED applies when the observation or a required input is PENDING at run time. It is never counted as a pass. Where E is uncertain (Jackson: 2018 or 2019), the comparison is computed for each candidate year and **passes only if it passes for all of them**.
 
-### 6.1 L1 · Site load
-- **Observed:** `(mean retail MWh of the serving utility over E+1..E+2 − mean over T0−3..T0−1) / 8760`, from EIA-861 Part A. This is the utility's whole load change. Other industrial growth in the window is included and not removed.
-- **Bar:** PASS if `0.5 ≤ predicted / observed ≤ 2.0`.
-- Scored only where the serving utility is the site's retail seller and is named in `sites.yaml`. Jackson is scored only if the retail seller is shown to be NAEC. TVA's Alabama direct-serve total is dominated by other customers.
+### 6.1 L_obs · Site load (input, not graded)
+- **Value:** `L_obs = (mean retail MWh of the serving utility over E+1..E+2 − mean over T0−3..T0−1) / 8760`, in average MW, from EIA-861 Part A. This is the utility's whole load change. Other industrial growth in the window is included and not removed.
+- It is the load **input** for the conditional run (§4.1). It is not compared with anything, because the engine does not predict load.
+- It is available only where the serving utility is the site's retail seller. Jackson has it only if the retail seller is shown to be NAEC; TVA's Alabama direct-serve total is dominated by other customers. A site without `L_obs` cannot run, and every channel is NOT SCORED there.
 
 ### 6.2 G1 · Grid build
 - **Observed:** whether a new substation, or a new or rebuilt transmission line of 69 kV or more, was built to serve the site between T0 and E+2. This is two booleans, each from a dated source.
@@ -94,19 +92,22 @@ Every comparison scores **PASS**, **MISS** or **NOT SCORED**. NOT SCORED applies
 - **Observed:** two estimates of the site-attributable change, in percentage points, between T0−1 and E+5:
   - peer: `100·[(p_u(E+5)/p_u(T0−1) − 1) − (p_peer(E+5)/p_peer(T0−1) − 1)]`, where `p` is bundled residential revenue ÷ sales and the peers are same-state utilities of the same EIA ownership class reporting residential sales in both years (a balanced panel);
   - state: the same with the all-utility state average in place of the peers.
+- **Prediction:** the p50 of `lowest_quintile_rate_change_pct` for the rate utility. The engine reports a rate change, and the observed value is an average residential price change. Under a single residential tariff the two coincide. Where they differ, the comparison is still made and the difference is listed in §9.
+- **Cost allocation:** step 2 runs `direct_assignment`, `large_load_tariff` and `socialized` unless one is fixed. One is fixed only if a tariff, contract or board record **dated on or before E** shows how the site's grid costs were allocated. Otherwise R1 passes only if it passes under all three.
 - **Bar:** PASS if the prediction lies in `[min(peer, state) − 5, max(peer, state) + 5]` pp. In addition, where both estimates have the same sign and both have magnitude ≥ 5 pp, the prediction must have that sign. The two counterfactuals disagree, sometimes in sign. The bar takes their spread as the observation's uncertainty instead of choosing one.
 
 ### 6.4 W1 · Water
 - **Observed:** each annual water-use figure in `sites.yaml` (Mayes FY2025; The Dalles 2012–2021).
+- **Load for year Y:** `(retail MWh of the serving utility in Y − mean over T0−3..T0−1) / 8760`. For Mayes FY2025 the calendar years 2024 and 2025 are averaged; if 2025 EIA-861 is not published at run time, 2024 alone is used. This is utility-wide (all of MidAmerica Industrial Park for GRDA), so it overstates the site's load. The bias is listed in §9.
 - **Bar:** PASS for a year if `0.5 ≤ predicted / observed ≤ 2.0`. A site passes W1 if at least 70% of its scored years pass.
 - Grant's "~10% of city water" figure covers every data center in a later year, so it is context only. Jackson has no record.
 
-### 6.5 T1 · Timeline (context only)
-Months from T0 to first operation are reported against the record. T1 is not graded. Mayes's 2008–2010 pause was a corporate capacity decision, not a grid constraint, and the engine has no construction model. It may become graded only by an amendment merged before the first run, with a bar of ±12 months.
+### 6.5 T1 · Timeline (record only)
+Months from T0 to first operation are recorded in `SITES.md` for context. Step 2 does not model construction, so T1 is never scored against this engine. Mayes's 2008–2010 pause was a corporate capacity decision, not a grid constraint.
 
 ## 7. Grading
 
-Grades are per channel (L1, G1, R1, W1), never pooled across channels.
+Grades are per channel (G1, R1, W1), never pooled across channels.
 
 A channel is graded **PLAUSIBLE for the back-test sites** only if all of these hold:
 - at least **3 of the 4** scored sites are scored on it (not NOT SCORED);
@@ -119,21 +120,23 @@ As registered today, with PENDING items unfilled, the counts are:
 
 | Channel | Scorable sites now | Can reach PLAUSIBLE as registered? |
 |---|---|---|
-| L1 load | Mayes, Wasco, Grant | Yes. Needs 3 of 3 to pass, plus the `projects_in_info_set` inputs for Mayes and Grant. |
 | G1 grid | Wasco, Grant | No, unless Mayes or Jackson gets a documented substation or line record |
-| R1 rate | Wasco, Grant, Jackson (if NAEC territory verified) | Yes. Needs 3 of 3 to pass. |
-| W1 water | Wasco, Mayes (once cumulative investment is filled) | **No.** Only 2 sites have records. |
+| R1 rate | Wasco, Grant, Jackson (only if Jackson's retail seller is NAEC, which also gives Jackson its `L_obs`) | Yes. Needs 3 of 3 to pass. |
+| W1 water | Wasco, Mayes | **No.** Only 2 sites have records. |
+
+Only sites with `L_obs` can run at all: today Mayes, Wasco and Grant.
 
 ## 8. Amendments and freeze
 
-- **Before the first run**, amendments may only: fill PENDING fields with dated primary sources; correct a factual error, with the source; map engine field names (§5); add T1 grading (§6.5). Each is a PR with a D-2xx entry. None may change a bar, a formula, a site list or the grading rule.
+- **Before the first run**, amendments may only: fill PENDING fields with dated primary sources; correct a factual error, with the source; map engine field names (§5) where step 2 renames an output. Each is a PR with a D-2xx entry. None may change a bar, a formula, a site list or the grading rule.
 - An amendment may not use knowledge of engine output. The first run happens only after its amendments merge.
 - **After the first run:** frozen. Problems found in the method are recorded as deviations in the results file, and they can only lower a grade. A corrected method is a new pre-registration (v2) on new, held-out sites.
 
 ## 9. Known weaknesses
 
 1. **Scale and era.** Three sites are 2006–2011 builds of tens of MW. Passing does not cover 100+ MW AI campuses.
-2. **L1 is a utility-level proxy.** It includes other industrial growth: the whole park for GRDA, several data centers for Grant.
+2. **The load input is a utility-level proxy, and it comes from the record.** `L_obs` includes other industrial growth: the whole park for GRDA, several data centers for Grant. Because the run is conditional on it, a pass shows the modules work *given the true load*. It says nothing about predicting load from an announcement.
+7. **Rate change vs price change.** The engine reports a lowest-quintile rate change; the record gives an average residential price. They coincide only under one residential tariff.
 3. **The R1 counterfactual is weak.** Peer and state differencing disagree by 15–20 pp at Wasco and Grant. The bar is wide because the observation is uncertain, not because the engine is trusted.
 4. **Public power only.** IOU rate design (rate cases, riders) is exercised only by the contrast site.
 5. **Secondary sources.** Several facts (water at Mayes and The Dalles, Grant's load figures) come from journalists reporting public records, not the records themselves. Pulling the underlying records would strengthen them.
@@ -154,7 +157,7 @@ The two public disclosure lines go on any public page that shows these results.
 ## 11. Requests to other rollout chats
 
 To step 2 (engine), for its spec:
-- the §5 output fields, or a mapping;
+- the §5 mapping is done against PR #50; a renamed output needs a mapping amendment;
 - an `as_of_year` input that loads EIA-860/861 of year T0−1 (§4.2.1). EIA-861 2001–2024 is already parsed here: `tools/eia861_series.py`;
 - a site mask input, with masked features written to the run record (§4.2.2);
 - a Census/ACS vintage switch for the synthetic population (§4.2.3);
@@ -166,6 +169,6 @@ To step 1 (build pipeline), through Khaalis: none required. Grant (53025) and Wa
 
 Recorded so the reader can judge. Before fixing the bars, the author had:
 - read the public record in `SITES.md`, including water and load figures;
-- computed the observed L1 and R1 values in `observed/observed_values.json` (Mayes L1 47.1 aMW; Wasco 33.8 aMW; Grant 82.5 aMW; Wasco R1 −12.0 pp peer / −33.0 pp state; Grant +2.9 / −15.0; Jackson +2.1 / −7.8 for E=2018 and +2.0 / −9.6 for E=2019).
+- computed `L_obs` and the observed R1 values in `observed/observed_values.json` (`L_obs` Mayes 47.1 aMW; Wasco 33.8 aMW; Grant 82.5 aMW; Wasco R1 −12.0 pp peer / −33.0 pp state; Grant +2.9 / −15.0; Jackson +2.1 / −7.8 for E=2018 and +2.0 / −9.6 for E=2019). Load for the water years, from the same file: Mayes FY2025 417 aMW (all of GRDA's park load); The Dalles 33–98 aMW over 2012–2021.
 
 The bars are ratios and intervals around observed values, set without any prediction to aim at. No engine output existed. The R1 interval rule (§6.3) was adopted after seeing that the two counterfactuals disagree, in place of choosing one, so that the author's choice of counterfactual cannot decide a pass. For reference only, not as a run: EXP-0007's existing accounting model (Wilcox AL, 20 MW, all inputs assumed) gives −23.8% lowest-quintile rate change grid-only and +16.7% with on-site generation. Compared naively with the R1 intervals, the grid-only value falls inside Wasco's interval and outside Grant's and Jackson's. The on-site value falls outside all three. That model is not the step-2 engine and is not a back-test result.

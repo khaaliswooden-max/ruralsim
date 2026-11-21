@@ -1,9 +1,12 @@
 # Back-test sites, rollout step 3. Pre-registered 2026-11-21 (D-200).
 #
 # Two kinds of field, kept apart on purpose:
-#   before:   what was public on or before T0. The engine may read ONLY this block
-#             (plus world layers masked as PREREGISTRATION.md §4 says).
-#   observed: what happened. The engine never reads it. The scorer reads it.
+#   before:   what was public on or before T0. The engine may read this block, the
+#             world layers masked as PREREGISTRATION.md §4.2 says, and the two design
+#             inputs of the conditional run (§4.1, D-201): the observed load L_obs
+#             (from load_utility_eia_id) and the cooling type where the record states it.
+#   observed: what happened. The engine never reads the grid, rate or water entries.
+#             The scorer reads them.
 # Every value carries a source key that resolves in SITES.md. A value marked
 # PENDING must be filled, with a dated primary source, by an amendment merged
 # BEFORE the first run (PREREGISTRATION.md §8). A comparison whose observation is
@@ -26,8 +29,6 @@ scored_sites:
     serving_utility: {name: Grand River Dam Authority, eia_id: 7490, ownership: state,
                       role: direct retail to park industry incl. Google, source: [OK-3, OK-4]}
     before:
-      projects_in_info_set: PENDING           # Google projects at the park announced <= E+2 (2013),
-                                              # e.g. the second building unveiled 2012 [OK-2] (§4.1)
       announced_investment_usd: 600000000     # [OK-1]
       announced_land_acres: 800               # [OK-1]
       announced_jobs: 100                     # [OK-1]
@@ -35,7 +36,7 @@ scored_sites:
       water_source: Neosho (Grand) River via MidAmerica Industrial Park supply [OK-5]
       cooling: null                           # not public at T0
     observed:
-      L1_load_utility_eia_id: 7490
+      load_utility_eia_id: 7490
       G1_new_substation_or_line: PENDING      # no primary record found yet
       R1_rate_utility: PENDING                # GRDA has no residential retail; the
                                               # distributor(s) in Mayes that buy from GRDA
@@ -63,7 +64,7 @@ scored_sites:
       existing_transmission_reused: true      # Google, at T0 [AL-1]
       water_source: Tennessee River (site on the river; arrangement not public) [AL-3]
     observed:
-      L1_load_utility_eia_id: PENDING         # scored only if the retail seller is
+      load_utility_eia_id: PENDING         # set only if the retail seller is
                                               # NAEC (13669); TVA's Alabama direct-serve
                                               # total is dominated by other customers (§6.1)
       G1_new_substation_or_line: PENDING
@@ -88,21 +89,21 @@ scored_sites:
       announced_mw: null                      # the ~30 MW estimate is from 2008 [OR-2]: not allowed
       water_source: City of The Dalles municipal supply (Dog River + groundwater) [OR-6]
     observed:
-      L1_load_utility_eia_id: 13788
+      load_utility_eia_id: 13788
       G1_new_substation_or_line: {value: true, scope: "District and BPA built transmission, substations and switchyards for data centers",
                                   caveat: "campus-wide statement; not dated to the first building", source: OR-5}
       R1_rate_utility: {eia_id: 13788}
       W1_water:
-        - {period: "2012", gallons: 104.3e6, cumulative_public_investment_usd_at_period: PENDING, source: OR-7}
-        - {period: "2013", gallons: 108.9e6, cumulative_public_investment_usd_at_period: PENDING, source: OR-7}
-        - {period: "2014", gallons: 132.3e6, cumulative_public_investment_usd_at_period: PENDING, source: OR-7}
-        - {period: "2015", gallons: 148.3e6, cumulative_public_investment_usd_at_period: PENDING, source: OR-7}
-        - {period: "2016", gallons: 113.1e6, cumulative_public_investment_usd_at_period: PENDING, source: OR-7}
-        - {period: "2017", gallons: 124.2e6, cumulative_public_investment_usd_at_period: PENDING, source: OR-7}
-        - {period: "2018", gallons: 150.7e6, cumulative_public_investment_usd_at_period: PENDING, source: OR-7}
-        - {period: "2019", gallons: 233.3e6, cumulative_public_investment_usd_at_period: PENDING, source: OR-7}
-        - {period: "2020", gallons: 279.8e6, cumulative_public_investment_usd_at_period: PENDING, source: OR-7}
-        - {period: "2021", gallons: 355.1e6, cumulative_public_investment_usd_at_period: PENDING, source: OR-7}
+        - {period: "2012", gallons: 104.3e6, source: OR-7}
+        - {period: "2013", gallons: 108.9e6, source: OR-7}
+        - {period: "2014", gallons: 132.3e6, source: OR-7}
+        - {period: "2015", gallons: 148.3e6, source: OR-7}
+        - {period: "2016", gallons: 113.1e6, source: OR-7}
+        - {period: "2017", gallons: 124.2e6, source: OR-7}
+        - {period: "2018", gallons: 150.7e6, source: OR-7}
+        - {period: "2019", gallons: 233.3e6, source: OR-7}
+        - {period: "2020", gallons: 279.8e6, source: OR-7}
+        - {period: "2021", gallons: 355.1e6, source: OR-7}
     county_world_status: "not yet published (expected ~2026-11-23)"
 
   - id: BT-04
@@ -116,12 +117,9 @@ scored_sites:
     serving_utility: {name: PUD No 2 of Grant County, eia_id: 14624, ownership: political_subdivision,
                       source: [WA-1, WA-3]}
     before:
-      projects_in_info_set: PENDING           # every data-center project in Grant County with a
-                                              # public announcement dated <= E+2 (2009), each with
-                                              # its announced acres/investment/MW and source (§4.1)
       water_source: City of Quincy groundwater (Columbia Plateau basalt aquifer) [WA-4]
     observed:
-      L1_load_utility_eia_id: 14624
+      load_utility_eia_id: 14624
       G1_new_substation_or_line: {value: true, scope: "substation for Microsoft's 48 MW capacity, requested 2007",
                                   source: WA-1}
       R1_rate_utility: {eia_id: 14624}
