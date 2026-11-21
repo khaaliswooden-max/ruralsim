@@ -1,0 +1,45 @@
+# Experiment cards for the AI-infrastructure screening engine (tools/engines/ai_infra, D-101).
+# Same schema as experiments/experiment_card_schema.yaml, plus the engine's scenario block.
+# Cards are immutable once run; a changed experiment is a new card with `supersedes` set.
+
+- id: EXP-0011
+  supersedes: EXP-0007
+  title: "20 MW data center at a rural county site, engine v1 (power flow + rate impact)"
+  category: energy_compute
+  hypothesis: >
+    A 20 MW (IT) compute site at the county centroid can be connected without N-0 thermal or
+    voltage violations, and without raising lowest-quintile residential rates by more than 2
+    percent for any utility serving the county under any cost allocation, if paired with 30 MW
+    of on-site solar and 60 MWh of storage, but not otherwise.
+  counties: ["01131", "20019", "54047", "31173"]   # Wilcox AL (EXP-0007's county), then three
+                                                     # nonmetro pilots; none is a back-test site
+  site: {rule: centroid, note: "county centroid; moved off tribal land if it falls inside (siting constraint)"}
+  intervention:
+    description: two builds, grid-only versus grid plus on-site solar and storage; three cost allocations each
+    parameters: {it_load_mw: 20, solar_mw: 30, storage_mwh: 60}
+    parameter_sources: {it_load_mw: hypothetical (EXP-0007), solar_mw: hypothetical (EXP-0007), storage_mwh: hypothetical (EXP-0007),
+                        everything else: "tools/engines/ai_infra/params/assumed.yaml (assumed, sampled) and EIA-861/OSM (observed)"}
+  scenarios:
+    - {name: grid_only, it_load_mw: 20}
+    - {name: with_onsite, it_load_mw: 20, onsite: {solar_mw: 30, storage_mwh: 60}}
+  baseline: same network and county load without the site, same seed
+  duration: "one peak hour (N-0 power flow) and one year (rates)"
+  time_step: "steady state"
+  engines: [power, economy]
+  seeds: 20
+  metrics:
+    primary: lowest_quintile_rate_change_pct (percent), per candidate utility and cost allocation
+    secondary: [voltage_violations_n0, thermal_overloads_n0, required_upgrades, new_line_km, interconnection_voltage_class_kv,
+                lowest_quintile_energy_cost_share_change_pp]
+    rqli_domains_affected: [cost_burden, power_reliability]
+  criterion:                      # stated before the run (D-101)
+    grid_clean_seed_share: 0.9    # no voltage and no thermal violation in at least 90% of seeds
+    rate_change_pct_max: 2.0      # p50 across seeds, for every candidate utility with data, every allocation
+    rule: >
+      Supported for a county and scenario only if the grid criterion holds and every candidate
+      utility passes under every allocation. A candidate without EIA-861 sales is indeterminate,
+      which is not a pass.
+  success_criterion: "with_onsite passes and grid_only fails, per the criterion block, in Wilcox AL"
+  fidelity_tier: B_pilot_3d
+  provenance_floor: assumed
+  risks_to_residents: "rate shifting onto small co-op memberships; few permanent jobs; land use"
