@@ -99,3 +99,9 @@ rates:
   retail_share_if_distribution_only: [0.05, 0.5]
   lowest_quintile_kwh_share: [0.7, 1.0]
   residential_allocation: energy_share      # residential share = residential MWh / total MWh (observed)
+  # Validity domain of the per-utility rate model (D-102). It is linear in the site's sales
+  # and treats the site as one customer among many. When the site's annual grid energy exceeds
+  # this share of the utility's own sales, the outcome turns on the contract (often signed by
+  # the G&T, not the co-op), which no public source gives: the rate criterion is indeterminate
+  # and the computed values are kept, labelled, but not scored.
+  max_site_share_of_utility_sales: 0.25

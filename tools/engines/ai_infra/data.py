@@ -21,7 +21,7 @@ CACHE = Path(os.environ.get("RURALSIM_CACHE", Path.home() / ".cache" / "ruralsim
 ROOT = Path(__file__).resolve().parents[3]
 
 EIA_TABLES = ("eia860_generators", "eia860_plants", "eia861_utility_data",
-              "eia861_sales_ult_cust", "eia861_service_territory")
+              "eia861_sales_ult_cust", "eia861_service_territory", "eia861_short_form")
 
 
 def _get(url: str, dest: Path, sha256: str | None = None) -> Path:
@@ -122,6 +122,18 @@ def eia_available(year: int) -> bool:
         return True
     except Exception:
         return False
+
+
+@lru_cache(maxsize=2)
+def acs_income_quintiles(year: int = 2024) -> pd.DataFrame:
+    """ACS 5-year B19081/B19080 per fips5 (LR-11, D-053), with margins of error."""
+    p = _get(f"{BASE}/acs/{year}/income_quintiles.parquet", CACHE / "acs" / str(year) / "income_quintiles.parquet")
+    return pd.read_parquet(p)
+
+
+def acs_meta(year: int = 2024) -> dict:
+    p = _get(f"{BASE}/acs/{year}/_meta.json", CACHE / "acs" / str(year) / "_meta.json")
+    return json.loads(p.read_text())
 
 
 @lru_cache(maxsize=1)
