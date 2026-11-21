@@ -1,0 +1,255 @@
+# AI-infrastructure screening engine — specification v0.1 (DRAFT, D-100)
+# Rollout step 2. Spec only: no engine code lands with this file.
+#
+# Screens one proposed compute site in one built county across five modules:
+# power flow, rate impact, cooling water, fiber, flood. Reads published county
+# layers (R2 snapshots) plus external public sources listed below. Every result is
+# graded SPECULATIVE: screening-grade, reduced-order, assumed parameters.
+# Decision support, not a finding.
+
+version: "0.1-draft"
+status: draft          # draft -> accepted (on merge) -> superseded
+decision: D-100
+engine_module: tools/engines/ai_infra/     # planned location; not created by this PR
+reads_from: "R2 public snapshot: worlds/<dir>/snapshots/<snapshot>/ (manifest.json pins sha256 per file)"
+target_population: "nonmetro counties (RUCC 2023 4-9; 1,958 counties). Metro counties run only as contrast cases."
+grade: SPECULATIVE     # fixed for every public run; see grading below
+
+# ---------------------------------------------------------------------------
+# Rules the engine enforces in code, not by convention
+# ---------------------------------------------------------------------------
+rules:
+  provenance_vocabulary: [observed, derived, calibrated, assumed, hypothetical]   # ARCHITECTURE §4
+  every_input_tagged: "each input carries value, unit, provenance, source, and for assumed inputs a sensitivity range"
+  assumed_inputs_are_sampled: >
+    every assumed input is drawn per seed from its stated range (uniform unless a
+    distribution is given). EXP-0007 v0 used fixed values and ignored the seed, so its
+    20 seeds returned one number with a zero-width 90% interval; that must not recur.
+  seeds: {screening_min: 5, promotable_min: 20}
+  misses_first: "the output lists every failed or indeterminate criterion before any passing one"
+  indeterminate_is_not_pass: "a criterion the engine cannot evaluate is reported indeterminate, never passed"
+  blocked_modules_say_so: "a module without its required inputs returns status blocked with the missing input named; it is never approximated silently"
+  no_tuning_on_backtest_sites: >
+    no parameter may be fitted, adjusted or chosen by looking at observed outcomes in any
+    county on step 3's candidate list (validation/backtest/). Engine development uses
+    other nonmetro counties.
+  backtest_gate: >
+    the runner refuses a site listed in validation/backtest/PREREGISTRATION.md unless that
+    file is merged on main and its pass bars cover every output the run would be compared on.
+  guardrails: >
+    synthetic households only (tools/harness/households.py); no address-level records;
+    political variables denylisted (D-007); no option relocates residents; tribal land
+    is a siting constraint, not an input to optimise over.
+  no_workflow_on_push: "batch runs are manual; heavy batches run between county-build batches (20 shared Actions jobs)"
+
+# ---------------------------------------------------------------------------
+# Scenario: what a run screens
+# ---------------------------------------------------------------------------
+scenario_inputs:
+  site:            {fields: [fips5, lon, lat], provenance: hypothetical, note: "a proposed point; never a real parcel owner's address"}
+  it_load_mw:      {provenance: hypothetical, default: 20, note: "EXP-0007 value"}
+  pue:             {provenance: assumed, default: 1.25, range: [1.1, 1.5]}
+  load_factor:     {provenance: assumed, range: [0.7, 0.95], note: "facility average / peak"}
+  ramp_years:      {provenance: assumed, range: [1, 5]}
+  cooling_type:    {provenance: hypothetical, values: [dry, adiabatic_hybrid, evaporative]}
+  onsite_generation: {provenance: hypothetical, fields: [solar_mw, storage_mwh, firm_mw], default: {solar_mw: 0, storage_mwh: 0, firm_mw: 0}}
+  cost_allocation: {provenance: hypothetical, values: [direct_assignment, large_load_tariff, socialized],
+                    note: "who pays for grid upgrades and on-site generation; run all three unless the card fixes one"}
+
+# ---------------------------------------------------------------------------
+# Modules
+# ---------------------------------------------------------------------------
+modules:
+
+  power_flow:
+    question: "Can the local grid serve the load, at which voltage, and what breaks?"
+    method: >
+      (1) Interconnection class: map facility peak MW to the minimum voltage class that
+      could plausibly serve it (assumed thresholds, sampled). (2) Network graph: OSM lines
+      and substations inside the county plus a buffer, snapped into buses by voltage class;
+      boundary buses become slack/equivalent sources with assumed short-circuit strength.
+      (3) DC power flow, N-0 thermal check, with line ratings and per-km impedances drawn
+      from synthetic-grid distributions by voltage class. (4) Synthetic radial tap from the
+      nearest substation of the required class to the site; AC voltage-drop check against
+      ANSI C84.1 Range A. N-1 contingency is out of scope for v0.1 and reported indeterminate.
+    solver: "pandapower (BSD-3) or OpenDSSDirect.py (BSD-3); chosen in the engine PR, licence checked there"
+    inputs:
+      - {name: line_geometry_and_voltage, provenance: observed, source: "OSM power=line/minor_line (layers_raw/osm/power.geojson)", coverage: "voltage tagged on 92-100% of in-county line km in the three inventoried counties"}
+      - {name: substation_location_and_voltage, provenance: observed, source: "OSM power=substation", coverage: "voltage tagged on 93-100% (bbox)"}
+      - {name: generating_plants, provenance: observed, source: "EIA-860 2024 Plant sheet (layers_raw/grid/)", gap: "no nameplate MW: needs Generator sheet (layer request LR-1)"}
+      - {name: balancing_authority_and_nerc_region, provenance: observed, source: "EIA-860 Plant sheet"}
+      - {name: line_rating_by_voltage_class, provenance: assumed, source: "distributions from Texas A&M ACTIVSg synthetic cases (ACTIVSg70k eastern US, ACTIVSg10k western US, ACTIVSg2000 Texas); 'free for commercial or non-commercial use', citation requested — licence to confirm in engine PR", note: "synthetic cases bear no relation to the real grid at their location; used only as parameter distributions, never as topology"}
+      - {name: impedance_per_km_by_voltage_class, provenance: assumed, source: "same ACTIVSg distributions"}
+      - {name: substation_transformer_capacity, provenance: assumed, source: "range by voltage class, ACTIVSg; OSM carries none"}
+      - {name: existing_county_load, provenance: derived, source: "EIA-861 Sales_Ult_Cust 2024 MWh by serving utility, allocated to the county by customer share (LR-2); assumed load shape"}
+      - {name: boundary_source_strength, provenance: assumed, source: "short-circuit MVA range by voltage class"}
+      - {name: distribution_feeder_parameters, provenance: assumed, source: "NREL SMART-DS (CC BY 4.0; SFO, Greensboro, Austin regions) feeder statistics", note: "only used if the load falls in the distribution class; SMART-DS's rural coverage is unverified and must be checked before use"}
+      - {name: interconnection_class_thresholds_mw, provenance: assumed, default: {distribution_12_35kv: "<= 10", subtransmission_46_69kv: "10-50", transmission_115_161kv: "50-300", transmission_230kv_plus: "> 300"}, note: "sampled with +/-30% on each boundary"}
+    outputs:
+      - {name: interconnection_voltage_class_kv, unit: kV}
+      - {name: nearest_substation_of_class, fields: [osm_id, distance_km, voltage_kv]}
+      - {name: new_line_km, unit: km, note: "radial tap length; 0 if the site is at the substation"}
+      - {name: thermal_overloads_n0, unit: count, note: "lines/transformers above rating after the load is added"}
+      - {name: max_loading_pct, unit: percent}
+      - {name: voltage_violations_n0, unit: count, note: "buses outside 0.95-1.05 pu; replaces EXP-0007 'NOT MODELLED'"}
+      - {name: min_voltage_pu, unit: pu}
+      - {name: n1_contingency, value: indeterminate, note: "out of scope v0.1"}
+      - {name: required_upgrades, fields: [type, kv, km_or_mva], note: "list; feeds rate_impact"}
+    replaces_exp0007:
+      - "voltage_violations: 'NOT MODELLED' -> voltage_violations_n0 from the tap + network solve"
+      - "upgrade = 15e6 / 8e6 (lump capex, assumed) -> required_upgrades from the solve, priced in rate_impact"
+
+  rate_impact:
+    question: "What happens to rates and bills for the lowest-income households?"
+    method: >
+      For each utility that EIA-861 lists for the county (no territory polygons exist, so the
+      serving utility is unknown and every candidate is run): price required_upgrades and any
+      on-site generation with assumed unit costs; annualise with a sampled capital recovery
+      factor; allocate by cost_allocation; net against margin on new sales; express as percent
+      change in the utility's residential revenue requirement. Apply to synthetic lowest-quintile
+      households (incomes calibrated per D-008) to get the rate change and the energy-cost share
+      of income. Report the range across candidate utilities.
+    inputs:
+      - {name: candidate_utilities, provenance: observed, source: "EIA-861 2024 Service Territory (layers_raw/grid/eia861_territory_<fips>.csv)"}
+      - {name: utility_ownership_type, provenance: observed, source: "EIA-861 Utility_Data 2024 (LR-2)", note: "co-op / municipal / IOU / public power; today read from names only"}
+      - {name: residential_avg_rate_usd_per_kwh, provenance: observed, source: "EIA-861 Sales_Ult_Cust 2024: residential revenue / residential sales per utility-state (LR-2)", note: "average revenue, not a tariff"}
+      - {name: residential_kwh_per_customer, provenance: observed, source: "EIA-861 Sales_Ult_Cust 2024: residential sales / customers (LR-2)"}
+      - {name: residential_customers, provenance: observed, source: "EIA-861 Sales_Ult_Cust 2024 (LR-2)"}
+      - {name: lowest_quintile_income, provenance: calibrated, source: "SAIPE median income + poverty, 90% CI sampled (households.py, D-008)"}
+      - {name: lowest_quintile_kwh_share, provenance: assumed, range: [0.7, 1.0], note: "q1 use relative to the residential average"}
+      - {name: unit_cost_line_per_km_by_kv, provenance: assumed, source: "public RTO cost-estimation guides (e.g. MISO Transmission Cost Estimation Guide) — to verify and cite in engine PR"}
+      - {name: unit_cost_substation_by_kv, provenance: assumed, source: "same"}
+      - {name: unit_cost_solar_storage_firm, provenance: assumed, source: "NREL Annual Technology Baseline (to verify licence)"}
+      - {name: capital_recovery_factor, provenance: assumed, range: [0.06, 0.11]}
+      - {name: margin_on_new_sales_share, provenance: assumed, range: [0.0, 0.25], note: "EXP-0007 v0 fixed this at 0.15"}
+      - {name: wholesale_energy_and_capacity_cost, provenance: assumed, note: "co-ops buy power from a G&T; a large load can raise the G&T's capacity cost — modelled as a sampled pass-through"}
+    outputs:
+      - {name: lowest_quintile_rate_change_pct, unit: percent, fields: [p10, p50, p90], per: candidate_utility, note: "hard constraint protect_lowest_income_quintile: <= 2"}
+      - {name: lowest_quintile_energy_cost_share_change, unit: "percentage points of income"}
+      - {name: worst_candidate_utility, note: "the utility with the highest p50 rate change"}
+      - {name: local_tax_effect, value: not_modelled, note: "EXP-0007's metric includes local taxes; abatements are site-specific. Reported not_modelled, never 0"}
+    replaces_exp0007:
+      - "rate = 0.12 $/kWh (assumed) -> residential_avg_rate_usd_per_kwh (observed, EIA-861)"
+      - "base_bill_kwh = 12,000 kWh/yr (assumed) -> residential_kwh_per_customer (observed, EIA-861)"
+      - "county_hh = synthetic sample x 10 (assumed) -> residential_customers (observed, EIA-861)"
+      - "upgrade capex 15e6 / 8e6 (assumed) -> priced required_upgrades from power_flow"
+      - "solar 1.1e6 $/MW, storage 0.4e6 $/MWh (assumed, unsourced) -> sourced unit costs, sampled"
+      - "CRF 8% fixed -> sampled range"
+      - "15% of site revenue offsets rates, fixed -> sampled margin share"
+      - "on-site generation capex charged to ratepayers implicitly -> explicit cost_allocation scenarios"
+
+  cooling_water:
+    question: "How much water would cooling draw, against what local supply?"
+    method: >
+      Annual and peak-day withdrawal from IT load, PUE and a water-use-effectiveness curve by
+      cooling type driven by daily wet-bulb temperature. Compared against (a) existing county
+      withdrawals by category, (b) community water systems whose service areas lie near the site,
+      and (c) mean flow of the nearest named stream, where flow data exist.
+    inputs:
+      - {name: wet_bulb_daily, provenance: observed, source: "candidates: NASA POWER daily T2MWET (public, no key) or Open-Meteo daily dew point / RH (CC BY 4.0, rate-limited, D-050) — LR-3", gap: "no humidity in any published climate file"}
+      - {name: drybulb_daily, provenance: observed, source: "layers_raw/climate/openmeteo_daily_1991_2020.csv (present in all three inventoried counties)"}
+      - {name: wue_curve_by_cooling_type, provenance: assumed, source: "literature ranges, cited in engine PR", note: "dry cooling is ~0 water but raises PUE in heat; both effects sampled"}
+      - {name: county_withdrawals_by_category, provenance: derived, source: "USGS modelled water use 2000-2020, HUC12 monthly (public supply, irrigation, thermoelectric; CC0) aggregated to county — LR-4", note: "USGS industrial 2020 county/HUC12 release also exists; verify"}
+      - {name: community_water_systems_near_site, provenance: observed, source: "SDWIS + EPA service areas (layers_raw/water_systems/)", gap: "no capacity or population served in published files (LR-5)"}
+      - {name: stream_mean_flow, provenance: derived, source: "NHDPlus HR value-added flow estimates or USGS NWIS gauges — LR-6", gap: "published NHD has no discharge"}
+      - {name: power_plant_water_sources, provenance: observed, source: "EIA-860 'Name of Water Source'", note: "context: which rivers already supply thermal cooling"}
+    outputs:
+      - {name: annual_withdrawal_m3, unit: m3/yr, fields: [p10, p50, p90]}
+      - {name: peak_day_withdrawal_m3, unit: m3/day}
+      - {name: share_of_county_public_supply, unit: percent}
+      - {name: share_of_nearest_stream_low_flow, unit: percent, note: "indeterminate until LR-6"}
+      - {name: water_within_recharge, value: indeterminate, note: "rqli hard constraint needs a modelled sustainable yield; no public source identified. Reported indeterminate, never passed"}
+    replaces_exp0007:
+      - "water_m3_per_day: 0 (dry cooling, assumed) -> computed draw by cooling type, with dry cooling's PUE penalty"
+      - "constraint water_within_recharge 'not modelled' (ledger) -> explicit indeterminate plus the shares above"
+
+  fiber:
+    question: "Is the site near fiber, and how many providers?"
+    method: >
+      From FCC Broadband Data Collection public availability data at H3 hexagon level: whether
+      fiber-to-the-premises (technology code 50) is reported in the site's hexagon, distance to the
+      nearest hexagon that reports it, and the count of distinct fiber providers in the county.
+      Long-haul and middle-mile routes are not in BDC and are not public; reported assumed.
+    inputs:
+      - {name: bdc_fiber_availability_by_hex, provenance: observed, source: "FCC BDC public data downloads, H3 hexagon aggregation — LR-7; licence and current release to verify", note: "the location Fabric itself is licensed (CostQuest) and must not be used"}
+      - {name: osm_telecom_lines, provenance: observed, source: "OSM telecom=*/communication=line if present", note: "expected sparse; context only"}
+      - {name: middle_mile_presence, provenance: assumed, note: "Bernoulli by county type until a public source exists"}
+    outputs:
+      - {name: fiber_in_site_hex, unit: boolean}
+      - {name: distance_to_fiber_hex_km, unit: km}
+      - {name: fiber_providers_in_county, unit: count}
+      - {name: middle_mile, value: assumed}
+    replaces_exp0007: ["none — EXP-0007 had no network channel"]
+
+  flood:
+    question: "Is the site in a mapped flood hazard area?"
+    method: "Point-in-polygon against FEMA NFHL flood zones; report zone and whether the county has a modernised effective FIRM."
+    status_v0_1: blocked    # D-013 stands: flood is blocked, not approximated
+    inputs:
+      - {name: nfhl_flood_zones, provenance: observed, source: "FEMA National Flood Hazard Layer (public domain) — LR-8", gap: "unreachable from the pilot sandbox (D-013); to retest from GitHub runners"}
+    outputs:
+      - {name: flood_zone, values: [A, AE, AH, AO, VE, X_shaded, X, D, unmapped]}
+      - {name: firm_status, values: [modernized, paper, none]}
+    open_decision: >
+      A height-above-nearest-drainage screen could be derived today from published 3DEP terrain
+      and NHD flowlines, but D-013 says flood is blocked until an authoritative layer exists. The
+      engine will not compute one unless Khaalis decides to supersede D-013.
+    replaces_exp0007: ["none — EXP-0007 had no flood channel"]
+
+# ---------------------------------------------------------------------------
+# Output schema (one JSON record per run; ledger-compatible). To be agreed with step 3.
+# ---------------------------------------------------------------------------
+output_schema:
+  record:
+    run_id: string                       # <card or batch id>/<UTC time>
+    engine_version: string               # git commit of tools/engines/ai_infra
+    spec_version: "0.1"
+    grade: SPECULATIVE                   # fixed
+    disclosure: "Simulated, screening-grade results with assumed parameters. Decision support, not a finding."
+    county: {fips5: string, snapshot: string, manifest_sha256: string, rucc_2023: int}
+    site: {lon: float, lat: float, enu_m: [x, y]}
+    scenario: "scenario_inputs as run"
+    seeds: int
+    provenance_floor: "weakest tag among inputs actually used"
+    misses: "list of {module, criterion, threshold, value_or_status} for every failed or indeterminate criterion — printed first"
+    inputs: "list of {name, value_or_range, unit, provenance, source, sampled: bool}"
+    modules:
+      power_flow:    {status: "computed | indeterminate | blocked", reason: string, outputs: "see modules.power_flow.outputs, p10/p50/p90 where sampled"}
+      rate_impact:   {status: ..., reason: ..., outputs: ...}
+      cooling_water: {status: ..., reason: ..., outputs: ...}
+      fiber:         {status: ..., reason: ..., outputs: ...}
+      flood:         {status: ..., reason: ..., outputs: ...}
+    hard_constraints: "rqli_spec.yaml ids -> {passed: true | false | indeterminate, note}"
+    backtest: "null, or {site_id, preregistration_commit} when run under the backtest_gate"
+  comparable_to_public_record:   # what step 3 can score against filings; step 3 sets the pass bars
+    - {output: interconnection_voltage_class_kv, observed_counterpart: "voltage of the substation built or expanded for the site"}
+    - {output: nearest_substation_of_class, observed_counterpart: "substation named in interconnection or transmission filings"}
+    - {output: new_line_km, observed_counterpart: "new transmission line length in filings"}
+    - {output: required_upgrades, observed_counterpart: "upgrade list in interconnection / transmission studies"}
+    - {output: lowest_quintile_rate_change_pct, observed_counterpart: "residential rate change in a rate case tied to the load, where one exists"}
+    - {output: annual_withdrawal_m3, observed_counterpart: "permitted or reported water volume"}
+    - {output: timeline, observed_counterpart: "construction dates", note: "not modelled; step 3 should not score it against this engine"}
+
+# ---------------------------------------------------------------------------
+# Layer requests for the step-1 chat (Khaalis carries these over)
+# ---------------------------------------------------------------------------
+layer_requests:
+  - {id: LR-1, what: "EIA-860 Generator sheet: nameplate MW, technology, status per generator, joined to the county's plants", source: "eia8602024.zip (already cached, D-044)", license: "public domain (EIA)"}
+  - {id: LR-2, what: "EIA-861 Utility_Data (ownership type) and Sales_Ult_Cust (residential revenue, MWh, customers) for each utility in the territory file", source: "f8612024.zip (already cached)", license: "public domain (EIA)", note: "also fixes the docstring/brief claim that co-ops are flagged"}
+  - {id: LR-3, what: "daily wet-bulb or dew point 1991-2020 at the county centroid", source: "NASA POWER daily T2MWET (preferred: public, no key) or Open-Meteo dew_point_2m_mean added to the existing optional call", license: "NASA open data / CC BY 4.0"}
+  - {id: LR-4, what: "USGS modelled water use 2000-2020 (public supply, irrigation, thermoelectric), HUC12 monthly, aggregated to county", source: "USGS data releases (e.g. doi:10.5066/P13VGWA3 lineage)", license: "CC0 / public domain"}
+  - {id: LR-5, what: "SDWIS population_served_count, gw_sw_code, primary_source_code for active systems; and one consistent column set across counties (Pottawattamie publishes 44 empty columns, Wilcox/Licking 13)", source: "EPA Envirofacts WATER_SYSTEM", license: "public domain", note: "contact columns must stay out, per place_water_systems.py"}
+  - {id: LR-6, what: "mean and low-flow estimates for NHD flowlines in the county", source: "NHDPlus HR value-added attributes, or USGS NWIS gauge statistics", license: "public domain"}
+  - {id: LR-7, what: "FCC BDC fiber availability (technology 50) by H3 hexagon and provider count, per county", source: "FCC BDC public data downloads", license: "to verify; Fabric excluded"}
+  - {id: LR-8, what: "FEMA NFHL flood zones clipped to the county, with FIRM status", source: "FEMA NFHL", license: "public domain", note: "retest reachability from Actions runners (D-013 was a sandbox block)"}
+  - {id: LR-9, what: "check EIA-860 plant-to-county match: substring match on county name can over-match", source: "fetch_grid.py", license: "n/a"}
+
+# ---------------------------------------------------------------------------
+# Delivery plan (each a separate PR)
+# ---------------------------------------------------------------------------
+plan:
+  - "PR A (this): spec + inventory + D-100"
+  - "PR B: power_flow + rate_impact on observed OSM/EIA layers, run on Wilcox and 3-5 non-candidate nonmetro counties; EXP-0007 re-registered as a new card superseding v0 (cards are immutable)"
+  - "PR C: cooling_water and fiber once LR-3..LR-7 land"
+  - "PR D: flood once LR-8 lands, or on a decision superseding D-013"
+  - "Back-test runs only after step 3's PREREGISTRATION.md is merged"
