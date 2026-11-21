@@ -1,0 +1,303 @@
+{
+ "rules": "PREREGISTRATION.md \u00a76.1, \u00a76.3, \u00a76.4",
+ "source": "EIA Form 861, Part A (bundled) rows",
+ "sites": {
+  "BT-01": {
+   "fips5": "40097",
+   "T0": 2007,
+   "E": [
+    2011
+   ],
+   "L_obs": [
+    {
+     "E": 2011,
+     "utility_eia_id": 7490,
+     "pre_years": [
+      2004,
+      2006
+     ],
+     "post_years": [
+      2012,
+      2013
+     ],
+     "pre_mean_mwh": 627156,
+     "post_mean_mwh": 1039724,
+     "L_obs_aMW": 47.1
+    }
+   ],
+   "R1": [
+    {
+     "status": "NOT SCORED: rate utility 'PENDING'"
+    }
+   ],
+   "W1_load": [
+    {
+     "period": "FY2025 (2024-07-01..2025-06-30)",
+     "years_used": [
+      2024
+     ],
+     "load_aMW": 417.0
+    }
+   ]
+  },
+  "BT-02": {
+   "fips5": "01071",
+   "T0": 2015,
+   "E": [
+    2018,
+    2019
+   ],
+   "L_obs": [
+    {
+     "status": "NO LOAD INPUT, site cannot run: load utility 'PENDING'"
+    }
+   ],
+   "R1": [
+    {
+     "E": 2018,
+     "utility_eia_id": 13669,
+     "years": [
+      2014,
+      2023
+     ],
+     "utility_cents_kwh": [
+      10.473,
+      12.519
+     ],
+     "peer_cents_kwh": [
+      12.03,
+      14.132
+     ],
+     "peer_n": 21,
+     "peer_class": "cooperative",
+     "state": "AL",
+     "state_cents_kwh": [
+      11.485,
+      14.626
+     ],
+     "R1_obs_pp": 2.07,
+     "R1_state_pp": -7.81,
+     "condition": "site inside NAEC territory, verified from a NAEC or TVA map before the run"
+    },
+    {
+     "E": 2019,
+     "utility_eia_id": 13669,
+     "years": [
+      2014,
+      2024
+     ],
+     "utility_cents_kwh": [
+      10.473,
+      12.835
+     ],
+     "peer_cents_kwh": [
+      12.03,
+      14.508
+     ],
+     "peer_n": 21,
+     "peer_class": "cooperative",
+     "state": "AL",
+     "state_cents_kwh": [
+      11.485,
+      15.177
+     ],
+     "R1_obs_pp": 1.95,
+     "R1_state_pp": -9.6,
+     "condition": "site inside NAEC territory, verified from a NAEC or TVA map before the run"
+    }
+   ],
+   "W1_load": []
+  },
+  "BT-03": {
+   "fips5": "41065",
+   "T0": 2005,
+   "E": [
+    2006
+   ],
+   "L_obs": [
+    {
+     "E": 2006,
+     "utility_eia_id": 13788,
+     "pre_years": [
+      2002,
+      2004
+     ],
+     "post_years": [
+      2007,
+      2008
+     ],
+     "pre_mean_mwh": 256117,
+     "post_mean_mwh": 551826,
+     "L_obs_aMW": 33.8
+    }
+   ],
+   "R1": [
+    {
+     "E": 2006,
+     "utility_eia_id": 13788,
+     "years": [
+      2004,
+      2011
+     ],
+     "utility_cents_kwh": [
+      5.825,
+      5.811
+     ],
+     "peer_cents_kwh": [
+      6.728,
+      7.522
+     ],
+     "peer_n": 5,
+     "peer_class": "political_subdivision",
+     "state": "OR",
+     "state_cents_kwh": [
+      7.183,
+      9.535
+     ],
+     "R1_obs_pp": -12.04,
+     "R1_state_pp": -32.98
+    }
+   ],
+   "W1_load": [
+    {
+     "period": "2012",
+     "years_used": [
+      2012
+     ],
+     "load_aMW": 33.6
+    },
+    {
+     "period": "2013",
+     "years_used": [
+      2013
+     ],
+     "load_aMW": 33.3
+    },
+    {
+     "period": "2014",
+     "years_used": [
+      2014
+     ],
+     "load_aMW": 39.1
+    },
+    {
+     "period": "2015",
+     "years_used": [
+      2015
+     ],
+     "load_aMW": 39.8
+    },
+    {
+     "period": "2016",
+     "years_used": [
+      2016
+     ],
+     "load_aMW": 33.7
+    },
+    {
+     "period": "2017",
+     "years_used": [
+      2017
+     ],
+     "load_aMW": 40.8
+    },
+    {
+     "period": "2018",
+     "years_used": [
+      2018
+     ],
+     "load_aMW": 60.3
+    },
+    {
+     "period": "2019",
+     "years_used": [
+      2019
+     ],
+     "load_aMW": 74.9
+    },
+    {
+     "period": "2020",
+     "years_used": [
+      2020
+     ],
+     "load_aMW": 82.8
+    },
+    {
+     "period": "2021",
+     "years_used": [
+      2021
+     ],
+     "load_aMW": 97.6
+    }
+   ]
+  },
+  "BT-04": {
+   "fips5": "53025",
+   "T0": 2006,
+   "E": [
+    2007
+   ],
+   "L_obs": [
+    {
+     "E": 2007,
+     "utility_eia_id": 14624,
+     "pre_years": [
+      2003,
+      2005
+     ],
+     "post_years": [
+      2008,
+      2009
+     ],
+     "pre_mean_mwh": 2900742,
+     "post_mean_mwh": 3623408,
+     "L_obs_aMW": 82.5
+    }
+   ],
+   "R1": [
+    {
+     "E": 2007,
+     "utility_eia_id": 14624,
+     "years": [
+      2005,
+      2012
+     ],
+     "utility_cents_kwh": [
+      4.208,
+      4.851
+     ],
+     "peer_cents_kwh": [
+      6.836,
+      7.683
+     ],
+     "peer_n": 18,
+     "peer_class": "political_subdivision",
+     "state": "WA",
+     "state_cents_kwh": [
+      6.544,
+      8.528
+     ],
+     "R1_obs_pp": 2.91,
+     "R1_state_pp": -15.02
+    }
+   ],
+   "W1_load": []
+  },
+  "BT-C1": {
+   "fips5": "39089",
+   "T0": null,
+   "E": [],
+   "L_obs": [
+    {
+     "status": "NO LOAD INPUT, site cannot run: load utility None"
+    }
+   ],
+   "R1": [
+    {
+     "status": "NOT SCORED: rate utility None"
+    }
+   ],
+   "W1_load": []
+  }
+ }
+}

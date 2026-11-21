@@ -1,0 +1,149 @@
+# Back-test sites, rollout step 3. Pre-registered 2026-11-21 (D-200).
+#
+# Two kinds of field, kept apart on purpose:
+#   before:   what was public on or before T0. The engine may read this block, the
+#             world layers masked as PREREGISTRATION.md §4.2 says, and the two design
+#             inputs of the conditional run (§4.1, D-201): the observed load L_obs
+#             (from load_utility_eia_id) and the cooling type where the record states it.
+#   observed: what happened. The engine never reads the grid, rate or water entries.
+#             The scorer reads them.
+# Every value carries a source key that resolves in SITES.md. A value marked
+# PENDING must be filled, with a dated primary source, by an amendment merged
+# BEFORE the first run (PREREGISTRATION.md §8). A comparison whose observation is
+# still PENDING at run time is NOT SCORED, and NOT SCORED never counts as a pass.
+#
+# Years: T0 = year of first public announcement; E = first year of operation.
+# Where sources disagree on E, every candidate is listed and a comparison passes
+# only if it passes for all of them (§6).
+
+scored_sites:
+
+  - id: BT-01
+    fips5: "40097"
+    county: Mayes County, OK
+    rucc: {"2003": 6, "2023": 6}   # nonmetro both vintages (data/county_master.csv)
+    operator: Google
+    site: MidAmerica Industrial Park, Pryor
+    T0: 2007            # announced May 2007 [OK-1]
+    E: [2011]           # first building operational 2011 [OK-2]; paused 2008-2010 [OK-1]
+    serving_utility: {name: Grand River Dam Authority, eia_id: 7490, ownership: state,
+                      role: direct retail to park industry incl. Google, source: [OK-3, OK-4]}
+    before:
+      announced_investment_usd: 600000000     # [OK-1]
+      announced_land_acres: 800               # [OK-1]
+      announced_jobs: 100                     # [OK-1]
+      announced_mw: null                      # never announced
+      water_source: Neosho (Grand) River via MidAmerica Industrial Park supply [OK-5]
+      cooling: null                           # not public at T0
+    observed:
+      load_utility_eia_id: 7490
+      G1_new_substation_or_line: PENDING      # no primary record found yet
+      R1_rate_utility: PENDING                # GRDA has no residential retail; the
+                                              # distributor(s) in Mayes that buy from GRDA
+                                              # must be documented before the run (§6.3)
+      W1_water:
+        - {period: "FY2025 (2024-07-01..2025-06-30)", gallons: 1.1e9,
+           cumulative_public_investment_usd_at_period: PENDING, source: OK-5}
+
+  - id: BT-02
+    fips5: "01071"
+    county: Jackson County, AL
+    rucc: {"2013": 6, "2023": 6}
+    operator: Google
+    site: former TVA Widows Creek Fossil Plant, Bridgeport/Stevenson
+    T0: 2015            # announced 2015-06-24 [AL-1]
+    E: [2018, 2019]     # "established 2018" [AL-4]; "came online 2019" (secondary) [AL-5]
+    serving_utility: {name: Tennessee Valley Authority, eia_id: 18642, ownership: federal,
+                      role: "electric utility named by Google; retail seller to the site PENDING (TVA direct-serve or North Alabama Electric Coop)",
+                      source: [AL-1, AL-3]}
+    before:
+      announced_investment_usd: 600000000     # [AL-2]
+      announced_land_acres: null              # 360 acres first reported 2018 (after T0)
+      announced_jobs: null
+      announced_mw: null
+      existing_transmission_reused: true      # Google, at T0 [AL-1]
+      water_source: Tennessee River (site on the river; arrangement not public) [AL-3]
+    observed:
+      load_utility_eia_id: PENDING         # set only if the retail seller is
+                                              # NAEC (13669); TVA's Alabama direct-serve
+                                              # total is dominated by other customers (§6.1)
+      G1_new_substation_or_line: PENDING
+      R1_rate_utility: {eia_id: 13669, name: North Alabama Electric Coop,
+                        condition: "site inside NAEC territory, verified from a NAEC or TVA map before the run"}
+      W1_water: []                            # no public record found
+
+  - id: BT-03
+    fips5: "41065"
+    county: Wasco County, OR
+    rucc: {"2003": 6, "2023": 7}
+    operator: Google
+    site: The Dalles (Port of The Dalles land)
+    T0: 2005            # Port approved land sale 2005-02-18 [OR-1]
+    E: [2006]           # first data center 2006 [OR-3, OR-4]
+    serving_utility: {name: Northern Wasco County PUD, eia_id: 13788, ownership: political_subdivision,
+                      source: [OR-2, OR-5]}
+    before:
+      announced_investment_usd: null          # T0 reports: land $1.87M; construction "$5-20M over time" [OR-1]
+      announced_land_acres: 30                # [OR-1]
+      announced_jobs: 100                     # "up to 100" [OR-1]
+      announced_mw: null                      # the ~30 MW estimate is from 2008 [OR-2]: not allowed
+      water_source: City of The Dalles municipal supply (Dog River + groundwater) [OR-6]
+    observed:
+      load_utility_eia_id: 13788
+      G1_new_substation_or_line: {value: true, scope: "District and BPA built transmission, substations and switchyards for data centers",
+                                  caveat: "campus-wide statement; not dated to the first building", source: OR-5}
+      R1_rate_utility: {eia_id: 13788}
+      W1_water:
+        - {period: "2012", gallons: 104.3e6, source: OR-7}
+        - {period: "2013", gallons: 108.9e6, source: OR-7}
+        - {period: "2014", gallons: 132.3e6, source: OR-7}
+        - {period: "2015", gallons: 148.3e6, source: OR-7}
+        - {period: "2016", gallons: 113.1e6, source: OR-7}
+        - {period: "2017", gallons: 124.2e6, source: OR-7}
+        - {period: "2018", gallons: 150.7e6, source: OR-7}
+        - {period: "2019", gallons: 233.3e6, source: OR-7}
+        - {period: "2020", gallons: 279.8e6, source: OR-7}
+        - {period: "2021", gallons: 355.1e6, source: OR-7}
+    county_world_status: "not yet published (expected ~2026-11-23)"
+
+  - id: BT-04
+    fips5: "53025"
+    county: Grant County, WA
+    rucc: {"2003": 4, "2023": 5}
+    operator: Microsoft (first wave also Yahoo)
+    site: Quincy
+    T0: 2006            # Microsoft bought ~75 acres in 2006 [WA-1]
+    E: [2007]           # Microsoft ribbon cutting 2007-04-16; Yahoo phase 1 built 2007 [WA-1, WA-2]
+    serving_utility: {name: PUD No 2 of Grant County, eia_id: 14624, ownership: political_subdivision,
+                      source: [WA-1, WA-3]}
+    before:
+      water_source: City of Quincy groundwater (Columbia Plateau basalt aquifer) [WA-4]
+    observed:
+      load_utility_eia_id: 14624
+      G1_new_substation_or_line: {value: true, scope: "substation for Microsoft's 48 MW capacity, requested 2007",
+                                  source: WA-1}
+      R1_rate_utility: {eia_id: 14624}
+      W1_water: []                            # the ~10%-of-city figure covers all data centers
+                                              # in a later year (pre-2021); scope does not match the
+                                              # first-wave run, so it is context only [WA-4]
+
+contrast_sites:   # metro by RUCC 2023; run the same way, reported separately, never counted
+
+  - id: BT-C1
+    fips5: "39089"
+    county: Licking County, OH
+    rucc: {"2003": 1, "2023": 1}
+    operator: PENDING                         # one named New Albany project, with T0 and E, chosen
+                                              # and sourced before the run
+    serving_utility: {name: Ohio Power Co (AEP Ohio), eia_id: 14006, ownership: investor_owned,
+                      source: [OH-1]}
+    context: "PUCO case 24-0508 data center tariff, effective 2025-07-23: 85% minimum demand, 25 MW threshold [OH-1]"
+    observed: {}
+
+not_selected:     # fact sheets in SITES.md; reasons in PREREGISTRATION.md §3
+  - {fips5: "19155", county: "Pottawattamie County, IA", reason: "metro (RUCC 2)"}
+  - {fips5: "37027", county: "Caldwell County, NC", reason: "metro (RUCC 2)"}
+  - {fips5: "45015", county: "Berkeley County, SC", reason: "metro (RUCC 2)"}
+  - {fips5: "13217", county: "Newton County, GA", reason: "metro (RUCC 1); co-op served, strongest alternate contrast"}
+  - {fips5: "47125", county: "Montgomery County, TN", reason: "metro (RUCC 2)"}
+  - {fips5: "41013", county: "Crook County, OR", reason: "metro under RUCC 2023 (3), nonmetro in 2013 (6); boundary case, held for a later back-test"}
