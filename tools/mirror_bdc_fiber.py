@@ -136,12 +136,15 @@ def aggregate_state(csv_paths: list[pathlib.Path], out: pathlib.Path, tag: str) 
     import duckdb
     con = duckdb.connect()
     files = ", ".join(f"'{p}'" for p in csv_paths)
+    # CSV dialect stated, not sniffed: quoted names with commas ("X, Inc.") can first appear
+    # deep in a file, after the sniffer has settled on no quoting (Nebraska J26, line 54,895).
     con.sql(f"""CREATE TABLE f AS SELECT provider_id, frn, brand_name, location_id,
                   TRY_CAST(max_advertised_download_speed AS DOUBLE) down,
                   TRY_CAST(max_advertised_upload_speed AS DOUBLE) up,
                   business_residential_code brc, state_usps,
                   substr(lpad(block_geoid, 15, '0'), 1, 5) fips5, h3_res8_id h3
-                FROM read_csv([{files}], header=true, all_varchar=true)
+                FROM read_csv([{files}], header=true, all_varchar=true, delim=',', quote='"', escape='"',
+                              strict_mode=true)
                 WHERE technology = '{FIBER}'""")
     q = lambda sql, name: con.sql(f"COPY ({sql}) TO '{out / f'{name}_{tag}.parquet'}' (FORMAT parquet)")  # noqa: E731
     q("""WITH loc AS (SELECT location_id, h3, fips5, any_value(state_usps) state, max(down) down, max(up) up,
