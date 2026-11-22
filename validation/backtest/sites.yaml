@@ -133,8 +133,10 @@ contrast_sites:   # metro by RUCC 2023; run the same way, reported separately, n
     fips5: "39089"
     county: Licking County, OH
     rucc: {"2003": 1, "2023": 1}
-    operator: PENDING                         # one named New Albany project, with T0 and E, chosen
-                                              # and sourced before the run
+    operator: null                            # not set (D-202): AEP Ohio's Part A sales collapsed under
+                                              # retail choice (43.5 TWh 2011 -> 7.9 TWh 2024), so no L_obs
+                                              # can be computed and the contrast cannot run (D-201)
+    status: cannot_run
     serving_utility: {name: Ohio Power Co (AEP Ohio), eia_id: 14006, ownership: investor_owned,
                       source: [OH-1]}
     context: "PUCO case 24-0508 data center tariff, effective 2025-07-23: 85% minimum demand, 25 MW threshold [OH-1]"

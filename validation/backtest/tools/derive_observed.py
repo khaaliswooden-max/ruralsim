@@ -100,7 +100,11 @@ def main():
                 d = (sum(post) / 2 - sum(pre) / 3) / 8760
                 rec["L_obs"].append({"E": E, "utility_eia_id": uid, "pre_years": [t0 - 3, t0 - 1],
                                   "post_years": [E + 1, E + 2], "pre_mean_mwh": round(sum(pre) / 3),
-                                  "post_mean_mwh": round(sum(post) / 2), "L_obs_aMW": round(d, 1)})
+                                  "post_mean_mwh": round(sum(post) / 2), "L_obs_aMW": round(d, 1),
+                                  # D-202: the rate model's validity domain (D-102) is the site's energy
+                                  # over the rate utility's T0-1 total retail sales; computed here from
+                                  # observed load only, never from engine output
+                                  "site_share_of_T0m1_sales": round(d * 8760 / pre[-1], 3)})
         else:
             rec["L_obs"].append({"status": f"NO LOAD INPUT, site cannot run: load utility {uid!r}"})
         # §6.4: load for each water-observation year (utility increment over the pre-T0 mean)
