@@ -55,10 +55,10 @@ def check_all(card: dict, base_vals: pd.DataFrame, int_vals: pd.DataFrame,
         "note": "no housing-cost channel in this card" if housing is None else f"max housing cost share {housing:.3f}",
     }
 
-    # worst_off_decile_must_gain (90% confidence across seeds handled by caller)
+    # worst_off_decile_not_worse_off (90% confidence across seeds handled by caller)
     b10 = np.sort(base_scores)[: max(1, len(base_scores) // 10)].mean()
     i10 = np.sort(int_scores)[: max(1, len(int_scores) // 10)].mean()
-    res["worst_off_decile_must_gain"] = {
+    res["worst_off_decile_not_worse_off"] = {
         "passed": bool(i10 >= b10 - 1e-9),
         "note": f"baseline worst-decile {b10:.4f} -> {i10:.4f} (per-seed; 90% CI checked across seeds)",
     }

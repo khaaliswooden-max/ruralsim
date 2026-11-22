@@ -70,8 +70,9 @@ hard_constraints:   # an intervention portfolio that violates any of these is re
     rule: total county withdrawals including new compute or industrial load <= modelled sustainable yield
   - id: no_displacement
     rule: no intervention removes, relocates or prices out a resident household (housing cost share may not rise above 0.30 because of the intervention)
-  - id: worst_off_decile_must_gain
-    rule: p10 of RQLI after intervention >= p10 at baseline, with 90 percent confidence across seeds
+  - id: worst_off_decile_not_worse_off
+    former_ids: [worst_off_decile_must_gain]   # renamed 2026-11-22 (D-105); ledger records before then use the former id
+    rule: the worst-off 10% must not be made worse off. Mean RQLI of the lowest-scoring 10% of households after the intervention >= the same mean at baseline, per seed, and the 5th percentile of that change across seeds >= 0 (90 percent confidence)
   - id: political_variables_excluded
     rule: no column from data/county_election.csv, data/state_decade_power.csv or pres_margin_rd_* may enter the objective, the optimizer features or agent targeting
 
