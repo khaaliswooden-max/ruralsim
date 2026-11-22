@@ -47,6 +47,19 @@ def git_commit() -> str:
         return "unknown"
 
 
+def environment() -> dict:
+    """Library versions that produced the record (D-103)."""
+    import importlib.metadata as md
+    import platform
+    out = {"python": platform.python_version()}
+    for p in ("pandapower", "pandas", "numpy", "scipy", "pyarrow", "networkx", "shapely", "pyproj", "PyYAML"):
+        try:
+            out[p] = md.version(p)
+        except md.PackageNotFoundError:
+            out[p] = None
+    return out
+
+
 def band(xs):
     xs = [x for x in xs if isinstance(x, (int, float)) and not (isinstance(x, float) and math.isnan(x))]
     if not xs:
@@ -389,6 +402,7 @@ def main(argv=None):
         "activsg_sha256": sha(HERE / "params" / "activsg_distributions.json"),
         "eia_tables": {"year": 2024, "meta": data.eia_meta(2024)},
         "acs_tables": {"year": 2024, "meta": data.acs_meta(2024)},
+        "environment": environment(),
         "grade": "SPECULATIVE", "disclosure": DISCLOSURE,
         "seeds": a.seeds, "mode": "promotable-count" if a.seeds >= 20 else "screening",
         "provenance_floor": "assumed",

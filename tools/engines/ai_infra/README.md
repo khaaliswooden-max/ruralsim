@@ -4,6 +4,7 @@ Spec: `specs/ai_infra_engine.yaml` (D-100). Implementation notes and deviations:
 Modules here: `power_flow` and `rate_impact`. Cooling water, fiber and flood are later PRs.
 
 ```
+python3 -m venv .venv-ai-infra && . .venv-ai-infra/bin/activate   # its own env (D-103)
 pip install -r tools/engines/ai_infra/requirements.txt
 python3 -m tools.engines.ai_infra.run EXP-0011 --seeds 20      # writes experiments/ledger/EXP-0011/
 python3 -m pytest -q tests/test_ai_infra.py                     # offline

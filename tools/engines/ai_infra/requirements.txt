@@ -1,8 +1,19 @@
-# AI-infrastructure engine only; kept apart from the build pipeline's requirements.txt
+# AI-infrastructure engine (tools/engines/ai_infra). Install in its OWN environment:
+#
+#   python3 -m venv .venv-ai-infra && . .venv-ai-infra/bin/activate
+#   pip install -r tools/engines/ai_infra/requirements.txt
+#
+# Not added to the top-level requirements.txt on purpose (D-103): every pandapower release
+# through 3.5.6 requires pandas~=2.3 and numpy<2.5, and the build pipeline pins pandas 3.0.5
+# and numpy 2.5.3. Sharing one environment would downgrade the pipeline. These are the exact
+# versions that produced the EXP-0011 ledger records (Python 3.13).
 pandapower==3.5.6
-pyarrow
+pandas==2.3.3
+numpy==2.4.6
+scipy==1.18.1
+pyarrow==26.0.1
 networkx==3.7
 shapely==2.2.0
 pyproj==3.8.0
-scipy
-pyyaml
+PyYAML==6.0.3
+pytest==9.1.1
