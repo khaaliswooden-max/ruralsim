@@ -1,5 +1,7 @@
 # RuralSim experiment batch report — ten seed cards, 20 seeds each
 
+> **Superseded in part (2026-11-21, D-104):** the RQLI tables below and EXP-0002's quintile shares came from the earlier SAIPE lognormal income model. See `RERUN_ACS_INCOMES_2026-11-21.md`. Verdicts, primary metrics and constraint results are unchanged.
+
 Run 2026-11-12, mode promotion-eligible (20 seeds) — BUT promotion additionally requires
 full-physics confirmation; all engines here are reduced-order with assumed device
 parameters, so every card's provenance floor is `assumed` or `hypothetical` and no result
