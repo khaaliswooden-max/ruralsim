@@ -1,0 +1,20 @@
+name: Probe FEMA and FCC from a runner
+on:
+  push:
+    branches: [probe/lr7-lr8]
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Status codes
+        run: |
+          for u in \
+            "https://hazards.fema.gov/arcgis/rest/services/public/NFHL/MapServer?f=json" \
+            "https://hazards.fema.gov/arcgis/rest/services/public/NFHL/MapServer/28/query?where=1%3D1&geometry=-87.67,31.83,-87.0,32.25&geometryType=esriGeometryEnvelope&inSR=4326&returnCountOnly=true&f=json" \
+            "https://broadbandmap.fcc.gov/" \
+            "https://broadbandmap.fcc.gov/api/public/map/listAsOfDates" \
+            "https://broadbandmap.fcc.gov/data-download/nationwide-data" ; do
+            code=$(curl -s -o body.txt -m 60 -A "RuralSim/1.0 (+https://www.ruralsim.io)" -w "%{http_code}" "$u" || echo ERR)
+            echo "PROBE $code $u :: $(head -c 160 body.txt | tr -d '\n')"
+          done
