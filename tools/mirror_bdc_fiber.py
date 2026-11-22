@@ -96,10 +96,16 @@ def listing(as_of: str) -> list[dict]:
 
 
 def fiber_files(as_of: str, rows: list[dict] | None = None) -> list[dict]:
-    """The state-level fixed-broadband availability files for fiber at this as-of date."""
+    """The state fixed-fiber location-coverage CSVs at this as-of date.
+
+    The listing (seen 2026-11-22, list run of 16:42 UTC) has about 680 State rows per as-of date:
+    subcategory Location Coverage / Hexagon Coverage / Provider List / Served-Unserved,
+    technology_type Fixed Broadband / Mobile Broadband / Mobile Voice, technology_code 50 =
+    "Fiber to the Premises", file_type csv or gis."""
     rows = listing(as_of) if rows is None else rows
     return [f for f in rows if str(f.get("technology_code")) == FIBER
-            and "fixed" in str(f.get("subcategory", f.get("technology_type", "fixed"))).lower()]
+            and f.get("technology_type") == "Fixed Broadband"
+            and f.get("subcategory") == "Location Coverage" and f.get("file_type") == "csv"]
 
 
 def describe(rows: list[dict]) -> dict:
@@ -219,7 +225,10 @@ def main(argv=None):
                 out = {"as_of_dates": dates}
                 for d in ([as_of] if a.as_of else dates[-2:][::-1]):
                     rows = listing(d)
-                    out[d] = describe(rows) | {"fiber_files": len(fiber_files(d, rows))}
+                    ff = fiber_files(d, rows)
+                    out[d] = describe(rows) | {"fiber_files": len(ff), "fiber_states": len({state_of(f) for f in ff}),
+                                               "fiber_rows": sum(int(f.get("record_count") or 0) for f in ff),
+                                               "fiber_example": ff[:2]}
                 print(json.dumps(out, indent=2, default=str)); return
             files = fiber_files(as_of)
             files = [f for f in files if state_of(f) in states]
