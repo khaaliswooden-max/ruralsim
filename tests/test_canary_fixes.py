@@ -428,3 +428,44 @@ def test_sdwis_table_never_keeps_contact_fields():
               "alt_phone_number", "phone_ext_number", "fax_number", "email_addr"}
     assert not banned & set(ms.KEEP)
     assert {"population_served_count", "gw_sw_code", "primary_source_code"} <= set(ms.KEEP)
+
+
+def _viewer_html():
+    import build_site as bs
+    return ("<script type='module'>\nconst DATA = '../viewer_data/';\n" + bs.FETCH_PLAIN + "\n"
+            "const buf = " + bs.TERRAIN_PLAIN + ";\n</script>")
+
+
+def test_gzip_viewer_writes_gz_and_points_viewer_at_it(tmp_path):
+    import gzip, build_site as bs
+    (tmp_path / "roads.json").write_text('[{"pts":[[1,2],[3,4]]}]' * 50)
+    (tmp_path / "terrain_grid.f32").write_bytes(b"\0" * 4000)
+    (tmp_path / "README.txt").write_text("x")
+    html, gz = bs.gzip_viewer(_viewer_html(), tmp_path)
+    assert sorted(g.name for g in gz) == ["roads.json.gz", "terrain_grid.f32.gz"]
+    assert gzip.decompress((tmp_path / "roads.json.gz").read_bytes()) == (tmp_path / "roads.json").read_bytes()
+    assert "DecompressionStream" in html and bs.FETCH_PLAIN not in html and bs.TERRAIN_PLAIN not in html
+    assert (tmp_path / "roads.json").exists()                          # plain kept for old browsers
+    assert bs.gzip_viewer(html, tmp_path) == (html, [])                # idempotent
+    assert bs.gzip_viewer("<html>other</html>", tmp_path) == ("<html>other</html>", [])
+
+
+def test_repack_patches_html_last_and_skips_done(tmp_path, monkeypatch):
+    import io, repack_viewers as rv
+    store = {"worlds/x/current/viewer/index.html": _viewer_html().encode(),
+             "worlds/x/current/viewer_data/roads.json": b"[" + b"1," * 500 + b"1]"}
+    order = []
+    class S3:
+        def get_object(self, Bucket, Key): return {"Body": io.BytesIO(store[Key])}
+        def get_paginator(self, _):
+            class P:
+                def paginate(self, Bucket, Prefix):
+                    return [{"Contents": [{"Key": k} for k in store if k.startswith(Prefix)]}]
+            return P()
+        def upload_file(self, fn, Bucket, key, ExtraArgs): order.append(key); store[key] = open(fn, "rb").read()
+        def put_object(self, Bucket, Key, Body, **kw): order.append(Key); store[Key] = Body
+    e = {"fips5": "00001", "dir": "x"}
+    f, status, before, after = rv.one(S3(), "b", e, dry=False)
+    assert status == "repacked" and after < before
+    assert order == ["worlds/x/current/viewer_data/roads.json.gz", "worlds/x/current/viewer/index.html"]
+    assert rv.one(S3(), "b", e, dry=False)[1] == "current"

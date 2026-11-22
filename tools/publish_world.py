@@ -35,7 +35,7 @@ SNAPSHOT_PARTS = ("layers", "layers_raw", "stage", "viewer", "viewer_data", "ren
 CT = {".json": "application/json", ".geojson": "application/geo+json", ".f32": "application/octet-stream",
       ".js": "text/javascript", ".mjs": "text/javascript", ".html": "text/html; charset=utf-8",
       ".css": "text/css", ".csv": "text/csv", ".md": "text/markdown; charset=utf-8",
-      ".tif": "image/tiff", ".usda": "text/plain; charset=utf-8", ".png": "image/png", ".jpg": "image/jpeg"}
+      ".tif": "image/tiff", ".gz": "application/gzip", ".usda": "text/plain; charset=utf-8", ".png": "image/png", ".jpg": "image/jpeg"}
 IMMUTABLE = "public, max-age=31536000, immutable"
 SHORT = "public, max-age=300"
 
@@ -105,7 +105,7 @@ def validation_summary(world_dir_name: str) -> dict:
 
 def publish(fips: str, s3) -> dict:
     from county_config import get
-    from build_site import SITE_URL, brand_viewer_html, slim_viewer_data
+    from build_site import SITE_URL, brand_viewer_html, gzip_viewer, slim_viewer_data
     C = get(fips)
     world = C.world
     if not (world / "viewer" / "index.html").exists():
@@ -142,8 +142,10 @@ def publish(fips: str, s3) -> dict:
         shutil.copytree(world / "viewer_data", d / "viewer_data")
         idx = d / "viewer" / "index.html"
         ovt = (world / "layers_raw" / "buildings_overture" / "_meta.json").exists()  # D-037 credit
-        idx.write_text(brand_viewer_html(idx.read_text(), home=SITE_URL + "/", overture=ovt))
         slim_viewer_data(d / "viewer_data")
+        html, _ = gzip_viewer(brand_viewer_html(idx.read_text(), home=SITE_URL + "/", overture=ovt),
+                              d / "viewer_data")  # D-055
+        idx.write_text(html)
         for p in sorted(d.rglob("*")):
             if p.is_file():
                 put_file(s3, p, f"{prefix}/current/{p.relative_to(d).as_posix()}", SHORT)
