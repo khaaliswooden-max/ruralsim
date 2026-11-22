@@ -576,3 +576,31 @@ def test_climate_falls_back_to_power_when_openmeteo_quota_spent(monkeypatch, tmp
     meta = json.loads((world / "layers_raw" / "climate" / "_meta.json").read_text())
     assert meta["source"].startswith("NASA POWER") and "D-059" in meta["note"]
     assert meta["annual"]["precip_in_per_year"] == 12.0 and "snow_in" in meta["normals_columns_blank"]
+
+
+def test_mesh_step_caps_giant_counties_and_keeps_160m_elsewhere():
+    """Build #47: Yukon-Koyukuk AK (02290) at ~160 m needed ~15 M mesh vertices; the runner died."""
+    import ast
+    src = (REPO / "tools" / "build_stage.py").read_text()
+    tree = ast.parse(src)
+    keep = [n for n in tree.body if (isinstance(n, ast.FunctionDef) and n.name == "mesh_step")
+            or (isinstance(n, ast.Assign) and getattr(n.targets[0], "id", "") == "MAX_MESH_CELLS")]
+    ns = {}
+    exec(compile(ast.Module(body=keep, type_ignores=[]), "build_stage", "exec"), ns)
+    step, cap = ns["mesh_step"], ns["MAX_MESH_CELLS"]
+    res20 = 1 / 5400                                    # ~20 m payload cell, degrees
+    assert step(3000, 4000, res20) == 8                 # ordinary county: ~160 m, unchanged
+    h, w = 24000, 72000                                 # Yukon-Koyukuk-sized grid at ~30 m x decimation
+    s = step(h, w, 1 / 3600)
+    assert -(-h // s) * -(-w // s) <= cap and s > 5
+
+
+def test_antimeridian_county_is_clipped_to_the_western_hemisphere(monkeypatch):
+    """Aleutians West AK (02016) crosses 180 deg; its bbox spanned the globe in build #47."""
+    import county_config as cc
+    from shapely.geometry import box, mapping, MultiPolygon
+    geom = MultiPolygon([box(-179.2, 51.2, -165.9, 57.3), box(172.4, 52.3, 179.9, 53.1)])
+    monkeypatch.setattr(cc, "fetch_boundary", lambda f: mapping(geom))
+    c = cc.get("02016")
+    assert c.bbox[0] > -180 and c.bbox[2] < 0 and c.bbox[2] - c.bbox[0] < 20
+    assert "D-060" in c.boundary_source
