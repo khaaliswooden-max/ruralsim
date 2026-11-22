@@ -1,0 +1,38 @@
+# Give already-published county viewers gzipped data (D-055). Manual: Actions ->
+# "Repack published viewers" -> Run workflow; dry run first, then for real. Resumable.
+name: Repack published viewers
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Report what would change without writing"
+        type: boolean
+        default: true
+      fips:
+        description: "Only these county FIPS codes, space-separated (blank = all published)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  repack:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install boto3
+      - name: Repack current/viewer_data
+        env:
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET: ruralsim-data
+          PYTHONUNBUFFERED: "1"
+        run: |
+          python tools/repack_viewers.py ${{ inputs.dry_run && '--dry-run' || '' }} ${{ inputs.fips && format('--fips {0}', inputs.fips) || '' }}

@@ -128,6 +128,39 @@ def slim_viewer_data(vd):
     return before, after
 
 
+# Gzipped viewer data (D-055). R2's r2.dev URL serves files uncompressed: Cook IL's viewer
+# downloaded 219 MB of JSON, Maricopa AZ 235 MB. Each viewer_data file is also published
+# gzipped as <name>.gz (application/gzip, no Content-Encoding, so nothing decompresses it on
+# the way) and the viewer inflates it with the browser's DecompressionStream. Browsers
+# without DecompressionStream fall back to the plain file, which stays published.
+FETCH_PLAIN = "const fetchJ = async f => (await fetch(DATA + f)).json();"
+FETCH_GZ = ("const getData = async f => { if (typeof DecompressionStream !== 'function') return fetch(DATA + f); "
+            "const r = await fetch(DATA + f + '.gz'); if (!r.ok) return fetch(DATA + f); "
+            "return new Response(r.body.pipeThrough(new DecompressionStream('gzip'))); };\n"
+            "const fetchJ = async f => (await getData(f)).json();")
+TERRAIN_PLAIN = "await (await fetch(DATA + 'terrain_grid.f32')).arrayBuffer()"
+TERRAIN_GZ = "await (await getData('terrain_grid.f32')).arrayBuffer()"
+GZ_SUFFIXES = (".json", ".f32")
+
+
+def gzip_viewer(html: str, vd) -> tuple[str, list]:
+    """Write <file>.gz beside each viewer_data file and point the viewer at them.
+    Returns (html, [gz paths]); html unchanged and no files written when the viewer
+    is not the expected template (an older viewer keeps loading plain files)."""
+    import gzip
+    if "DecompressionStream" in html:
+        return html, []
+    if FETCH_PLAIN not in html or TERRAIN_PLAIN not in html:
+        return html, []
+    out = []
+    for f in sorted(vd.iterdir()):
+        if f.suffix in GZ_SUFFIXES:
+            g = f.with_name(f.name + ".gz")
+            g.write_bytes(gzip.compress(f.read_bytes(), compresslevel=9, mtime=0))
+            out.append(g)
+    return html.replace(FETCH_PLAIN, FETCH_GZ, 1).replace(TERRAIN_PLAIN, TERRAIN_GZ, 1), out
+
+
 SITE_URL = "https://www.ruralsim.io"
 
 
