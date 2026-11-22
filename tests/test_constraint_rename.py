@@ -25,3 +25,11 @@ def test_spec_records_former_id():
     spec = yaml.safe_load(open("specs/rqli_spec.yaml"))
     c = next(c for c in spec["hard_constraints"] if c["id"] == "worst_off_decile_not_worse_off")
     assert c["former_ids"] == ["worst_off_decile_must_gain"]
+
+
+def test_site_labels_both_constraint_ids():
+    """D-105: the site must label runs made before and after the rename."""
+    from tools import build_site
+    a = build_site.CONSTRAINT_NAMES["worst_off_decile_must_gain"]
+    b = build_site.CONSTRAINT_NAMES["worst_off_decile_not_worse_off"]
+    assert a == b == "Worst-off tenth of households is not made worse off"

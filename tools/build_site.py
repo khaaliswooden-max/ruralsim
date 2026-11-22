@@ -54,6 +54,7 @@ CONSTRAINT_NAMES = {
     "water_within_recharge": "Water use stays within recharge",
     "no_displacement": "No one is displaced",
     "worst_off_decile_must_gain": "Worst-off tenth of households is not made worse off",
+    "worst_off_decile_not_worse_off": "Worst-off tenth of households is not made worse off",  # D-105 rename
     "political_variables_excluded": "Political variables excluded",
 }
 
