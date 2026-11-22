@@ -1,0 +1,455 @@
+{
+ "run_id": "EXP-0014/20261122T230406Z",
+ "card_id": "EXP-0014",
+ "supersedes": null,
+ "engine": "tools/engines/ai_infra",
+ "engine_version": "c7b261a243fe4d81f570f334639d13ede354306d",
+ "spec_version": "0.1",
+ "params_sha256": "d0e5a64afaa127f7c6a2a6dc857c6adc6490eb040c5e830e81118bdb7608d3b6",
+ "activsg_sha256": "3dbf05f16d8119752535d49742219c9b15c623f47f19b1ff12fc949c7884b6c5",
+ "eia_tables": {
+  "year": 2024,
+  "meta": {
+   "year": 2024,
+   "sources": {
+    "eia860": "https://www.eia.gov/electricity/data/eia860/archive/xls/eia8602024.zip",
+    "eia861": "https://www.eia.gov/electricity/data/eia861/archive/zip/f8612024.zip",
+    "census_counties": "https://www2.census.gov/geo/tiger/GENZ2024/shp/cb_2024_us_county_500k.zip"
+   },
+   "license": "public domain (U.S. EIA; U.S. Census Bureau)",
+   "rows": {
+    "eia860_generators": 34855,
+    "eia860_plants": 16132,
+    "eia861_utility_data": 1701,
+    "eia861_sales_ult_cust": 2815,
+    "eia861_service_territory": 11866
+   },
+   "counties_in_boundaries": 3144,
+   "plants_us_50_dc": 16132,
+   "plants_county_by_method": {
+    "point_in_polygon": 16079,
+    "none": 29,
+    "name_match": 24
+   },
+   "plants_coords_disagree_with_eia_county_name": 473,
+   "territory_rows_matched": 11739,
+   "territory_rows_unmatched": 127,
+   "written_utc": "2026-11-21T06:51:24.282414+00:00"
+  }
+ },
+ "acs_tables": {
+  "year": 2024,
+  "meta": {
+   "survey": "ACS 5-year 2020-2024",
+   "tables": {
+    "B19081": "mean household income by quintile and top 5%",
+    "B19080": "household income quintile upper limits and top-5% lower limit"
+   },
+   "sources": [
+    "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b19081.dat",
+    "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b19080.dat"
+   ],
+   "license": "public domain (U.S. Census Bureau)",
+   "counties": 3144,
+   "counties_missing": [],
+   "mean_q1_null": 9,
+   "topcoded_cells": 747,
+   "written_utc": "2026-11-21T07:50:47.457007+00:00"
+  }
+ },
+ "water_tables": null,
+ "flood_tables": null,
+ "bdc_tables": {
+  "source": "FCC Broadband Data Collection, National Broadband Map, fixed availability, technology 50 (fiber)",
+  "api": "https://broadbandmap.fcc.gov/api/public/map",
+  "as_of": "2026-06-30",
+  "written_utc": "2026-11-22T21:27:24.097861+00:00",
+  "files": 51
+ },
+ "environment": {
+  "python": "3.13.18",
+  "pandapower": "3.5.6",
+  "pandas": "2.3.3",
+  "numpy": "2.4.6",
+  "scipy": "1.18.1",
+  "pyarrow": "26.0.1",
+  "networkx": "3.7",
+  "shapely": "2.2.0",
+  "pyproj": "3.8.0",
+  "PyYAML": "6.0.3",
+  "h3": "4.3.1"
+ },
+ "grade": "SPECULATIVE",
+ "disclosure": "Simulated, screening-grade results with assumed parameters. Decision support, not a finding.",
+ "seeds": 1,
+ "mode": "deterministic (no sampled input; one evaluation)",
+ "provenance_floor": "assumed",
+ "criterion": {
+  "nearest_fiber_hex_km_max": 5.0,
+  "county_fiber_providers_min": 2,
+  "rule": "Pass only if both bars hold. Middle-mile and long-haul fiber are not observed and are reported indeterminate in every county; availability is provider-reported, not subscriptions.\n"
+ },
+ "misses": [
+  {
+   "county": "20019",
+   "scenario": "site",
+   "criterion": "fiber at or near the site (hexagon level)",
+   "threshold": "fiber in the site hexagon or a fiber hexagon within 5.0 km (centroid to centroid)",
+   "status": "miss",
+   "value": {
+    "fiber_in_site_hex": false,
+    "nearest_fiber_hex_km": 15.7694395910005
+   }
+  },
+  {
+   "county": "20019",
+   "scenario": "site",
+   "criterion": "fiber providers in the county",
+   "threshold": ">= 2 distinct providers",
+   "status": "miss",
+   "value": {
+    "providers": 1,
+    "brands": "Totah Communications Inc"
+   }
+  },
+  {
+   "county": "01131",
+   "scenario": "site",
+   "criterion": "middle-mile / long-haul fiber",
+   "status": "indeterminate",
+   "value": "not observed in any public layer"
+  },
+  {
+   "county": "20019",
+   "scenario": "site",
+   "criterion": "middle-mile / long-haul fiber",
+   "status": "indeterminate",
+   "value": "not observed in any public layer"
+  },
+  {
+   "county": "54047",
+   "scenario": "site",
+   "criterion": "middle-mile / long-haul fiber",
+   "status": "indeterminate",
+   "value": "not observed in any public layer"
+  },
+  {
+   "county": "31173",
+   "criterion": "site",
+   "status": "blocked",
+   "value": "county is entirely tribal land: no site (siting constraint)"
+  }
+ ],
+ "refused": [],
+ "passes": [
+  {
+   "county": "01131",
+   "scenario": "site",
+   "criterion": "fiber at or near the site (hexagon level)",
+   "threshold": "fiber in the site hexagon or a fiber hexagon within 5.0 km (centroid to centroid)",
+   "status": "pass",
+   "value": {
+    "fiber_in_site_hex": false,
+    "nearest_fiber_hex_km": 2.486345928171404
+   }
+  },
+  {
+   "county": "01131",
+   "scenario": "site",
+   "criterion": "fiber providers in the county",
+   "threshold": ">= 2 distinct providers",
+   "status": "pass",
+   "value": {
+    "providers": 2,
+    "brands": "Mediacom Xtream; Pine Belt Broadcasting LLC; Pine Belt Telephone Co Inc"
+   }
+  },
+  {
+   "county": "54047",
+   "scenario": "site",
+   "criterion": "fiber at or near the site (hexagon level)",
+   "threshold": "fiber in the site hexagon or a fiber hexagon within 5.0 km (centroid to centroid)",
+   "status": "pass",
+   "value": {
+    "fiber_in_site_hex": true,
+    "nearest_fiber_hex_km": 0.0
+   }
+  },
+  {
+   "county": "54047",
+   "scenario": "site",
+   "criterion": "fiber providers in the county",
+   "threshold": ">= 2 distinct providers",
+   "status": "pass",
+   "value": {
+    "providers": 4,
+    "brands": "A&ACommunicationsLLC; Frontier; Point Broadband Fiber Holding LLC; Shentel"
+   }
+  }
+ ],
+ "counties": [
+  {
+   "county": {
+    "fips5": "01131",
+    "dir": "01131_wilcox_al",
+    "snapshot": "20261118T014023Z-51fd9fb",
+    "manifest_sha256": "0476974ea4ad37391d6a5afa7bbad0382c2705c44a9a753263625ce88bab67a9",
+    "state": "AL",
+    "rucc_2023": 9
+   },
+   "modules": [
+    "fiber"
+   ],
+   "backtest": null,
+   "site": {
+    "lon": -87.30809196594636,
+    "lat": 31.98936924681839,
+    "enu_m": [
+     9.857385406760615,
+     7.140485746200543
+    ],
+    "note": "county centroid",
+    "provenance": "hypothetical"
+   },
+   "fiber_context": {
+    "bdc_as_of": "2026-06-30"
+   },
+   "scenarios": {
+    "site": {
+     "scenario": {
+      "name": "site",
+      "it_load_mw": 20
+     },
+     "summary": {
+      "fiber": true,
+      "status": "computed",
+      "site_hex": "8844ecb70bfffff",
+      "hex_resolution": 8,
+      "distance_basis": "hexagon centroid to hexagon centroid (H3 res 8, ~0.7 km2); not a route distance",
+      "availability_basis": "provider-reported availability within 10 days; not subscriptions; challengeable",
+      "middle_mile": "not observed (not in BDC or any RuralSim layer)",
+      "fiber_in_site_hex": false,
+      "nearest_fiber_hex_km": 2.486345928171404,
+      "nearest_fiber_hex": "8844ecb71bfffff",
+      "nearest_hex_fiber_locations": 1,
+      "nearest_hex_providers": 1,
+      "nearest_hex_max_down_mbps": 5000.0,
+      "nearest_hex_max_up_mbps": 1000.0,
+      "county_fiber_providers": 2,
+      "county_fiber_brands": "Mediacom Xtream; Pine Belt Broadcasting LLC; Pine Belt Telephone Co Inc",
+      "county_fiber_locations": 792,
+      "county_hexes_with_fiber": 160
+     },
+     "seeds": [
+      {
+       "seed": 0,
+       "fiber": {
+        "status": "computed",
+        "site_hex": "8844ecb70bfffff",
+        "hex_resolution": 8,
+        "distance_basis": "hexagon centroid to hexagon centroid (H3 res 8, ~0.7 km2); not a route distance",
+        "availability_basis": "provider-reported availability within 10 days; not subscriptions; challengeable",
+        "middle_mile": "not observed (not in BDC or any RuralSim layer)",
+        "fiber_in_site_hex": false,
+        "nearest_fiber_hex_km": 2.486345928171404,
+        "nearest_fiber_hex": "8844ecb71bfffff",
+        "nearest_hex_fiber_locations": 1,
+        "nearest_hex_providers": 1,
+        "nearest_hex_max_down_mbps": 5000.0,
+        "nearest_hex_max_up_mbps": 1000.0,
+        "county_fiber_providers": 2,
+        "county_fiber_brands": "Mediacom Xtream; Pine Belt Broadcasting LLC; Pine Belt Telephone Co Inc",
+        "county_fiber_locations": 792,
+        "county_hexes_with_fiber": 160
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "county": {
+    "fips5": "20019",
+    "dir": "20019_chautauqua_ks",
+    "snapshot": "20261116T231247Z-47f1dea",
+    "manifest_sha256": "149a53fa2f2141f79d40db4bc4c1b0f03f87712ec96c22e95a97b85accae8fe7",
+    "state": "KS",
+    "rucc_2023": 9
+   },
+   "modules": [
+    "fiber"
+   ],
+   "backtest": null,
+   "site": {
+    "lon": -96.24534959212065,
+    "lat": 37.150038191321876,
+    "enu_m": [
+     2.935154121241691,
+     1.6179859016879743
+    ],
+    "note": "county centroid",
+    "provenance": "hypothetical"
+   },
+   "fiber_context": {
+    "bdc_as_of": "2026-06-30"
+   },
+   "scenarios": {
+    "site": {
+     "scenario": {
+      "name": "site",
+      "it_load_mw": 20
+     },
+     "summary": {
+      "fiber": true,
+      "status": "computed",
+      "site_hex": "8826eed62bfffff",
+      "hex_resolution": 8,
+      "distance_basis": "hexagon centroid to hexagon centroid (H3 res 8, ~0.7 km2); not a route distance",
+      "availability_basis": "provider-reported availability within 10 days; not subscriptions; challengeable",
+      "middle_mile": "not observed (not in BDC or any RuralSim layer)",
+      "fiber_in_site_hex": false,
+      "nearest_fiber_hex_km": 15.7694395910005,
+      "nearest_fiber_hex": "8826eec60dfffff",
+      "nearest_hex_fiber_locations": 1,
+      "nearest_hex_providers": 1,
+      "nearest_hex_max_down_mbps": 100.0,
+      "nearest_hex_max_up_mbps": 100.0,
+      "county_fiber_providers": 1,
+      "county_fiber_brands": "Totah Communications Inc",
+      "county_fiber_locations": 259,
+      "county_hexes_with_fiber": 71
+     },
+     "seeds": [
+      {
+       "seed": 0,
+       "fiber": {
+        "status": "computed",
+        "site_hex": "8826eed62bfffff",
+        "hex_resolution": 8,
+        "distance_basis": "hexagon centroid to hexagon centroid (H3 res 8, ~0.7 km2); not a route distance",
+        "availability_basis": "provider-reported availability within 10 days; not subscriptions; challengeable",
+        "middle_mile": "not observed (not in BDC or any RuralSim layer)",
+        "fiber_in_site_hex": false,
+        "nearest_fiber_hex_km": 15.7694395910005,
+        "nearest_fiber_hex": "8826eec60dfffff",
+        "nearest_hex_fiber_locations": 1,
+        "nearest_hex_providers": 1,
+        "nearest_hex_max_down_mbps": 100.0,
+        "nearest_hex_max_up_mbps": 100.0,
+        "county_fiber_providers": 1,
+        "county_fiber_brands": "Totah Communications Inc",
+        "county_fiber_locations": 259,
+        "county_hexes_with_fiber": 71
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "county": {
+    "fips5": "54047",
+    "dir": "54047_mcdowell_wv",
+    "snapshot": "20261119T185041Z-d287c5c",
+    "manifest_sha256": "8d90357ffcf9c855f3a6525dbf0cffeb97b89c486452ae524880976727bc7eb5",
+    "state": "WV",
+    "rucc_2023": 9
+   },
+   "modules": [
+    "fiber"
+   ],
+   "backtest": null,
+   "site": {
+    "lon": -81.65353455843476,
+    "lat": 37.378484433288115,
+    "enu_m": [
+     6.538049147923491,
+     3.20634760327581
+    ],
+    "note": "county centroid",
+    "provenance": "hypothetical"
+   },
+   "fiber_context": {
+    "bdc_as_of": "2026-06-30"
+   },
+   "scenarios": {
+    "site": {
+     "scenario": {
+      "name": "site",
+      "it_load_mw": 20
+     },
+     "summary": {
+      "fiber": true,
+      "status": "computed",
+      "site_hex": "882a9d6e6bfffff",
+      "hex_resolution": 8,
+      "distance_basis": "hexagon centroid to hexagon centroid (H3 res 8, ~0.7 km2); not a route distance",
+      "availability_basis": "provider-reported availability within 10 days; not subscriptions; challengeable",
+      "middle_mile": "not observed (not in BDC or any RuralSim layer)",
+      "fiber_in_site_hex": true,
+      "site_hex_fiber_locations": 16,
+      "site_hex_providers": 1,
+      "site_hex_max_down_mbps": 1200.0,
+      "site_hex_max_up_mbps": 35.0,
+      "nearest_fiber_hex_km": 0.0,
+      "nearest_fiber_hex": "882a9d6e6bfffff",
+      "county_fiber_providers": 4,
+      "county_fiber_brands": "A&ACommunicationsLLC; Frontier; Point Broadband Fiber Holding LLC; Shentel",
+      "county_fiber_locations": 10448,
+      "county_hexes_with_fiber": 649
+     },
+     "seeds": [
+      {
+       "seed": 0,
+       "fiber": {
+        "status": "computed",
+        "site_hex": "882a9d6e6bfffff",
+        "hex_resolution": 8,
+        "distance_basis": "hexagon centroid to hexagon centroid (H3 res 8, ~0.7 km2); not a route distance",
+        "availability_basis": "provider-reported availability within 10 days; not subscriptions; challengeable",
+        "middle_mile": "not observed (not in BDC or any RuralSim layer)",
+        "fiber_in_site_hex": true,
+        "site_hex_fiber_locations": 16,
+        "site_hex_providers": 1,
+        "site_hex_max_down_mbps": 1200.0,
+        "site_hex_max_up_mbps": 35.0,
+        "nearest_fiber_hex_km": 0.0,
+        "nearest_fiber_hex": "882a9d6e6bfffff",
+        "county_fiber_providers": 4,
+        "county_fiber_brands": "A&ACommunicationsLLC; Frontier; Point Broadband Fiber Holding LLC; Shentel",
+        "county_fiber_locations": 10448,
+        "county_hexes_with_fiber": 649
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "county": {
+    "fips5": "31173",
+    "dir": "31173_thurston_ne",
+    "snapshot": "20261121T055536Z-6f61b6f",
+    "manifest_sha256": "2e12cb03e54c4cff4ac9a3948b0692f35b57ae77acd8065f76d0e6cab53c81f4",
+    "state": "NE",
+    "rucc_2023": 8
+   },
+   "modules": [
+    "fiber"
+   ],
+   "backtest": null,
+   "site": {
+    "note": "county is entirely tribal land: no site (siting constraint)"
+   },
+   "scenarios": {}
+  }
+ ],
+ "not_modelled": [
+  "N-1 contingency",
+  "regional through-flow (background_utilisation stands in)",
+  "local tax effects and abatements",
+  "middle-mile and long-haul fiber",
+  "drainage-area scaling between gauge and site (needs NHDPlus)",
+  "which utility actually serves the site (all candidates run)"
+ ]
+}

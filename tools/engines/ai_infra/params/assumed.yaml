@@ -120,3 +120,7 @@ cooling:   # D-106. Ranges bracket published cooling-tower and data-center water
 flood:     # D-107
   footprint_area_ha: [8.0, 25.0]   # 20 MW campus incl. yard and substation (~20-60 acres); square around the site; assumed
   search_m: 3000                   # zones within this window of the site are loaded; also bounds distance_to_sfha_m
+
+fiber:     # D-108
+  bdc_as_of: "2026-06-30"          # FCC BDC release of 2026-11-10 (D-058)
+  search_radius_km: 30             # nearest fiber hexagon is searched within this radius

@@ -24,7 +24,7 @@ from shapely.geometry import Point, Polygon
 from shapely.ops import nearest_points, unary_union
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-from tools.engines.ai_infra import cooling_water, data, flood, gate, network, power_flow, rate_impact  # noqa: E402
+from tools.engines.ai_infra import cooling_water, data, fiber, flood, gate, network, power_flow, rate_impact  # noqa: E402
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
@@ -53,7 +53,7 @@ def environment() -> dict:
     import importlib.metadata as md
     import platform
     out = {"python": platform.python_version()}
-    for p in ("pandapower", "pandas", "numpy", "scipy", "pyarrow", "networkx", "shapely", "pyproj", "PyYAML"):
+    for p in ("pandapower", "pandas", "numpy", "scipy", "pyarrow", "networkx", "shapely", "pyproj", "PyYAML", "h3"):
         try:
             out[p] = md.version(p)
         except md.PackageNotFoundError:
@@ -143,6 +143,13 @@ def run_county(card, fips5, seeds, cfg, activsg, backtest_id=None):
     if "cooling_water" in modules:
         wctx = water_context(county, fips5, lat, lon, cfg)
         rec["water_context"] = {k: v for k, v in wctx.items() if k != "weather"}
+    if "fiber" in modules:
+        asof = cfg["fiber"]["bdc_as_of"]
+        _hex = _fiber_hexes(asof)
+        crow = data.bdc_fiber(asof, "fiber_county")
+        crow = crow[crow.fips5 == fips5]
+        fib = fiber.run(lat, lon, _hex, crow.iloc[0].to_dict() if len(crow) else None, cfg["fiber"]["search_radius_km"])
+        rec["fiber_context"] = {"bdc_as_of": asof}
     if "flood" in modules:
         fstat = flood.county_status(data.nfhl_status(), fips5)
         fzones = flood.prepare(data.nfhl_zones(fips5), f_enu, (sx, sy), cfg["flood"]["search_m"]) \
@@ -176,6 +183,9 @@ def run_county(card, fips5, seeds, cfg, activsg, backtest_id=None):
             onsite_capex = (on.get("solar_mw", 0) * power_flow.u(r_on, cfg["costs"]["solar_musd_per_mw"])
                             + on.get("storage_mwh", 0) * power_flow.u(r_on, cfg["costs"]["storage_musd_per_mwh"])
                             + on.get("firm_mw", 0) * power_flow.u(r_on, cfg["costs"]["firm_musd_per_mw"])) * 1e6
+            if "fiber" in modules:
+                per_seed.append({"seed": seed, "fiber": fib})
+                continue
             if "flood" in modules:
                 fo = flood.run(fstat, fzones, (sx, sy), cfg, np.random.default_rng([int(fips5), seed, 7]))
                 per_seed.append({"seed": seed, "flood": fo})
@@ -208,6 +218,7 @@ def run_county(card, fips5, seeds, cfg, activsg, backtest_id=None):
                                                       "county_load_info": cinfo, "onsite_capex_usd": onsite_capex},
                              "power_flow": pfo, "rate_impact": rates})
         summ = (summarise(per_seed, cands) if power else
+                {"fiber": True, **per_seed[0]["fiber"]} if "fiber" in modules else
                 summarise_flood(per_seed) if "flood" in modules else summarise_water(per_seed))
         scen_out[sc["name"]] = {"scenario": sc, "summary": summ, "seeds": per_seed}
     rec["scenarios"] = scen_out
@@ -241,6 +252,15 @@ def water_context(county, fips5, lat, lon, cfg):
     return {"weather": data.power_daily(fips5), "county_use": cu, "source_gauge": src, "nearest_gauge": near,
             "community_water_systems": cws, "flow_note": "flow at the gauge; drainage-area scale factor 1.0 (site drainage "
                                                           "area needs NHDPlus, not a layer)"}
+
+
+_HEX = {}
+
+
+def _fiber_hexes(asof):
+    if asof not in _HEX:
+        _HEX[asof] = fiber.hex_table(data.bdc_fiber(asof, "fiber_h3"))
+    return _HEX[asof]
 
 
 def summarise_flood(per_seed):
@@ -417,6 +437,22 @@ def judge(card, rec):
     if not rec["scenarios"]:
         misses.append({"county": f, "criterion": "site", "status": "blocked", "value": rec["site"]["note"]})
     for name, sc in rec["scenarios"].items():
+        if sc["summary"].get("fiber"):
+            w = sc["summary"]
+            km, need = w.get("nearest_fiber_hex_km"), crit["nearest_fiber_hex_km_max"]
+            item = {"county": f, "scenario": name, "criterion": "fiber at or near the site (hexagon level)",
+                    "threshold": f"fiber in the site hexagon or a fiber hexagon within {need} km (centroid to centroid)"}
+            v = {"fiber_in_site_hex": w["fiber_in_site_hex"], "nearest_fiber_hex_km": km}
+            (passes if km is not None and km <= need else misses).append(
+                {**item, "status": "pass" if km is not None and km <= need else "miss", "value": v})
+            n, pmin = w["county_fiber_providers"], crit["county_fiber_providers_min"]
+            item = {"county": f, "scenario": name, "criterion": "fiber providers in the county",
+                    "threshold": f">= {pmin} distinct providers"}
+            (passes if n >= pmin else misses).append({**item, "status": "pass" if n >= pmin else "miss",
+                                                      "value": {"providers": n, "brands": w.get("county_fiber_brands")}})
+            misses.append({"county": f, "scenario": name, "criterion": "middle-mile / long-haul fiber",
+                           "status": "indeterminate", "value": "not observed in any public layer"})
+            continue
         if sc["summary"].get("flood"):
             w = sc["summary"]
             bar = crit["footprint_share_sfha_max"]
@@ -523,6 +559,8 @@ def main(argv=None):
         misses += m
         passes += p
         recs.append(r)
+    rank = {"miss": 0, "indeterminate": 1, "blocked": 1}
+    misses.sort(key=lambda m: rank.get(m["status"], 2))   # misses first across all counties, not only within each
     out = {
         "run_id": f"{card['id']}/{t0.strftime('%Y%m%dT%H%M%SZ')}",
         "card_id": card["id"], "supersedes": card.get("supersedes"),
@@ -533,15 +571,17 @@ def main(argv=None):
         "acs_tables": {"year": 2024, "meta": data.acs_meta(2024)},
         "water_tables": data.water_meta() if "cooling_water" in card.get("modules", []) else None,
         "flood_tables": data.nfhl_meta() if "flood" in card.get("modules", []) else None,
+        "bdc_tables": data.bdc_meta(cfg["fiber"]["bdc_as_of"]) if "fiber" in card.get("modules", []) else None,
         "environment": environment(),
         "grade": "SPECULATIVE", "disclosure": DISCLOSURE,
-        "seeds": a.seeds, "mode": "promotable-count" if a.seeds >= 20 else "screening",
+        "seeds": a.seeds, "mode": ("deterministic (no sampled input; one evaluation)" if card.get("deterministic")
+                                   else "promotable-count" if a.seeds >= 20 else "screening"),
         "provenance_floor": "assumed",
         "criterion": card["criterion"],
         "misses": misses, "refused": refused, "passes": passes,
         "counties": recs,
         "not_modelled": ["N-1 contingency", "regional through-flow (background_utilisation stands in)",
-                         "local tax effects and abatements", "fiber (later PR)",
+                         "local tax effects and abatements", "middle-mile and long-haul fiber",
                          "drainage-area scaling between gauge and site (needs NHDPlus)",
                          "which utility actually serves the site (all candidates run)"],
     }

@@ -165,20 +165,26 @@ modules:
 
   fiber:
     question: "Is the site near fiber, and how many providers?"
+    status_v0_1: active    # LR-7 delivered (D-058); implemented in D-108
     method: >
-      From FCC Broadband Data Collection public availability data at H3 hexagon level: whether
-      fiber-to-the-premises (technology code 50) is reported in the site's hexagon, distance to the
-      nearest hexagon that reports it, and the count of distinct fiber providers in the county.
-      Long-haul and middle-mile routes are not in BDC and are not public; reported assumed.
+      From FCC Broadband Data Collection fixed availability, technology 50 (fiber to the premises),
+      aggregated by RuralSim to H3 resolution-8 hexagons (~0.7 km2) and to counties: whether fiber is
+      reported in the site's hexagon (point-in-H3), the centroid-to-centroid distance to the nearest
+      hexagon with fiber_locations > 0 (hexagon-level, not a route distance), and the count of
+      distinct fiber providers in the county. Deterministic: no sampled input.
+      Middle-mile and long-haul routes are not in BDC and not public: reported not observed,
+      indeterminate in every county (the planned Bernoulli stand-in was dropped; an assumed coin
+      flip would read as information it is not).
     inputs:
-      - {name: bdc_fiber_availability_by_hex, provenance: observed, source: "FCC BDC public data downloads, H3 hexagon aggregation — LR-7; licence and current release to verify", note: "the location Fabric itself is licensed (CostQuest) and must not be used"}
-      - {name: osm_telecom_lines, provenance: observed, source: "OSM telecom=*/communication=line if present", note: "expected sparse; context only"}
-      - {name: middle_mile_presence, provenance: assumed, note: "Bernoulli by county type until a public source exists"}
+      - {name: bdc_fiber_h3, provenance: observed, source: "broadband/bdc/<as_of>/fiber_h3.parquet (LR-7, D-058)", note: "provider-reported availability within 10 days; not subscriptions; challengeable. No location Fabric used"}
+      - {name: bdc_fiber_county, provenance: observed, source: "broadband/bdc/<as_of>/fiber_county.parquet (LR-7, D-058)"}
+      - {name: search_radius_km, provenance: assumed, source: "params/assumed.yaml fiber block (30 km)"}
     outputs:
       - {name: fiber_in_site_hex, unit: boolean}
-      - {name: distance_to_fiber_hex_km, unit: km}
-      - {name: fiber_providers_in_county, unit: count}
-      - {name: middle_mile, value: assumed}
+      - {name: nearest_fiber_hex_km, unit: km, note: "0 when fiber is in the site hexagon; null when none within the search radius"}
+      - {name: county_fiber_providers, unit: count}
+      - {name: site_hex_max_down_mbps, unit: Mbps}
+      - {name: middle_mile, value: "not observed"}
     replaces_exp0007: ["none — EXP-0007 had no network channel"]
 
   flood:
