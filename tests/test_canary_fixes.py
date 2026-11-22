@@ -492,3 +492,50 @@ def test_gauge_day_of_year_stats_summarize():
     assert s["years"] == 88 and s["mean_flow_cfs"] == 122.5
     assert s["p10_min_cfs"] == 0 and s["p50_min_cfs"] == 10                 # runs dry in August
     assert s["p10_m01_cfs"] == 35 and s["mean_m08_cfs"] == 55
+
+
+def test_nfhl_county_status_drops_neighbour_slivers_and_classes_zones(monkeypatch):
+    import types, mirror_nfhl as mn
+    from shapely.geometry import box, mapping
+    county = box(0, 0, 0.1, 0.1)
+    own, sliver = box(0, 0, 0.1, 0.1), box(0.0999, 0, 0.2, 0.1)   # neighbour's study touches by a sliver
+    feat = lambda g, **p: {"geometry": mapping(g), "properties": p}  # noqa: E731
+    layers = {
+        mn.AVAIL: [feat(own, STUDY_ID="99001C"), feat(sliver, STUDY_ID="99003C")],
+        mn.PRELIM: [], mn.PENDING: [],
+        mn.ZONES: [feat(box(0, 0, 0.05, 0.1), DFIRM_ID="99001C", FLD_ZONE="AE", SFHA_TF="T"),
+                   feat(box(0.05, 0, 0.06, 0.1), DFIRM_ID="99001C", FLD_ZONE="X",
+                        ZONE_SUBTY="0.2 PCT ANNUAL CHANCE FLOOD HAZARD", SFHA_TF="F"),
+                   feat(box(0.09, 0, 0.15, 0.1), DFIRM_ID="99001C", FLD_ZONE="A", SFHA_TF="T")]}  # half outside
+
+    def fake_query(url, geom, fields, with_geometry, where="1=1", batch=200):
+        if url == mn.PANELS:
+            return [{"attributes": {"DFIRM_ID": "99001C", "PANEL_TYP": "Countywide, Panel Printed", "EFF_DATE": 1271635200000}},
+                    {"attributes": {"DFIRM_ID": "99003C", "PANEL_TYP": "Countywide, Panel Printed", "EFF_DATE": 9e11}}]
+        return layers[url]
+    monkeypatch.setattr(mn, "query", fake_query)
+    z, s = mn.one_county(types.SimpleNamespace(fips5="99001", STUSPS="ZZ", NAME="Test", geometry=county))
+    assert s["dfirm_ids"] == ["99001C"] and s["status"] == "effective"
+    assert s["panels"] == 1 and s["eff_date_min"] == "2010-04-19"          # neighbour's panel not counted
+    assert abs(s["sfha_share"] - 0.6) < 0.01                               # 0.5 + the 0.1 inside the line
+    assert s["x_shaded_km2"] > 0 and len(z) == 3 and z.total_bounds[2] <= 0.1 + 1e-9  # clipped to the county
+
+
+def test_bdc_fiber_tables_keep_counts_not_locations(tmp_path):
+    import duckdb, mirror_bdc_fiber as mb
+    csv = tmp_path / "ri.csv"
+    csv.write_text("frn,provider_id,brand_name,location_id,technology,max_advertised_download_speed,"
+                   "max_advertised_upload_speed,low_latency,business_residential_code,state_usps,block_geoid,h3_res8_id\n"
+                   "1,100,FiberCo,L1,50,1000,1000,1,R,RI,440010301001000,88a\n"
+                   "2,200,Coop,L1,50,500,500,1,R,RI,440010301001000,88a\n"
+                   "3,300,Cable,L2,40,1000,35,1,R,RI,440010301001000,88a\n")
+    parts, out = tmp_path / "parts", tmp_path / "out"
+    parts.mkdir(); out.mkdir()
+    mb.aggregate_state([csv], parts, "t")
+    c = mb.combine(parts, out)
+    assert c["fiber_locations"] == 1 and c["providers"] == 2             # cable (40) excluded
+    for t in ("fiber_h3", "fiber_county", "fiber_providers"):
+        cols = [r[0] for r in duckdb.sql(f"DESCRIBE SELECT * FROM '{out / t}.parquet'").fetchall()]
+        assert "location_id" not in cols and "block_geoid" not in cols   # Fabric identifiers never written
+    h = duckdb.sql(f"SELECT providers, fiber_locations FROM '{out}/fiber_h3.parquet'").fetchone()
+    assert h == (2, 1)

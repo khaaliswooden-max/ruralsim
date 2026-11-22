@@ -1,0 +1,45 @@
+# FCC Broadband Data Collection: fiber per H3 hexagon and fiber providers per county (D-058, LR-7).
+# Needs two repository secrets from a free FCC account (broadbandmap.fcc.gov -> Manage API
+# access): FCC_USERNAME (the account email) and FCC_TOKEN (the API token).
+# Manual: Actions -> "Mirror FCC fiber availability" -> Run workflow. Tick "list only" first.
+name: Mirror FCC fiber availability
+
+on:
+  workflow_dispatch:
+    inputs:
+      as_of:
+        description: "BDC as-of date YYYY-MM-DD (blank: latest)"
+        default: ""
+      list_only:
+        description: "Only list the as-of dates and fiber files (no download)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  fiber:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Fiber availability
+        env:
+          FCC_USERNAME: ${{ secrets.FCC_USERNAME }}
+          FCC_TOKEN: ${{ secrets.FCC_TOKEN }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET: ruralsim-data
+          PYTHONUNBUFFERED: "1"
+        run: |
+          ARGS=""
+          [ -n "${{ inputs.as_of }}" ] && ARGS="--as-of ${{ inputs.as_of }}"
+          [ "${{ inputs.list_only }}" = "true" ] && ARGS="$ARGS --list"
+          python tools/mirror_bdc_fiber.py $ARGS
