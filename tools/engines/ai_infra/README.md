@@ -1,7 +1,7 @@
 # AI-infrastructure screening engine
 
 Spec: `specs/ai_infra_engine.yaml` (D-100). Implementation notes and deviations: D-101.
-Modules here: `power_flow` and `rate_impact`. Cooling water, fiber and flood are later PRs.
+Modules here: `power_flow`, `rate_impact`, `cooling_water`. Fiber and flood are later PRs.
 
 ```
 python3 -m venv .venv-ai-infra && . .venv-ai-infra/bin/activate   # its own env (D-103)

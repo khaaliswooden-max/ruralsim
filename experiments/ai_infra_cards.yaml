@@ -43,3 +43,43 @@
   fidelity_tier: B_pilot_3d
   provenance_floor: assumed
   risks_to_residents: "rate shifting onto small co-op memberships; few permanent jobs; land use"
+
+- id: EXP-0012
+  title: "Cooling water for a 20 MW data center at a rural county site, three cooling designs"
+  category: energy_compute
+  hypothesis: >
+    A 20 MW (IT) compute site at the county centroid can be cooled without its peak-day
+    withdrawal exceeding 10 percent of the dry-season low flow of the largest gauged stream
+    within 50 km, and without its annual withdrawal exceeding 10 percent of the county's
+    public-supply withdrawals, with evaporative cooling; adiabatic hybrid and dry cooling
+    pass both with margin.
+  counties: ["01131", "20019", "54047", "31173"]
+  site: {rule: centroid, note: "same site rule as EXP-0011"}
+  modules: [cooling_water]
+  intervention:
+    description: one 20 MW IT site, three cooling designs
+    parameters: {it_load_mw: 20}
+    parameter_sources: {it_load_mw: hypothetical (EXP-0007), everything else: "params/assumed.yaml cooling block (assumed, sampled); NASA POWER, USGS 2015 water use, NWIS gauges, SDWIS (observed)"}
+  scenarios:
+    - {name: evaporative, it_load_mw: 20, cooling: evaporative}
+    - {name: adiabatic_hybrid, it_load_mw: 20, cooling: adiabatic_hybrid}
+    - {name: dry, it_load_mw: 20, cooling: dry}
+  baseline: the county's 2015 water use and the gauge's day-of-year flow statistics, without the site
+  duration: "30 years of daily weather (1991-2020)"
+  time_step: "1 day"
+  engines: [water_environment]
+  seeds: 20
+  metrics:
+    primary: annual_withdrawal_m3 (m3 per year), per cooling design
+    secondary: [peak_day_withdrawal_m3, share_of_source_low_flow_peak_day, share_of_county_public_supply,
+                share_of_county_fresh_withdrawals, wue_l_per_it_kwh, pue_effective_annual]
+    rqli_domains_affected: [environment]
+  criterion:                       # stated before the run (D-106); screening bars, assumed
+    peak_day_share_of_low_flow_max: 0.10     # p50 peak-day withdrawal / source gauge p10_min flow
+    annual_share_of_public_supply_max: 0.10  # p50 annual-average withdrawal / county public supply, 2015
+    source_rule: "largest-drainage gauge with low-flow statistics within 50 km of the site; nearest gauge reported, not scored"
+    rule: "A design passes in a county only if both bars hold. water_within_recharge is always indeterminate (no modelled sustainable yield)."
+  success_criterion: "evaporative passes both bars in Wilcox AL; adiabatic_hybrid and dry pass both everywhere a source gauge exists"
+  fidelity_tier: B_pilot_3d
+  provenance_floor: assumed
+  risks_to_residents: "competition with household and farm supply in dry seasons; the source river may be far from the site"
