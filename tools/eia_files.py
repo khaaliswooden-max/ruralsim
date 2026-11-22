@@ -21,10 +21,10 @@ EIA861 = "https://www.eia.gov/electricity/data/eia861/archive/zip/f8612024.zip"
 NBI = "https://www.fhwa.dot.gov/bridge/nbi/2024del.zip"
 
 
-def ensure(url: str, tries: int = 6, sub: str = "eia") -> pathlib.Path:
+def ensure(url: str, tries: int = 6, sub: str = "eia", name: str | None = None) -> pathlib.Path:
     d = CACHE if sub == "eia" else CACHE.parent / sub  # $RURALSIM_CACHE/<sub>
     d.mkdir(parents=True, exist_ok=True)
-    dest = d / url.rsplit("/", 1)[1]
+    dest = d / (name or url.rsplit("/", 1)[1])
     if dest.exists() and dest.stat().st_size > 0:
         return dest
     part = dest.with_name(dest.name + ".part")

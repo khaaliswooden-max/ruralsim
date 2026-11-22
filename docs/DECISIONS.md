@@ -230,3 +230,14 @@ Before the Northeast and Pacific batches, the largest worlds were measured. The 
 **Not addressed here:** rendering cost. Cook's viewer draws 1,832,239 buildings as one instanced mesh, and Los Angeles will have more. Whether that is usable on a laptop or phone has not been measured; if not, a building cap for the largest counties is the next step.
 
 Also noted: Cloudflare documents `r2.dev` as rate-limited and for development only. A custom domain on the bucket would add caching and lift that limit. That is a Cloudflare and DNS settings change, so it is left to Khaalis.
+
+## D-056 (2026-11-21) — Water use and streamflow, quick versions (LR-4, LR-6)
+These complete the cooling-water inputs (with D-054). On 2026-11-21 Khaalis chose the quick version of each over the full one.
+- **LR-4, water use.** New `tools/mirror_water_use.py` writes `water/usgs_wateruse_2015/county.parquet`, USGS's county-level compilation for 2015 (Dieter and others, 2018, doi:10.5066/F7TB15V5). It covers every sector (public supply, domestic, industrial, irrigation, livestock, aquaculture, mining, thermoelectric) with withdrawals by groundwater and surface water, fresh and saline, in Mgal/d. USGS's column codes are kept, lower-cased. The full version, the 2000–2020 monthly reanalysis, is published by HUC12 watershed. It would need a 2.8 GB watershed-to-county crosswalk, and irrigation *withdrawals* are only in a 13 GB archive; it is deferred until the engine's results are shown to depend on seasonal swings. 3,133 of 3,144 counties match. Connecticut's nine planning regions and Alaska's 02063 and 02066 (split from 02261 in 2019) have no 2015 row; their 2015 rows carry a null `fips5_2024` instead of a guessed split. Wilcox AL withdraws 23.3 Mgal/d of fresh water, 22.1 of it surface water.
+- **LR-6, streamflow.** New `tools/mirror_gauges.py` writes `water/nwis/gauges.parquet`. It covers every active USGS stream gauge with daily discharge (NWIS site service) and, from the NWIS statistics service's day-of-year statistics over each gauge's record:
+  - mean flow
+  - the lowest day-of-year 10th and 50th percentiles, a low-flow index for the driest time of year
+  - monthly means and 10th percentiles
+
+  Each gauge also gets its drainage area, NWIS county and 2024 county by point-in-polygon. On Alabama and Kansas, 355 gauges took 121 s (345 with statistics). The Caney River near Elgin KS (Chautauqua) has a driest-time 10th percentile of 0 cfs, meaning it runs dry; Pine Barren Creek in Wilcox AL has 19 cfs. Gauges are on rivers, not in counties, so the engine must pick the gauge on the stream a site would draw from and scale by drainage area. Modelled flow for every NHD segment (NHDPlus EROM) is the full version, deferred.
+- Both run in the manual workflow "Mirror water use and streamflow". `eia_files.ensure()` gains an optional file `name` for URLs without one, such as ScienceBase's. County builds are unchanged.

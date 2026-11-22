@@ -469,3 +469,26 @@ def test_repack_patches_html_last_and_skips_done(tmp_path, monkeypatch):
     assert status == "repacked" and after < before
     assert order == ["worlds/x/current/viewer_data/roads.json.gz", "worlds/x/current/viewer/index.html"]
     assert rv.one(S3(), "b", e, dry=False)[1] == "current"
+
+def test_water_use_2015_parse_codes_and_not_estimated():
+    import mirror_water_use as mw
+    raw = ('"citation line",,,,,,,,\n'
+           "STATE,STATEFIPS,COUNTY,COUNTYFIPS,FIPS,YEAR,TP-TotPop,PT-WFrTo,TO-WFrTo\n"
+           "AL,01,Wilcox County,131,01131,2015,11.059,0.00,23.29\n"
+           "CT,09,Fairfield County,001,09001,2015,948.053,--,101.21\n").encode()
+    d = mw.parse(raw).set_index("fips5")
+    assert d.loc["01131", "to_wfrto"] == 23.29 and d.loc["01131", "tp_totpop"] == 11.059
+    assert d.loc["09001", "pt_wfrto"] != d.loc["09001", "pt_wfrto"]       # "--" -> null
+    assert d.loc["09001", "county"] == "Fairfield County"
+
+
+def test_gauge_day_of_year_stats_summarize():
+    import pandas as pd, mirror_gauges as mg
+    rows = []
+    for m, d, mean, p10, p50 in ((1, 1, 200, 30, 90), (1, 2, 180, 40, 95), (8, 1, 50, 0, 10), (8, 2, 60, 2, 12)):
+        rows.append({"site_no": "07172000", "month_nu": m, "day_nu": d, "begin_yr": 1938, "end_yr": 2025,
+                     "mean_va": mean, "p10_va": p10, "p50_va": p50})
+    s = mg.summarize(pd.DataFrame(rows).astype(str)).set_index("site_no").loc["07172000"]
+    assert s["years"] == 88 and s["mean_flow_cfs"] == 122.5
+    assert s["p10_min_cfs"] == 0 and s["p50_min_cfs"] == 10                 # runs dry in August
+    assert s["p10_m01_cfs"] == 35 and s["mean_m08_cfs"] == 55
