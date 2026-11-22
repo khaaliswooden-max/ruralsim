@@ -10,6 +10,7 @@ boto3==1.44.3
 osmium==4.3.2
 pandas==3.0.5
 openpyxl==3.1.5
+xlrd==2.0.2  # EIA-860 before 2011 and EIA-861 2014 are .xls (mirror_eia_history.py, D-062)
 numpy==2.5.3
 scipy==1.18.1
 networkx==3.7

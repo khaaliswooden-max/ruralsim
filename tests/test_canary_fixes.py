@@ -614,3 +614,20 @@ def test_honolulu_drops_the_northwestern_hawaiian_islands(monkeypatch):
     monkeypatch.setattr(cc, "fetch_boundary", lambda f: mapping(geom))
     c = cc.get("15003")
     assert c.bbox[0] > -159 and c.bbox[2] - c.bbox[0] < 1 and "D-061" in c.boundary_source
+
+
+def test_eia_history_urls_and_file_names():
+    """D-062: 2001-2011 EIA-861 archives are 861_<y>.zip and say Service_Territories; 2012+ f861<y>.zip."""
+    import io, zipfile, mirror_eia_history as h
+    assert h.urls(2004)[1].endswith("/861_2004.zip") and h.urls(2014)[1].endswith("/f8612014.zip")
+    assert h.urls(2005)[0].endswith("/eia8602005.zip")
+    b = io.BytesIO()
+    with zipfile.ZipFile(b, "w") as z:
+        for n in ("2004/", "2004/Sales_Ult_Cust_2004.xlsx", "2004/Sales_Ult_Cust_CS_2004.xlsx",
+                  "2004/Utility_Data_2004.xlsx", "2004/Service_Territories_2004.xlsx"):
+            z.writestr(n, b"x")
+    zz = h.z861(b, 2004)
+    assert zz._names["Sales_Ult_Cust_2024.xlsx"] == "2004/Sales_Ult_Cust_2004.xlsx"     # not the _CS_ file
+    assert zz._names["Service_Territory_2024.xlsx"] == "2004/Service_Territories_2004.xlsx"
+    sf = h.short_form(zz)
+    assert len(sf) == 0 and "avg_rate_all_sectors_usd_per_kwh" in sf.columns          # no 861S before 2012
