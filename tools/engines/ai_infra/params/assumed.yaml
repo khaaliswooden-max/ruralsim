@@ -116,3 +116,7 @@ cooling:   # D-106. Ranges bracket published cooling-tower and data-center water
   dry_hot_day_daily_mean_c: [22.0, 27.0]
   dry_pue_penalty_on_hot_days: [0.05, 0.20]
   source_gauge_radius_km: 50
+
+flood:     # D-107
+  footprint_area_ha: [8.0, 25.0]   # 20 MW campus incl. yard and substation (~20-60 acres); square around the site; assumed
+  search_m: 3000                   # zones within this window of the site are loaded; also bounds distance_to_sfha_m

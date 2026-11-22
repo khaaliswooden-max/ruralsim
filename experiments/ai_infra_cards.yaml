@@ -83,3 +83,39 @@
   fidelity_tier: B_pilot_3d
   provenance_floor: assumed
   risks_to_residents: "competition with household and farm supply in dry seasons; the source river may be far from the site"
+
+- id: EXP-0013
+  title: "Flood screen for a 20 MW data center at a rural county site"
+  category: energy_compute
+  hypothesis: >
+    A 20 MW compute site at the county centroid lies outside FEMA's 1% annual-chance flood
+    zone (SFHA), with no more than 10 percent of its footprint inside it, in every county with
+    a digital flood map.
+  counties: ["01131", "20019", "54047", "31173"]
+  site: {rule: centroid, note: "same site rule as EXP-0011 and EXP-0012"}
+  modules: [flood]
+  intervention:
+    description: one site footprint, a square around the site point
+    parameters: {footprint_area_ha: "8-25 (assumed, drawn per seed)"}
+    parameter_sources: {footprint_area_ha: assumed, zones: "FEMA NFHL effective, pulled 2026-11-22 (D-057)"}
+  scenarios:
+    - {name: site, it_load_mw: 20}
+  baseline: the effective FEMA flood map; no change to the land
+  duration: "static map"
+  time_step: "n/a"
+  engines: [water_environment]
+  seeds: 20
+  metrics:
+    primary: footprint_share_sfha (fraction of footprint in the 1% annual-chance zone)
+    secondary: [site_point_zone, footprint_share_x_shaded, footprint_share_zone_d, distance_to_sfha_m]
+    rqli_domains_affected: [environment]
+  criterion:                      # stated before the run (D-107); screening bar, assumed
+    footprint_share_sfha_max: 0.10
+    rule: >
+      Pass only if the site point is outside the SFHA and the p50 footprint share in the SFHA
+      is at most 10 percent. A county with no digital FIRM is indeterminate, never a pass. A
+      pending or preliminary map is flagged on the result; it does not change pass or fail.
+  success_criterion: "passes in every county whose map status is effective"
+  fidelity_tier: B_pilot_3d
+  provenance_floor: assumed
+  risks_to_residents: "a flooded site can lose power or water service it shares with residents; fill in a floodplain can move water onto neighbours"
