@@ -50,10 +50,20 @@ STATES = ("AL AK AZ AR CA CO CT DE DC FL GA HI ID IL IN IA KS KY LA ME MD MA MI 
 
 
 def headers() -> dict:
-    u, t = os.environ.get("FCC_USERNAME"), os.environ.get("FCC_TOKEN")
+    # strip: a secret pasted with a trailing newline or space is the commonest cause of a 401
+    u, t = (os.environ.get("FCC_USERNAME") or "").strip(), (os.environ.get("FCC_TOKEN") or "").strip()
     if not u or not t:
         raise SystemExit("FCC_USERNAME and FCC_TOKEN must be set (GitHub secrets); the BDC API answers 401 without them")
     return {"username": u, "hash_value": t, "User-Agent": UA}
+
+
+def credential_shape() -> str:
+    """What is wrong with the secrets, without printing them."""
+    raw_u, raw_t = os.environ.get("FCC_USERNAME") or "", os.environ.get("FCC_TOKEN") or ""
+    u, t = raw_u.strip(), raw_t.strip()
+    return (f"username looks like an email: {'@' in u and '.' in u.split('@')[-1]}, "
+            f"username had surrounding whitespace: {raw_u != u}; token length {len(t)} (FCC tokens are 44), "
+            f"token had surrounding whitespace: {raw_t != t}, token has inner spaces: {' ' in t}")
 
 
 def get(path: str, params: dict | None = None, tries: int = 6) -> bytes:
@@ -65,7 +75,7 @@ def get(path: str, params: dict | None = None, tries: int = 6) -> bytes:
         except urllib.error.HTTPError as e:
             if e.code in (401, 403):
                 body = e.read()[:200].decode(errors="replace")
-                raise SystemExit(f"FCC API refused {path} with HTTP {e.code}: {body}. "
+                raise SystemExit(f"FCC API refused {path} with HTTP {e.code}: {body}. [{credential_shape()}] "
                                  "401: check the FCC_USERNAME / FCC_TOKEN secrets; 403: the runner is blocked "
                                  "(download the state fiber files by hand and use --from-dir)")
             if e.code < 500 and e.code != 429 or attempt + 1 == tries:
