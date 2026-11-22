@@ -163,3 +163,36 @@ def test_site_larger_than_utility_is_outside_validity():
     assert sf["site_share_of_utility_sales"] == pytest.approx(1.5) and sf["outside_validity"]
     big = r["per_utility"][0]                               # 1.5e5 / 3e5 = 0.5 > 0.25
     assert big["site_share_of_utility_sales"] == pytest.approx(0.5) and big["outside_validity"]
+
+
+# --- cooling_water (D-106) -------------------------------------------------------------
+import pandas as pd  # noqa: E402
+
+from tools.engines.ai_infra import cooling_water  # noqa: E402
+
+
+def _weather(tw, tdb, days=3653):
+    return pd.DataFrame({"t2mwet_c": np.full(days, tw), "t2m_c": np.full(days, tdb)})
+
+
+def test_wue_by_design_and_ordering():
+    w = _weather(20.0, 27.0)
+    res = {}
+    for ct in cooling_water.COOLING_TYPES:
+        res[ct] = cooling_water.run(w, 20.0, 1.3, ct, None, (None, None), {}, CFG, np.random.default_rng(3))
+    assert 1.2 < res["evaporative"]["wue_l_per_it_kwh"] < 3.0       # US data-center average is ~1.8 L/kWh
+    assert 0 < res["adiabatic_hybrid"]["wue_l_per_it_kwh"] < res["evaporative"]["wue_l_per_it_kwh"]
+    assert res["dry"]["annual_withdrawal_m3"] == 0 and res["dry"]["pue_effective_annual"] > 1.3
+    assert res["evaporative"]["annual_consumption_m3"] < res["evaporative"]["annual_withdrawal_m3"]
+
+
+def test_gauge_pick_and_zero_low_flow():
+    g = pd.DataFrame({"site_no": ["a", "b", "c"], "station_nm": ["creek", "river", "far"],
+                      "dec_lat_va": [32.0, 32.3, 34.0], "dec_long_va": [-87.0, -87.0, -87.0],
+                      "drain_area_sqmi": [50.0, 20000.0, 90000.0], "mean_flow_cfs": [40.0, 30000.0, 1e5],
+                      "p10_min_cfs": [0.0, 4000.0, 9e4], "fips5": ["x", "y", "z"]})
+    src, near = cooling_water.pick_gauges(g, 32.0, -87.0, 50)
+    assert src["station_nm"] == "river" and near["station_nm"] == "creek"   # 'far' is outside the radius
+    out = cooling_water.run(_weather(20.0, 27.0), 20.0, 1.3, "evaporative", None, (near, near), {}, CFG,
+                            np.random.default_rng(0))
+    assert out["share_of_source_low_flow_peak_day"] == float("inf")         # dry creek: any withdrawal fails

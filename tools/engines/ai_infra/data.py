@@ -137,5 +137,40 @@ def acs_meta(year: int = 2024) -> dict:
 
 
 @lru_cache(maxsize=1)
+def usgs_wateruse_2015() -> pd.DataFrame:
+    """USGS county water use 2015 (Dieter et al. 2018; LR-4, D-056). Mgal/d; population in thousands."""
+    return pd.read_parquet(_get(f"{BASE}/water/usgs_wateruse_2015/county.parquet",
+                                CACHE / "water" / "usgs_wateruse_2015.parquet"))
+
+
+@lru_cache(maxsize=1)
+def nwis_gauges() -> pd.DataFrame:
+    """Active USGS stream gauges with day-of-year flow statistics (LR-6, D-056)."""
+    return pd.read_parquet(_get(f"{BASE}/water/nwis/gauges.parquet", CACHE / "water" / "nwis_gauges.parquet"))
+
+
+@lru_cache(maxsize=1)
+def sdwis_systems() -> pd.DataFrame:
+    """EPA SDWIS water systems, national, one column set, no contact fields (LR-5, D-054)."""
+    return pd.read_parquet(_get(f"{BASE}/water/sdwis/water_systems.parquet", CACHE / "water" / "sdwis.parquet"))
+
+
+@lru_cache(maxsize=8)
+def power_daily(fips5: str) -> pd.DataFrame:
+    """NASA POWER daily T2M, T2MDEW, T2MWET at the county centroid, 1991-2020 (LR-3, D-054)."""
+    return pd.read_parquet(_get(f"{BASE}/climate/power/daily/{fips5}.parquet",
+                                CACHE / "climate" / "power" / f"{fips5}.parquet"))
+
+
+def water_meta() -> dict:
+    out = {}
+    for k, rel in (("usgs_wateruse_2015", "water/usgs_wateruse_2015/_meta.json"), ("nwis", "water/nwis/_meta.json"),
+                   ("sdwis", "water/sdwis/_meta.json"), ("nasa_power", "climate/power/_meta.json")):
+        m = json.loads(_get(f"{BASE}/{rel}", CACHE / "meta" / rel.replace("/", "_")).read_text())
+        out[k] = {x: m.get(x) for x in ("source", "doi", "year", "license", "written_utc", "note") if x in m}
+    return out
+
+
+@lru_cache(maxsize=1)
 def tier_a() -> pd.DataFrame:
     return pd.read_csv(ROOT / "national" / "tier_a_county_stats.csv", dtype={"fips5": str})

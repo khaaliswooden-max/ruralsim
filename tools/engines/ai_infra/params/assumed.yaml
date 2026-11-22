@@ -105,3 +105,14 @@ rates:
   # the G&T, not the co-op), which no public source gives: the rate criterion is indeterminate
   # and the computed values are kept, labelled, but not scored.
   max_site_share_of_utility_sales: 0.25
+
+cooling:   # D-106. Ranges bracket published cooling-tower and data-center water figures; assumed.
+  evaporative_latent_share_range: [0.60, 0.90]     # latent share of rejected heat, from cold to hot wet-bulb
+  evaporative_latent_share_tw_c: [0.0, 25.0]       # wet-bulb (daily mean) at which the share is low / high
+  evaporative_latent_share_offset: [-0.05, 0.05]
+  cycles_of_concentration: [3.0, 6.0]
+  adiabatic_setpoint_daily_mean_c: [18.0, 24.0]    # daily-mean dry bulb; peak hours run hotter
+  adiabatic_evaporated_share_of_heat: [0.2, 0.5]
+  dry_hot_day_daily_mean_c: [22.0, 27.0]
+  dry_pue_penalty_on_hot_days: [0.05, 0.20]
+  source_gauge_radius_km: 50

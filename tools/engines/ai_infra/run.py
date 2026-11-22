@@ -18,12 +18,13 @@ import sys
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 import yaml
 from shapely.geometry import Point, Polygon
 from shapely.ops import nearest_points, unary_union
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-from tools.engines.ai_infra import data, gate, network, power_flow, rate_impact  # noqa: E402
+from tools.engines.ai_infra import cooling_water, data, gate, network, power_flow, rate_impact  # noqa: E402
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
@@ -120,22 +121,28 @@ def run_county(card, fips5, seeds, cfg, activsg, backtest_id=None):
             except Exception:
                 pass
     sx, sy, site_note = site_point(county, poly, tribal, card.get("site", {}))
-    feats = county.json("layers_raw/osm/power.geojson")["features"]
-    masked = []
-    net = network.build(feats, f_enu, poly, cfg["network"], masked_sub_ids=[m["osm_id"] for m in masked])
-    cands = rate_impact.candidates(fips5, state, data.eia)
-    acs = data.acs_income_quintiles()
-    arow = acs[acs.fips5 == fips5]
-    arow = arow.iloc[0].to_dict() if len(arow) else None
-
+    modules = card.get("modules", ["power_flow", "rate_impact"])
+    power = "power_flow" in modules
     rec = {"county": {**county.record(), "state": state, "rucc_2023": int(trow.rucc_2023)},
-           "network": net.summary, "candidate_utilities": cands, "backtest": bt}
+           "modules": modules, "backtest": bt}
+    if power:
+        feats = county.json("layers_raw/osm/power.geojson")["features"]
+        masked = []
+        net = network.build(feats, f_enu, poly, cfg["network"], masked_sub_ids=[m["osm_id"] for m in masked])
+        cands = rate_impact.candidates(fips5, state, data.eia)
+        acs = data.acs_income_quintiles()
+        arow = acs[acs.fips5 == fips5]
+        arow = arow.iloc[0].to_dict() if len(arow) else None
+        rec.update(network=net.summary, candidate_utilities=cands)
     if sx is None:
         rec["site"] = {"note": site_note}
         rec["scenarios"] = {}
         return rec
     lon, lat = f_wgs(sx, sy)
     rec["site"] = {"lon": lon, "lat": lat, "enu_m": [sx, sy], "note": site_note, "provenance": "hypothetical"}
+    if "cooling_water" in modules:
+        wctx = water_context(county, fips5, lat, lon, cfg)
+        rec["water_context"] = {k: v for k, v in wctx.items() if k != "weather"}
 
     scen_out = {}
     for si, sc in enumerate(card["scenarios"]):
@@ -164,6 +171,13 @@ def run_county(card, fips5, seeds, cfg, activsg, backtest_id=None):
             onsite_capex = (on.get("solar_mw", 0) * power_flow.u(r_on, cfg["costs"]["solar_musd_per_mw"])
                             + on.get("storage_mwh", 0) * power_flow.u(r_on, cfg["costs"]["storage_musd_per_mwh"])
                             + on.get("firm_mw", 0) * power_flow.u(r_on, cfg["costs"]["firm_musd_per_mw"])) * 1e6
+            if not power:
+                cw = cooling_water.run(wctx["weather"], avg / pue, pue, sc["cooling"], wctx["county_use"],
+                                       (wctx["source_gauge"], wctx["nearest_gauge"]), wctx["community_water_systems"],
+                                       cfg, np.random.default_rng([int(fips5), seed, 6]))
+                per_seed.append({"seed": seed, "inputs": {"it_load_mw": it, "pue": pue, "facility_load_factor": lf,
+                                                          "it_avg_mw": avg / pue}, "cooling_water": cw})
+                continue
             cpeak, cinfo = county_load(fips5, cands, tier, cfg, r_cty)
             cpf = power_flow.u(r_cty, L["county_power_factor"])
             if cpeak is None:
@@ -184,9 +198,60 @@ def run_county(card, fips5, seeds, cfg, activsg, backtest_id=None):
                                                       "grid_mwh": grid_mwh, "county_peak_mw": cpeak,
                                                       "county_load_info": cinfo, "onsite_capex_usd": onsite_capex},
                              "power_flow": pfo, "rate_impact": rates})
-        scen_out[sc["name"]] = {"scenario": sc, "summary": summarise(per_seed, cands), "seeds": per_seed}
+        summ = summarise(per_seed, cands) if power else summarise_water(per_seed)
+        scen_out[sc["name"]] = {"scenario": sc, "summary": summ, "seeds": per_seed}
     rec["scenarios"] = scen_out
     return rec
+
+
+def water_context(county, fips5, lat, lon, cfg):
+    """Per-county inputs for cooling_water, fixed across seeds."""
+    w = data.usgs_wateruse_2015()
+    row = w[w.fips5_2024 == fips5]
+    cu = None
+    if len(row):
+        r = row.iloc[0]
+        cu = {"ps_wfrto": float(r.ps_wfrto), "to_wfrto": float(r.to_wfrto), "ps_topop_thousands": float(r.ps_topop),
+              "ps_per_capita_gpd": float(r.ps_wfrto * 1e6 / (r.ps_topop * 1000)) if r.ps_topop else None,
+              "year": 2015, "units": "Mgal/d"}
+    src, near = cooling_water.pick_gauges(data.nwis_gauges(), lat, lon, cfg["cooling"]["source_gauge_radius_km"])
+    cws = {"status": "indeterminate: county SDWIS file not in snapshot"}
+    try:
+        ids = pd.read_csv(county.path(f"layers_raw/water_systems/sdwis_systems_{fips5}.csv"), dtype=str).pwsid
+        q = data.sdwis_systems()
+        a = q[q.pwsid.isin(ids) & (q.pws_activity_code == "A") & (q.pws_type_code == "CWS")]
+        top = a.nlargest(1, "population_served_count")
+        cws = {"active_cws": int(len(a)), "population_served": int(a.population_served_count.sum()),
+               "by_source": {str(k): int(v) for k, v in a.gw_sw_code.value_counts().items()},
+               "largest": (None if top.empty else {"pwsid": top.pwsid.iloc[0], "pws_name": top.pws_name.iloc[0],
+                                                   "population_served": int(top.population_served_count.iloc[0]),
+                                                   "gw_sw_code": top.gw_sw_code.iloc[0]})}
+    except FileNotFoundError:
+        pass
+    return {"weather": data.power_daily(fips5), "county_use": cu, "source_gauge": src, "nearest_gauge": near,
+            "community_water_systems": cws, "flow_note": "flow at the gauge; drainage-area scale factor 1.0 (site drainage "
+                                                          "area needs NHDPlus, not a layer)"}
+
+
+def summarise_water(per_seed):
+    cws = [s["cooling_water"] for s in per_seed]
+
+    def b(key, scale=1.0):
+        return band([c[key] * scale for c in cws if isinstance(c.get(key), (int, float)) and math.isfinite(c[key])])
+
+    lf = [c.get("share_of_source_low_flow_peak_day") for c in cws]
+    return {"cooling_type": cws[0]["cooling_type"],
+            "annual_withdrawal_m3": b("annual_withdrawal_m3"), "annual_withdrawal_gallons": b("annual_withdrawal_gallons"),
+            "annual_consumption_m3": b("annual_consumption_m3"), "peak_day_withdrawal_m3": b("peak_day_withdrawal_m3"),
+            "wue_l_per_it_kwh": b("wue_l_per_it_kwh"), "pue_effective_annual": b("pue_effective_annual"),
+            "share_of_county_public_supply": b("share_of_county_public_supply"),
+            "share_of_county_fresh_withdrawals": b("share_of_county_fresh_withdrawals"),
+            "equivalent_people_at_county_public_supply_rate": b("equivalent_people_at_county_public_supply_rate"),
+            "share_of_source_low_flow_peak_day": b("share_of_source_low_flow_peak_day"),
+            "share_seeds_source_low_flow_zero_and_withdrawal": sum(1 for x in lf if x == math.inf) / len(lf),
+            "source_low_flow_status": next((x for x in lf if isinstance(x, str)), None),
+            "share_of_nearest_low_flow_peak_day_unscored": b("share_of_nearest_low_flow_peak_day_unscored"),
+            "water_within_recharge": "indeterminate"}
 
 
 def summarise(per_seed, cands):
@@ -324,6 +389,27 @@ def judge(card, rec):
     if not rec["scenarios"]:
         misses.append({"county": f, "criterion": "site", "status": "blocked", "value": rec["site"]["note"]})
     for name, sc in rec["scenarios"].items():
+        if "power_flow" not in sc["summary"]:
+            w = sc["summary"]
+            for key, label, bar in (("share_of_source_low_flow_peak_day", "peak-day withdrawal vs source-gauge low flow (p10_min)",
+                                     crit["peak_day_share_of_low_flow_max"]),
+                                    ("share_of_county_public_supply", "annual withdrawal vs county public supply (USGS 2015)",
+                                     crit["annual_share_of_public_supply_max"])):
+                item = {"county": f, "scenario": name, "criterion": label, "threshold": f"p50 <= {bar:.0%}"}
+                bnd = w.get(key)
+                if key == "share_of_source_low_flow_peak_day" and w["share_seeds_source_low_flow_zero_and_withdrawal"] > 0.5:
+                    misses.append({**item, "status": "miss", "value": "source low flow (p10_min) is 0 cfs and the site withdraws water"})
+                elif key == "share_of_source_low_flow_peak_day" and w.get("source_low_flow_status"):
+                    misses.append({**item, "status": "indeterminate", "value": w["source_low_flow_status"]})
+                elif bnd is None:
+                    misses.append({**item, "status": "indeterminate", "value": "no data"})
+                elif round(bnd["p50"], 9) > bar:
+                    misses.append({**item, "status": "miss", "value": bnd})
+                else:
+                    passes.append({**item, "status": "pass", "value": bnd})
+            misses.append({"county": f, "scenario": name, "criterion": "water_within_recharge", "status": "indeterminate",
+                           "value": "no modelled sustainable yield"})
+            continue
         pf = sc["summary"]["power_flow"]
         n = sum(pf["status_counts"].values())
         comp = pf["status_counts"].get("computed", 0)
@@ -402,6 +488,7 @@ def main(argv=None):
         "activsg_sha256": sha(HERE / "params" / "activsg_distributions.json"),
         "eia_tables": {"year": 2024, "meta": data.eia_meta(2024)},
         "acs_tables": {"year": 2024, "meta": data.acs_meta(2024)},
+        "water_tables": data.water_meta() if "cooling_water" in card.get("modules", []) else None,
         "environment": environment(),
         "grade": "SPECULATIVE", "disclosure": DISCLOSURE,
         "seeds": a.seeds, "mode": "promotable-count" if a.seeds >= 20 else "screening",
@@ -410,7 +497,8 @@ def main(argv=None):
         "misses": misses, "refused": refused, "passes": passes,
         "counties": recs,
         "not_modelled": ["N-1 contingency", "regional through-flow (background_utilisation stands in)",
-                         "local tax effects and abatements", "cooling water, fiber, flood (later PRs)",
+                         "local tax effects and abatements", "fiber, flood (later PRs)",
+                         "drainage-area scaling between gauge and site (needs NHDPlus)",
                          "which utility actually serves the site (all candidates run)"],
     }
     if not a.no_write:
