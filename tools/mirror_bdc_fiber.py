@@ -91,12 +91,23 @@ def as_of_dates() -> list[str]:
     return sorted({x["as_of_date"][:10] for x in d if x.get("data_type") == "availability"})
 
 
-def fiber_files(as_of: str) -> list[dict]:
+def listing(as_of: str) -> list[dict]:
+    return json.loads(get(f"downloads/listAvailabilityData/{as_of}", {"category": "State"})).get("data") or []
+
+
+def fiber_files(as_of: str, rows: list[dict] | None = None) -> list[dict]:
     """The state-level fixed-broadband availability files for fiber at this as-of date."""
-    d = json.loads(get(f"downloads/listAvailabilityData/{as_of}", {"category": "State"}))["data"]
-    keep = [f for f in d if str(f.get("technology_code")) == FIBER
+    rows = listing(as_of) if rows is None else rows
+    return [f for f in rows if str(f.get("technology_code")) == FIBER
             and "fixed" in str(f.get("subcategory", f.get("technology_type", "fixed"))).lower()]
-    return keep
+
+
+def describe(rows: list[dict]) -> dict:
+    """The listing's shape: field names and the distinct values of the short fields."""
+    keys = sorted({k for r in rows for k in r})
+    vals = {k: sorted({str(r.get(k)) for r in rows})[:15] for k in keys
+            if len({str(r.get(k)) for r in rows}) <= 15}
+    return {"rows": len(rows), "fields": keys, "values": vals, "first": rows[:2]}
 
 
 def state_of(f: dict) -> str:
@@ -204,10 +215,13 @@ def main(argv=None):
         else:
             dates = as_of_dates()
             as_of = a.as_of or dates[-1]
+            if a.list:  # show the raw listing for the latest two dates, so the filter can be checked
+                out = {"as_of_dates": dates}
+                for d in ([as_of] if a.as_of else dates[-2:][::-1]):
+                    rows = listing(d)
+                    out[d] = describe(rows) | {"fiber_files": len(fiber_files(d, rows))}
+                print(json.dumps(out, indent=2, default=str)); return
             files = fiber_files(as_of)
-            if a.list:
-                print(json.dumps({"as_of_dates": dates, "as_of": as_of, "fiber_files": len(files),
-                                  "example": files[:2]}, indent=2, default=str)); return
             files = [f for f in files if state_of(f) in states]
             print(f"as of {as_of}: {len(files)} state fiber files", flush=True)
             for i, f in enumerate(files, 1):
