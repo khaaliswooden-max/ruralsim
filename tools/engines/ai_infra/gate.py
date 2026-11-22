@@ -68,4 +68,14 @@ def check(fips5: str, backtest_id: str | None, eia_available) -> dict | None:
     if not eia_available(year):
         raise Refused(f"blocked: EIA-860/861 tables for {year} (T0-1) are not in R2 (eia/{year}/); "
                       f"PREREGISTRATION §4.2.1 forbids substituting 2024")
-    return {"site_id": backtest_id, "preregistration_commit": commit, "as_of_year": year}
+    # PREREGISTRATION §4.2.2: the site mask needs the site location and the names to mask by.
+    # sites.yaml (step 3) must give both; without them a run would be unmasked, so it is refused.
+    pt, terms = s.get("site_point"), s.get("mask_owner_terms")
+    if not (isinstance(pt, (list, tuple)) and len(pt) == 2) or not terms:
+        raise Refused(f"blocked: validation/backtest/sites.yaml gives {backtest_id} no site_point [lon, lat] "
+                      f"and/or mask_owner_terms; the §4.2.2 site mask cannot be applied without them")
+    return {"site_id": backtest_id, "preregistration_commit": commit, "as_of_year": year,
+            "site_point": [float(pt[0]), float(pt[1])], "mask_owner_terms": [str(t) for t in terms],
+            "mask_radius_m": 2000.0,
+            # §4.2.2: a feature stays if a dated source shows it existed before T0 (listed by step 3)
+            "mask_keep_osm_ids": [str(i) for i in (s.get("mask_keep_osm_ids") or [])]}

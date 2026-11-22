@@ -103,6 +103,11 @@ def county_load(fips5, cands, tier, cfg, rng):
                          "total_to_residential_ratio": ratio, "county_avg_mw": avg_mw}
 
 
+def eia_for(year):
+    """EIA table loader bound to one year (2024, or T0-1 in a back-test)."""
+    return lambda table: data.eia(table, year)
+
+
 def run_county(card, fips5, seeds, cfg, activsg, backtest_id=None):
     bt = gate.check(fips5, backtest_id, data.eia_available)
     county = data.County(fips5)
@@ -120,20 +125,31 @@ def run_county(card, fips5, seeds, cfg, activsg, backtest_id=None):
                 tribal.append(Polygon(r).buffer(0))
             except Exception:
                 pass
-    sx, sy, site_note = site_point(county, poly, tribal, card.get("site", {}))
+    site_spec = card.get("site", {})
+    if bt:   # back-test: the registered site, not the card's rule (PREREGISTRATION §4.2)
+        site_spec = {"rule": "point", "lon": bt["site_point"][0], "lat": bt["site_point"][1]}
+    eia_year = bt["as_of_year"] if bt else 2024      # §4.2.1: T0-1 tables, never 2024, in a back-test
+    sx, sy, site_note = site_point(county, poly, tribal, site_spec)
     modules = card.get("modules", ["power_flow", "rate_impact"])
     power = "power_flow" in modules
     rec = {"county": {**county.record(), "state": state, "rucc_2023": int(trow.rucc_2023)},
-           "modules": modules, "backtest": bt}
+           "modules": modules, "backtest": bt, "eia_year": eia_year}
     if power:
         feats = county.json("layers_raw/osm/power.geojson")["features"]
         masked = []
+        if bt:
+            feats, masked = network.apply_mask(feats, f_enu, (sx, sy) if sx is not None else None,
+                                               bt["mask_radius_m"], bt["mask_owner_terms"])
+            keep = set(bt["mask_keep_osm_ids"])
+            masked = [m for m in masked if str(m["osm_id"]) not in keep]
         net = network.build(feats, f_enu, poly, cfg["network"], masked_sub_ids=[m["osm_id"] for m in masked])
-        cands = rate_impact.candidates(fips5, state, data.eia)
+        cands = rate_impact.candidates(fips5, state, eia_for(eia_year), eia_year)
         acs = data.acs_income_quintiles()
         arow = acs[acs.fips5 == fips5]
         arow = arow.iloc[0].to_dict() if len(arow) else None
         rec.update(network=net.summary, candidate_utilities=cands)
+        if bt:
+            rec["masked_features"] = masked
     if sx is None:
         rec["site"] = {"note": site_note}
         rec["scenarios"] = {}
@@ -567,7 +583,7 @@ def main(argv=None):
         "engine": "tools/engines/ai_infra", "engine_version": git_commit(), "spec_version": "0.1",
         "params_sha256": sha(HERE / "params" / "assumed.yaml"),
         "activsg_sha256": sha(HERE / "params" / "activsg_distributions.json"),
-        "eia_tables": {"year": 2024, "meta": data.eia_meta(2024)},
+        "eia_tables": {y: data.eia_meta(y) for y in sorted({r.get("eia_year", 2024) for r in recs})},
         "acs_tables": {"year": 2024, "meta": data.acs_meta(2024)},
         "water_tables": data.water_meta() if "cooling_water" in card.get("modules", []) else None,
         "flood_tables": data.nfhl_meta() if "flood" in card.get("modules", []) else None,
