@@ -119,3 +119,39 @@
   fidelity_tier: B_pilot_3d
   provenance_floor: assumed
   risks_to_residents: "a flooded site can lose power or water service it shares with residents; fill in a floodplain can move water onto neighbours"
+
+- id: EXP-0014
+  title: "Fiber screen for a 20 MW data center at a rural county site"
+  category: energy_compute
+  hypothesis: >
+    Fiber to the premises is reported in the H3 hexagon of a 20 MW compute site at the county
+    centroid, or in a hexagon within 5 km of it, and at least two fiber providers serve the county.
+  counties: ["01131", "20019", "54047", "31173"]
+  site: {rule: centroid, note: "same site rule as EXP-0011 to EXP-0013"}
+  modules: [fiber]
+  deterministic: true            # no sampled input: one evaluation, not 20 identical seeds
+  intervention:
+    description: one site; no build, a screen of reported availability
+    parameters: {bdc_as_of: "2026-06-30"}
+    parameter_sources: {availability: "FCC BDC fixed availability, technology 50, release of 2026-11-10 (D-058); observed, provider-reported"}
+  scenarios:
+    - {name: site, it_load_mw: 20}
+  baseline: reported fiber availability; no change
+  duration: "static, BDC as of 2026-06-30"
+  time_step: "n/a"
+  engines: [network]
+  seeds: 1
+  metrics:
+    primary: nearest_fiber_hex_km (km, hexagon centroid to centroid; 0 when fiber is in the site hexagon)
+    secondary: [fiber_in_site_hex, county_fiber_providers, site_hex_max_down_mbps, middle_mile]
+    rqli_domains_affected: [connectivity]
+  criterion:                      # stated before the run (D-108); screening bars, assumed
+    nearest_fiber_hex_km_max: 5.0
+    county_fiber_providers_min: 2
+    rule: >
+      Pass only if both bars hold. Middle-mile and long-haul fiber are not observed and are reported
+      indeterminate in every county; availability is provider-reported, not subscriptions.
+  success_criterion: "both bars hold in every county with a site"
+  fidelity_tier: B_pilot_3d
+  provenance_floor: observed
+  risks_to_residents: "low from the screen itself; a fiber build for a site can bypass the homes along its route"

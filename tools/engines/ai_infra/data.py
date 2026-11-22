@@ -178,6 +178,18 @@ def nfhl_meta() -> dict:
     return json.loads(_get(f"{BASE}/flood/nfhl/_meta.json", CACHE / "flood" / "_meta.json").read_text())
 
 
+@lru_cache(maxsize=2)
+def bdc_fiber(as_of: str, table: str) -> pd.DataFrame:
+    """FCC BDC fiber (technology 50) aggregates: fiber_h3, fiber_county or fiber_providers (LR-7, D-058)."""
+    return pd.read_parquet(_get(f"{BASE}/broadband/bdc/{as_of}/{table}.parquet",
+                                CACHE / "broadband" / as_of / f"{table}.parquet"))
+
+
+def bdc_meta(as_of: str) -> dict:
+    m = json.loads(_get(f"{BASE}/broadband/bdc/{as_of}/_meta.json", CACHE / "broadband" / as_of / "_meta.json").read_text())
+    return {k: m.get(k) for k in ("source", "api", "as_of", "written_utc", "license", "counts") if k in m} | {"files": len(m.get("files", []))}
+
+
 def water_meta() -> dict:
     out = {}
     for k, rel in (("usgs_wateruse_2015", "water/usgs_wateruse_2015/_meta.json"), ("nwis", "water/nwis/_meta.json"),

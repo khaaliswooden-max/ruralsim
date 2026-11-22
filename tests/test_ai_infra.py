@@ -225,3 +225,26 @@ def test_flood_point_in_zone_share_and_status_rules():
     assert none["status"] == "indeterminate" and "not 'no flood risk'" in none["reason"]
     part = flood.run({"status": "partial"}, near, (2500.0, 2500.0), CFG, np.random.default_rng(0))
     assert part["status"] == "indeterminate"                      # outside drawn zones in a partly mapped county
+
+
+# --- fiber (D-108) -----------------------------------------------------------------------
+import h3 as _h3  # noqa: E402
+
+from tools.engines.ai_infra import fiber  # noqa: E402
+
+
+def test_fiber_site_hex_nearest_and_county():
+    site = _h3.latlng_to_cell(32.0, -87.3, 8)
+    ring2 = sorted(_h3.grid_ring(site, 3))[0]                       # ~2.5-3 km away
+    rows = pd.DataFrame({"h3_res8_id": [ring2, ring2], "fips5": ["01131", "01099"], "state": ["AL", "AL"],
+                         "fiber_locations": [5, 7], "residential": [5, 7], "business": [1, 1], "providers": [1, 2],
+                         "max_down_mbps": [1000.0, 2000.0], "max_up_mbps": [1000.0, 2000.0], "locations_ge_1000_mbps": [5, 7]})
+    hx = fiber.hex_table(rows)
+    assert int(hx.loc[ring2].fiber_locations) == 12 and int(hx.loc[ring2].providers) == 2   # county parts summed
+    o = fiber.run(32.0, -87.3, hx, {"fiber_providers": 2, "brand_names": "A; B", "fiber_locations": 12,
+                                    "hexes_with_fiber": 1}, 30)
+    assert not o["fiber_in_site_hex"] and 2.0 < o["nearest_fiber_hex_km"] < 4.0
+    assert o["middle_mile"].startswith("not observed")
+    lat, lon = _h3.cell_to_latlng(ring2)
+    assert fiber.run(lat, lon, hx, None, 30)["nearest_fiber_hex_km"] == 0.0
+    assert fiber.run(40.0, -100.0, hx, None, 30)["nearest_fiber_hex_km"] is None   # nothing within radius
