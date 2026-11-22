@@ -198,7 +198,7 @@ def main(argv=None):
         work = pathlib.Path(td)
         parts, out = work / "parts", work / "out"
         parts.mkdir(); out.mkdir()
-        listing = []
+        files_read = []
         if a.from_dir:
             if not a.as_of:
                 raise SystemExit("--from-dir needs --as-of (the date on the files)")
@@ -208,7 +208,7 @@ def main(argv=None):
                     continue
                 csvs = extract(p.read_bytes(), work, p.stem) if p.suffix.lower() == ".zip" else [p]
                 aggregate_state(csvs, parts, f"f{i}")
-                listing.append({"file_name": p.name})
+                files_read.append({"file_name": p.name})
                 for c in csvs:
                     if c.parent == work:
                         c.unlink()
@@ -230,13 +230,13 @@ def main(argv=None):
                 aggregate_state(csvs, parts, str(f["file_id"]))
                 for c in csvs:
                     c.unlink()
-                listing.append({k: f.get(k) for k in ("file_id", "file_name", "state_fips", "record_count")})
+                files_read.append({k: f.get(k) for k in ("file_id", "file_name", "state_fips", "record_count")})
                 print(f"  {i}/{len(files)} {state_of(f)} {f.get('file_name')} {len(z) / 1e6:.0f} MB", flush=True)
-        if not listing:
+        if not files_read:
             raise SystemExit("no fiber files read")
         counts = combine(parts, out)
         meta = {"source": "FCC Broadband Data Collection, National Broadband Map, fixed availability, technology 50 (fiber)",
-                "api": API, "as_of": as_of, "files": listing, "states": sorted(states) if a.state else "all",
+                "api": API, "as_of": as_of, "files": files_read, "states": sorted(states) if a.state else "all",
                 "fabric": "excluded: no location id, address or coordinate written; locations only counted",
                 **counts, "written_utc": datetime.datetime.now(datetime.timezone.utc).isoformat()}
         (out / "_meta.json").write_text(json.dumps(meta, indent=2))
@@ -251,7 +251,7 @@ def main(argv=None):
                 s3.upload_file(str(out / name), bucket(), f"{PREFIX}{as_of}/{name}",
                                ExtraArgs={"ContentType": "application/json" if name.endswith(".json") else
                                           "application/octet-stream", "CacheControl": "public, max-age=86400"})
-        print(json.dumps({k: v for k, v in meta.items() if k != "files"} | {"files": len(listing)}, indent=2))
+        print(json.dumps({k: v for k, v in meta.items() if k != "files"} | {"files": len(files_read)}, indent=2))
 
 
 if __name__ == "__main__":

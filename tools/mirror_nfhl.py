@@ -58,6 +58,7 @@ SIMPLIFY_DEG = "0.00002"  # about 2 m; FIRM mapping is far coarser
 HAZARD = "SFHA_TF = 'T' OR FLD_ZONE = 'D' OR (FLD_ZONE = 'X' AND ZONE_SUBTY LIKE '%0.2 PCT%')"
 PREFIX = "flood/nfhl/"
 EQUAL_AREA = "EPSG:6933"
+FAIL_FAST = 3  # first counties all failing -> stop the state job
 WORKERS = 3  # FEMA's server is shared: keep the load modest
 FAR_FUTURE_MS = 253_000_000_000_000  # FEMA writes 9999-12-31 for "no date"
 
@@ -287,13 +288,29 @@ def main(argv=None):
     todo = c[~c["fips5"].isin(have)]
     print(f"{len(c)} counties, {len(c) - len(todo)} already in R2, {len(todo)} to fetch", flush=True)
 
+    # FEMA's server sometimes resets every connection from one runner for hours (run 1: all of
+    # Arkansas and Kansas, and Hawaii, while 48 other states ran clean). Seven retries per request
+    # then turn a state into a six-hour timeout. Once the first FAIL_FAST counties have all failed
+    # and none succeeded, the rest are skipped so the job ends quickly and "Re-run failed jobs"
+    # gets a fresh runner.
+    import threading
+    stop, tally, lock = threading.Event(), {"ok": 0, "bad": 0}, threading.Lock()
+
     def run(row):
+        if stop.is_set():
+            return row.fips5, None, "skipped: this runner looks blocked by FEMA"
         try:
             z, s = one_county(row)
             store.put(f"zones/{row.fips5}.parquet", zones_parquet(z))
             store.put(f"status/{row.fips5}.json", json.dumps(s).encode())  # last: marks the county done
+            with lock:
+                tally["ok"] += 1
             return row.fips5, s, None
         except Exception as e:
+            with lock:
+                tally["bad"] += 1
+                if tally["ok"] == 0 and tally["bad"] >= FAIL_FAST:
+                    stop.set()
             return row.fips5, None, str(e)[:200]
 
     failed, t0 = [], time.time()
