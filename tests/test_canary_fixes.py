@@ -604,3 +604,13 @@ def test_antimeridian_county_is_clipped_to_the_western_hemisphere(monkeypatch):
     c = cc.get("02016")
     assert c.bbox[0] > -180 and c.bbox[2] < 0 and c.bbox[2] - c.bbox[0] < 20
     assert "D-060" in c.boundary_source
+
+
+def test_honolulu_drops_the_northwestern_hawaiian_islands(monkeypatch):
+    """Build #47: Honolulu's 21-degree box (out to Kure, 178.3 W) broke the DEM mosaic."""
+    import county_config as cc
+    from shapely.geometry import box, mapping, MultiPolygon
+    geom = MultiPolygon([box(-158.3, 21.2, -157.6, 21.8), box(-178.4, 28.3, -178.2, 28.5), box(-166.3, 23.7, -166.1, 23.9)])
+    monkeypatch.setattr(cc, "fetch_boundary", lambda f: mapping(geom))
+    c = cc.get("15003")
+    assert c.bbox[0] > -159 and c.bbox[2] - c.bbox[0] < 1 and "D-061" in c.boundary_source
