@@ -53,7 +53,7 @@ def environment() -> dict:
     import importlib.metadata as md
     import platform
     out = {"python": platform.python_version()}
-    for p in ("pandapower", "pandas", "numpy", "scipy", "pyarrow", "networkx", "shapely", "pyproj", "PyYAML"):
+    for p in ("pandapower", "pandas", "numpy", "scipy", "pyarrow", "networkx", "shapely", "pyproj", "PyYAML", "h3"):
         try:
             out[p] = md.version(p)
         except md.PackageNotFoundError:
