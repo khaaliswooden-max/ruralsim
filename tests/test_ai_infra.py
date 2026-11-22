@@ -8,6 +8,12 @@ import pytest
 import yaml
 from shapely.geometry import box
 
+# The engine runs in its own environment (tools/engines/ai_infra/requirements.txt, D-103):
+# pandapower requires pandas~=2.3, the build pipeline pins pandas 3. In a pipeline-only
+# environment this module is skipped with that reason instead of failing at import.
+pytest.importorskip("pandapower", reason="AI-infra engine env not installed: "
+                    "pip install -r tools/engines/ai_infra/requirements.txt (separate venv, D-103)")
+
 from tools.engines.ai_infra import gate, network, power_flow, rate_impact
 
 HERE = Path(__file__).resolve().parents[1] / "tools" / "engines" / "ai_infra" / "params"
