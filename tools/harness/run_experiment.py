@@ -48,7 +48,7 @@ def get_baseline(fips: str, seed: int, n: int = 2000):
     key = (fips, seed, n)
     if key in _BASE:
         return _BASE[key]
-    p = CACHE / f"{fips}_s{seed}_n{n}.pkl"
+    p = CACHE / f"{fips}_s{seed}_n{n}_{households.MODEL}.pkl"  # model in the key (D-104)
     if p.exists():
         try:
             with open(p, "rb") as f:
@@ -152,6 +152,7 @@ def run_one_seed(card: dict, fips: str, seed: int) -> dict:
         "constraints_passed": all(v["passed"] for v in cons.values()),
         "provenance_floor": rqli.weakest_tag(list(tags.values()) + [card["provenance_floor"]]),
         "indicator_provenance": tags,
+        "households_model": hh.attrs.get("provenance", {}).get("income_model"),
     }
 
 
@@ -173,6 +174,18 @@ def effect_of(primary: dict) -> float | None:
     return None
 
 
+def _git_commit() -> str:
+    import subprocess
+    try:
+        c = subprocess.run(["git", "-C", str(ROOT), "rev-parse", "HEAD"], capture_output=True, text=True,
+                           check=True).stdout.strip()
+        dirty = subprocess.run(["git", "-C", str(ROOT), "status", "--porcelain", "--", "tools"],
+                               capture_output=True, text=True).stdout.strip()
+        return c + ("-dirty" if dirty else "")
+    except Exception:
+        return "unknown"
+
+
 def run_card(card: dict, seeds: int, seed_offset: int = 0) -> dict:
     fips = card["counties"][0]
     rows = [run_one_seed(card, fips, seed_offset + s) for s in range(seeds)]
@@ -190,6 +203,8 @@ def run_card(card: dict, seeds: int, seed_offset: int = 0) -> dict:
     return {
         "card_id": card["id"], "title": card["title"],
         "run_date": dt.datetime.now().isoformat(timespec="seconds"),
+        "code_commit": _git_commit(),                      # card schema results_block (D-104)
+        "households_model": rows[0].get("households_model") if rows else None,
         "mode": "screening" if seeds < 20 else "promotion-eligible",
         "seeds": seeds, "fidelity_tier": card["fidelity_tier"],
         "provenance_floor": card["provenance_floor"],

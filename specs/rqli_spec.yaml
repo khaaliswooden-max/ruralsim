@@ -33,7 +33,7 @@ domains:
   - id: economic_security
     weight: 0.20
     indicators:
-      - {id: income_after_essentials, unit: USD per year, floor: 0, target: 15000, baseline: calibrate to median_hh_income_2023 and poverty_rate_2023 in data/county_master.csv}
+      - {id: income_after_essentials, unit: USD per year, floor: 0, target: 15000, baseline: calibrate to ACS 2020-2024 income quintiles (data/acs_income_quintiles_2024.csv; D-104), SAIPE median and poverty as fallback}
       - {id: jobs_reachable_within_45_min, unit: count per working-age adult, floor: 0.3, target: 1.0, baseline: from simulation}
       - {id: energy_cost_share_of_income, unit: fraction, floor: 0.10, target: 0.04, baseline: from simulation}
   - id: water

@@ -1,0 +1,20 @@
+{
+ "survey": "ACS 5-year 2020-2024",
+ "tables": {
+  "B19081": "mean household income by quintile and top 5%",
+  "B19080": "household income quintile upper limits and top-5% lower limit"
+ },
+ "sources": [
+  "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b19081.dat",
+  "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b19080.dat"
+ ],
+ "license": "public domain (U.S. Census Bureau)",
+ "counties": 3144,
+ "counties_missing": [],
+ "mean_q1_null": 9,
+ "topcoded_cells": 747,
+ "written_utc": "2026-11-21T07:50:47.457007+00:00",
+ "copied_from": "https://pub-b414cd9251804d11871e4bec734e096e.r2.dev/acs/2024/income_quintiles.parquet",
+ "parquet_sha256": "c042fc9d5d19e1ba6d943231ab53d04ac42221abc33221a2f628842ee3724520",
+ "note": "committed copy so the harness runs offline and reproducibly (D-104); regenerate from R2 if D-053's table changes"
+}
