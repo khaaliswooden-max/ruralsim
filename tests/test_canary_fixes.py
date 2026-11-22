@@ -557,3 +557,22 @@ def test_bdc_fiber_reads_quoted_names_after_unquoted_rows(tmp_path):
     assert c["providers"] == 2 and c["fiber_locations"] == 30001
     names = duckdb.sql(f"SELECT brand_names FROM '{out}/fiber_county.parquet'").fetchone()[0]
     assert "Glenwood Network Services, Inc." in names
+
+
+def test_climate_falls_back_to_power_when_openmeteo_quota_spent(monkeypatch, tmp_path):
+    """Build #47: Lake and Peninsula AK (02164) — nClimDiv lacks it and Open-Meteo's quota was spent."""
+    import json, types, pandas as pd, fetch_climate as fc
+    world = tmp_path / "w"
+    monkeypatch.setattr(fc, "get", lambda f: types.SimpleNamespace(fips="02164", st="AK", world=world, centroid=(-156.0, 58.0)))
+    monkeypatch.setattr(fc, "climdiv_files", lambda: {})
+    monkeypatch.setattr(fc, "climdiv_normals", lambda st, f, files: None)
+    def quota(*a, **k):
+        raise RuntimeError("Open-Meteo HTTP 429 asks to retry in 10154 s")
+    monkeypatch.setattr(fc, "openmeteo_daily", quota)
+    n = pd.DataFrame({"tmax_f": range(12), "tmin_f": range(12), "precip_in": [1.0] * 12,
+                      "snow_in": [float("nan")] * 12, "wind_max_mph": [10.0] * 12}, index=pd.Index(range(1, 13), name="month"))
+    monkeypatch.setattr(fc, "power_normals", lambda lat, lon: n)
+    fc.main(["02164"])
+    meta = json.loads((world / "layers_raw" / "climate" / "_meta.json").read_text())
+    assert meta["source"].startswith("NASA POWER") and "D-059" in meta["note"]
+    assert meta["annual"]["precip_in_per_year"] == 12.0 and "snow_in" in meta["normals_columns_blank"]
