@@ -34,6 +34,9 @@ EPA_REGION = {
     **dict.fromkeys(["AK", "ID", "OR", "WA"], 10),
 }
 
+# Counties whose remote, uninhabited parts would swamp the world's bbox (D-061): parts
+# west of this longitude are dropped. Honolulu: the Northwestern Hawaiian Islands.
+REMOTE_PARTS_WEST_OF = {"15003": -159.0}
 BUF_DEG = 0.062  # ~5 km buffer around county bbox, in degrees
 TIGERWEB = ("https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/"
             "State_County/MapServer/1/query")
@@ -109,6 +112,14 @@ class Cfg:
             from shapely.geometry import box
             self.geom = self.geom.intersection(box(-180, -90, 0, 90))
             self.boundary_source += "; clipped to the western hemisphere (crosses 180 deg, D-060)"
+        if fips in REMOTE_PARTS_WEST_OF:
+            # D-061: Honolulu (15003) includes the Northwestern Hawaiian Islands, out to Kure at
+            # 178.3 W: a 21-degree box, mostly ocean, that cost O'ahu its terrain detail and
+            # broke the DEM mosaic (build #47). The world keeps the main-island part.
+            from shapely.geometry import box
+            self.geom = self.geom.intersection(box(REMOTE_PARTS_WEST_OF[fips], -90, 180, 90))
+            self.boundary_source += (f"; parts west of {REMOTE_PARTS_WEST_OF[fips]} deg dropped "
+                                     "(remote uninhabited islands, D-061)")
         w, s, e, n = self.geom.bounds
         self.bbox = (w, s, e, n)                                   # W, S, E, N
         self.buf_bbox = (w - BUF_DEG, s - BUF_DEG, e + BUF_DEG, n + BUF_DEG)

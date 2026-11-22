@@ -241,7 +241,10 @@ H = int(round((y1 - y0) / abs(res))); Wd = int(round((x1 - x0) / res))
 mos = np.full((H, Wd), np.nan, dtype="float32")
 for a, t in zip(win_arrays, win_transforms):
     r0 = int(round((y1 - t.f) / abs(res))); c0 = int(round((t.c - x0) / res))
+    # decimated windows can round one cell past the mosaic edge (Honolulu 15003, build #47:
+    # (1036, 559) vs (1037, 559)); paste only the overlap
     sub = mos[r0:r0 + a.shape[0], c0:c0 + a.shape[1]]
+    a = a[:sub.shape[0], :sub.shape[1]]
     mos[r0:r0 + a.shape[0], c0:c0 + a.shape[1]] = np.where(np.isnan(sub), a, np.fmax(sub, a))
 transform = rasterio.Affine(res, 0, x0, 0, -abs(res), y1)
 
