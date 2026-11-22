@@ -24,7 +24,7 @@ from shapely.geometry import Point, Polygon
 from shapely.ops import nearest_points, unary_union
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-from tools.engines.ai_infra import cooling_water, data, gate, network, power_flow, rate_impact  # noqa: E402
+from tools.engines.ai_infra import cooling_water, data, flood, gate, network, power_flow, rate_impact  # noqa: E402
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
@@ -143,6 +143,11 @@ def run_county(card, fips5, seeds, cfg, activsg, backtest_id=None):
     if "cooling_water" in modules:
         wctx = water_context(county, fips5, lat, lon, cfg)
         rec["water_context"] = {k: v for k, v in wctx.items() if k != "weather"}
+    if "flood" in modules:
+        fstat = flood.county_status(data.nfhl_status(), fips5)
+        fzones = flood.prepare(data.nfhl_zones(fips5), f_enu, (sx, sy), cfg["flood"]["search_m"]) \
+            if fstat and fstat["status"] != "none" else []
+        rec["flood_context"] = {"county_status": fstat, "zones_within_search": len(fzones)}
 
     scen_out = {}
     for si, sc in enumerate(card["scenarios"]):
@@ -171,6 +176,10 @@ def run_county(card, fips5, seeds, cfg, activsg, backtest_id=None):
             onsite_capex = (on.get("solar_mw", 0) * power_flow.u(r_on, cfg["costs"]["solar_musd_per_mw"])
                             + on.get("storage_mwh", 0) * power_flow.u(r_on, cfg["costs"]["storage_musd_per_mwh"])
                             + on.get("firm_mw", 0) * power_flow.u(r_on, cfg["costs"]["firm_musd_per_mw"])) * 1e6
+            if "flood" in modules:
+                fo = flood.run(fstat, fzones, (sx, sy), cfg, np.random.default_rng([int(fips5), seed, 7]))
+                per_seed.append({"seed": seed, "flood": fo})
+                continue
             if not power:
                 cw = cooling_water.run(wctx["weather"], avg / pue, pue, sc["cooling"], wctx["county_use"],
                                        (wctx["source_gauge"], wctx["nearest_gauge"]), wctx["community_water_systems"],
@@ -198,7 +207,8 @@ def run_county(card, fips5, seeds, cfg, activsg, backtest_id=None):
                                                       "grid_mwh": grid_mwh, "county_peak_mw": cpeak,
                                                       "county_load_info": cinfo, "onsite_capex_usd": onsite_capex},
                              "power_flow": pfo, "rate_impact": rates})
-        summ = summarise(per_seed, cands) if power else summarise_water(per_seed)
+        summ = (summarise(per_seed, cands) if power else
+                summarise_flood(per_seed) if "flood" in modules else summarise_water(per_seed))
         scen_out[sc["name"]] = {"scenario": sc, "summary": summ, "seeds": per_seed}
     rec["scenarios"] = scen_out
     return rec
@@ -231,6 +241,24 @@ def water_context(county, fips5, lat, lon, cfg):
     return {"weather": data.power_daily(fips5), "county_use": cu, "source_gauge": src, "nearest_gauge": near,
             "community_water_systems": cws, "flow_note": "flow at the gauge; drainage-area scale factor 1.0 (site drainage "
                                                           "area needs NHDPlus, not a layer)"}
+
+
+def summarise_flood(per_seed):
+    fo = [s["flood"] for s in per_seed]
+    st = _counts([x["status"] for x in fo])
+    comp = [x for x in fo if x["status"] == "computed"]
+
+    def b(k):
+        return band([x[k] for x in comp if isinstance(x.get(k), (int, float))])
+    return {"flood": True, "status_counts": st, "map_status": fo[0].get("map_status"),
+            "reason": next((x.get("reason") for x in fo if x["status"] != "computed"), None),
+            "site_point_zone": comp[0].get("site_point_zone") if comp else None,
+            "site_point_in_sfha": comp[0].get("site_point_in_sfha") if comp else None,
+            "footprint_area_ha": b("footprint_area_ha"), "footprint_share_sfha": b("footprint_share_sfha"),
+            "footprint_share_x_shaded": b("footprint_share_x_shaded"), "footprint_share_zone_d": b("footprint_share_zone_d"),
+            "distance_to_sfha_m": comp[0].get("distance_to_sfha_m") if comp else None,
+            "flags": sorted({f for x in fo for f in x.get("flags", [])}),
+            "effective_dates": fo[0].get("effective_dates")}
 
 
 def summarise_water(per_seed):
@@ -389,6 +417,21 @@ def judge(card, rec):
     if not rec["scenarios"]:
         misses.append({"county": f, "criterion": "site", "status": "blocked", "value": rec["site"]["note"]})
     for name, sc in rec["scenarios"].items():
+        if sc["summary"].get("flood"):
+            w = sc["summary"]
+            bar = crit["footprint_share_sfha_max"]
+            item = {"county": f, "scenario": name, "criterion": "site footprint in the 1% annual-chance flood zone (SFHA)",
+                    "threshold": f"site point outside the SFHA and p50 footprint share <= {bar:.0%}", "flags": w["flags"]}
+            if w["status_counts"].get("computed", 0) < sum(w["status_counts"].values()):
+                misses.append({**item, "status": "indeterminate", "value": w["reason"]})
+            elif w["site_point_in_sfha"] or round(w["footprint_share_sfha"]["p50"], 9) > bar:
+                misses.append({**item, "status": "miss", "value": {"site_point_zone": w["site_point_zone"],
+                                                                     "footprint_share_sfha": w["footprint_share_sfha"]}})
+            else:
+                passes.append({**item, "status": "pass", "value": {"site_point_zone": w["site_point_zone"],
+                                                                     "footprint_share_sfha": w["footprint_share_sfha"],
+                                                                     "distance_to_sfha_m": w["distance_to_sfha_m"]}})
+            continue
         if "power_flow" not in sc["summary"]:
             w = sc["summary"]
             for key, label, bar in (("share_of_source_low_flow_peak_day", "peak-day withdrawal vs source-gauge low flow (p10_min)",
@@ -489,6 +532,7 @@ def main(argv=None):
         "eia_tables": {"year": 2024, "meta": data.eia_meta(2024)},
         "acs_tables": {"year": 2024, "meta": data.acs_meta(2024)},
         "water_tables": data.water_meta() if "cooling_water" in card.get("modules", []) else None,
+        "flood_tables": data.nfhl_meta() if "flood" in card.get("modules", []) else None,
         "environment": environment(),
         "grade": "SPECULATIVE", "disclosure": DISCLOSURE,
         "seeds": a.seeds, "mode": "promotable-count" if a.seeds >= 20 else "screening",
@@ -497,7 +541,7 @@ def main(argv=None):
         "misses": misses, "refused": refused, "passes": passes,
         "counties": recs,
         "not_modelled": ["N-1 contingency", "regional through-flow (background_utilisation stands in)",
-                         "local tax effects and abatements", "fiber, flood (later PRs)",
+                         "local tax effects and abatements", "fiber (later PR)",
                          "drainage-area scaling between gauge and site (needs NHDPlus)",
                          "which utility actually serves the site (all candidates run)"],
     }

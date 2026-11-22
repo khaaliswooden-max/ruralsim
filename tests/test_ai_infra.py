@@ -196,3 +196,32 @@ def test_gauge_pick_and_zero_low_flow():
     out = cooling_water.run(_weather(20.0, 27.0), 20.0, 1.3, "evaporative", None, (near, near), {}, CFG,
                             np.random.default_rng(0))
     assert out["share_of_source_low_flow_peak_day"] == float("inf")         # dry creek: any withdrawal fails
+
+
+# --- flood (D-107) -----------------------------------------------------------------------
+from shapely import wkb as _wkb  # noqa: E402
+from shapely.geometry import Polygon as _Poly  # noqa: E402
+
+from tools.engines.ai_infra import flood  # noqa: E402
+
+
+def _zones():
+    sq = lambda x0, y0, s: _Poly([(x0, y0), (x0 + s, y0), (x0 + s, y0 + s), (x0, y0 + s)])  # noqa: E731
+    return pd.DataFrame({"fld_zone": ["AE", "X"], "zone_subty": [None, "0.2 PCT ANNUAL CHANCE FLOOD HAZARD"],
+                         "sfha_tf": ["T", "F"], "static_bfe": [-9999.0, -9999.0], "depth": [None, None],
+                         "dfirm_id": ["T1", "T1"], "area_m2": [1e6, 1e6],
+                         "geometry": [_wkb.dumps(sq(0, 0, 1000)), _wkb.dumps(sq(1000, 0, 1000))]})
+
+
+def test_flood_point_in_zone_share_and_status_rules():
+    st = {"status": "effective", "prelim_coverage": 0.5, "prelim_issue_date_max": "2026-01-01", "pending_coverage": 0.0}
+    near = flood.prepare(_zones(), ID, (1000, 500), 3000)
+    o = flood.run(st, near, (1000.0, 500.0), CFG, np.random.default_rng(0))   # site on the AE / X boundary
+    assert 0.3 < o["footprint_share_sfha"] < 0.7 and o["footprint_share_sfha"] + o["footprint_share_x_shaded"] > 0.95
+    assert any("about to change" in f for f in o["flags"])
+    far = flood.run(st, flood.prepare(_zones(), ID, (2500, 2500), 3000), (2500.0, 2500.0), CFG, np.random.default_rng(0))
+    assert far["site_point_zone"].startswith("X unshaded") and far["footprint_share_sfha"] == 0
+    none = flood.run({"status": "none"}, [], (0, 0), CFG, np.random.default_rng(0))
+    assert none["status"] == "indeterminate" and "not 'no flood risk'" in none["reason"]
+    part = flood.run({"status": "partial"}, near, (2500.0, 2500.0), CFG, np.random.default_rng(0))
+    assert part["status"] == "indeterminate"                      # outside drawn zones in a partly mapped county

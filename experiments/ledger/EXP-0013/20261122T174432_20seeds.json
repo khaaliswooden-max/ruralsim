@@ -1,0 +1,1530 @@
+{
+ "run_id": "EXP-0013/20261122T174432Z",
+ "card_id": "EXP-0013",
+ "supersedes": null,
+ "engine": "tools/engines/ai_infra",
+ "engine_version": "f17d67600056c9674d33cb7d2014c1be7aec52b0",
+ "spec_version": "0.1",
+ "params_sha256": "d52f5603fba515b19673561fe21540625040a2784c4de4ead9a12468a390ddad",
+ "activsg_sha256": "3dbf05f16d8119752535d49742219c9b15c623f47f19b1ff12fc949c7884b6c5",
+ "eia_tables": {
+  "year": 2024,
+  "meta": {
+   "year": 2024,
+   "sources": {
+    "eia860": "https://www.eia.gov/electricity/data/eia860/archive/xls/eia8602024.zip",
+    "eia861": "https://www.eia.gov/electricity/data/eia861/archive/zip/f8612024.zip",
+    "census_counties": "https://www2.census.gov/geo/tiger/GENZ2024/shp/cb_2024_us_county_500k.zip"
+   },
+   "license": "public domain (U.S. EIA; U.S. Census Bureau)",
+   "rows": {
+    "eia860_generators": 34855,
+    "eia860_plants": 16132,
+    "eia861_utility_data": 1701,
+    "eia861_sales_ult_cust": 2815,
+    "eia861_service_territory": 11866
+   },
+   "counties_in_boundaries": 3144,
+   "plants_us_50_dc": 16132,
+   "plants_county_by_method": {
+    "point_in_polygon": 16079,
+    "none": 29,
+    "name_match": 24
+   },
+   "plants_coords_disagree_with_eia_county_name": 473,
+   "territory_rows_matched": 11739,
+   "territory_rows_unmatched": 127,
+   "written_utc": "2026-11-21T06:51:24.282414+00:00"
+  }
+ },
+ "acs_tables": {
+  "year": 2024,
+  "meta": {
+   "survey": "ACS 5-year 2020-2024",
+   "tables": {
+    "B19081": "mean household income by quintile and top 5%",
+    "B19080": "household income quintile upper limits and top-5% lower limit"
+   },
+   "sources": [
+    "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b19081.dat",
+    "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/acsdt5y2024-b19080.dat"
+   ],
+   "license": "public domain (U.S. Census Bureau)",
+   "counties": 3144,
+   "counties_missing": [],
+   "mean_q1_null": 9,
+   "topcoded_cells": 747,
+   "written_utc": "2026-11-21T07:50:47.457007+00:00"
+  }
+ },
+ "water_tables": null,
+ "flood_tables": {
+  "source": "FEMA National Flood Hazard Layer (hazards.fema.gov ArcGIS REST: public/NFHL layers 0, 3, 28; PrelimPending/Prelim_NFHL and Pending_NFHL layer 0)",
+  "license": "public domain (FEMA)",
+  "clip": "Census cb_2024_us_county_500k",
+  "area_crs": "EPSG:6933",
+  "counties": 3144,
+  "counties_missing": [],
+  "by_status": {
+   "effective": 2541,
+   "none": 563,
+   "partial": 40
+  },
+  "zones": 5066010,
+  "with_prelim": 434,
+  "with_pending": 91,
+  "written_utc": "2026-11-22T17:38:07.701376+00:00"
+ },
+ "environment": {
+  "python": "3.13.18",
+  "pandapower": "3.5.6",
+  "pandas": "2.3.3",
+  "numpy": "2.4.6",
+  "scipy": "1.18.1",
+  "pyarrow": "26.0.1",
+  "networkx": "3.7",
+  "shapely": "2.2.0",
+  "pyproj": "3.8.0",
+  "PyYAML": "6.0.3"
+ },
+ "grade": "SPECULATIVE",
+ "disclosure": "Simulated, screening-grade results with assumed parameters. Decision support, not a finding.",
+ "seeds": 20,
+ "mode": "promotable-count",
+ "provenance_floor": "assumed",
+ "criterion": {
+  "footprint_share_sfha_max": 0.1,
+  "rule": "Pass only if the site point is outside the SFHA and the p50 footprint share in the SFHA is at most 10 percent. A county with no digital FIRM is indeterminate, never a pass. A pending or preliminary map is flagged on the result; it does not change pass or fail.\n"
+ },
+ "misses": [
+  {
+   "county": "20019",
+   "scenario": "site",
+   "criterion": "site footprint in the 1% annual-chance flood zone (SFHA)",
+   "threshold": "site point outside the SFHA and p50 footprint share <= 10%",
+   "flags": [],
+   "status": "indeterminate",
+   "value": "no digital FIRM for this county (FEMA NFHL); this is not 'no flood risk'"
+  },
+  {
+   "county": "31173",
+   "criterion": "site",
+   "status": "blocked",
+   "value": "county is entirely tribal land: no site (siting constraint)"
+  }
+ ],
+ "refused": [],
+ "passes": [
+  {
+   "county": "01131",
+   "scenario": "site",
+   "criterion": "site footprint in the 1% annual-chance flood zone (SFHA)",
+   "threshold": "site point outside the SFHA and p50 footprint share <= 10%",
+   "flags": [],
+   "status": "pass",
+   "value": {
+    "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+    "footprint_share_sfha": {
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 0.0,
+     "n": 20
+    },
+    "distance_to_sfha_m": 1329.5923695486924
+   }
+  },
+  {
+   "county": "54047",
+   "scenario": "site",
+   "criterion": "site footprint in the 1% annual-chance flood zone (SFHA)",
+   "threshold": "site point outside the SFHA and p50 footprint share <= 10%",
+   "flags": [
+    "effective map about to change: preliminary maps cover 99.8% (issued 2026-04-17), pending 0.0%"
+   ],
+   "status": "pass",
+   "value": {
+    "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+    "footprint_share_sfha": {
+     "p10": 0.0,
+     "p50": 0.0,
+     "p90": 0.0,
+     "n": 20
+    },
+    "distance_to_sfha_m": 503.3491356197972
+   }
+  }
+ ],
+ "counties": [
+  {
+   "county": {
+    "fips5": "01131",
+    "dir": "01131_wilcox_al",
+    "snapshot": "20261118T014023Z-51fd9fb",
+    "manifest_sha256": "0476974ea4ad37391d6a5afa7bbad0382c2705c44a9a753263625ce88bab67a9",
+    "state": "AL",
+    "rucc_2023": 9
+   },
+   "modules": [
+    "flood"
+   ],
+   "backtest": null,
+   "site": {
+    "lon": -87.30809196594636,
+    "lat": 31.98936924681839,
+    "enu_m": [
+     9.857385406760615,
+     7.140485746200543
+    ],
+    "note": "county centroid",
+    "provenance": "hypothetical"
+   },
+   "flood_context": {
+    "county_status": {
+     "fips5": "01131",
+     "state": "AL",
+     "county": "Wilcox",
+     "county_km2": 2350.058,
+     "status": "effective",
+     "effective_coverage": 0.9995,
+     "dfirm_ids": "01131C",
+     "panels": 36,
+     "panels_printed": 34,
+     "eff_date_min": "2010-04-19",
+     "eff_date_max": "2010-04-19",
+     "prelim_coverage": 0.0,
+     "prelim_issue_date_max": null,
+     "pending_coverage": 0.0,
+     "pending_eff_date_min": null,
+     "zones": 31,
+     "sfha_km2": 575.938,
+     "x_shaded_km2": 0.0,
+     "d_km2": 0.0,
+     "x_unshaded_km2": 1772.945,
+     "sfha_share": 0.2451,
+     "seconds": 5.0
+    },
+    "zones_within_search": 1
+   },
+   "scenarios": {
+    "site": {
+     "scenario": {
+      "name": "site",
+      "it_load_mw": 20
+     },
+     "summary": {
+      "flood": true,
+      "status_counts": {
+       "computed": 20
+      },
+      "map_status": "effective",
+      "reason": null,
+      "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+      "site_point_in_sfha": false,
+      "footprint_area_ha": {
+       "p10": 8.972619994771469,
+       "p50": 14.199144298203224,
+       "p90": 22.031897903683422,
+       "n": 20
+      },
+      "footprint_share_sfha": {
+       "p10": 0.0,
+       "p50": 0.0,
+       "p90": 0.0,
+       "n": 20
+      },
+      "footprint_share_x_shaded": {
+       "p10": 0.0,
+       "p50": 0.0,
+       "p90": 0.0,
+       "n": 20
+      },
+      "footprint_share_zone_d": {
+       "p10": 0.0,
+       "p50": 0.0,
+       "p90": 0.0,
+       "n": 20
+      },
+      "distance_to_sfha_m": 1329.5923695486924,
+      "flags": [],
+      "effective_dates": [
+       "2010-04-19",
+       "2010-04-19"
+      ]
+     },
+     "seeds": [
+      {
+       "seed": 0,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [],
+        "effective_dates": [
+         "2010-04-19",
+         "2010-04-19"
+        ],
+        "footprint_area_ha": 17.642366930887626,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 1329.5923695486924
+       }
+      },
+      {
+       "seed": 1,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [],
+        "effective_dates": [
+         "2010-04-19",
+         "2010-04-19"
+        ],
+        "footprint_area_ha": 13.324143348468168,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 1329.5923695486924
+       }
+      },
+      {
+       "seed": 2,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [],
+        "effective_dates": [
+         "2010-04-19",
+         "2010-04-19"
+        ],
+        "footprint_area_ha": 8.861567656461174,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 1329.5923695486924
+       }
+      },
+      {
+       "seed": 3,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [],
+        "effective_dates": [
+         "2010-04-19",
+         "2010-04-19"
+        ],
+        "footprint_area_ha": 22.020608429213215,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 1329.5923695486924
+       }
+      },
+      {
+       "seed": 4,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [],
+        "effective_dates": [
+         "2010-04-19",
+         "2010-04-19"
+        ],
+        "footprint_area_ha": 15.064044961902345,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 1329.5923695486924
+       }
+      },
+      {
+       "seed": 5,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [],
+        "effective_dates": [
+         "2010-04-19",
+         "2010-04-19"
+        ],
+        "footprint_area_ha": 12.863852273449803,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 1329.5923695486924
+       }
+      },
+      {
+       "seed": 6,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [],
+        "effective_dates": [
+         "2010-04-19",
+         "2010-04-19"
+        ],
+        "footprint_area_ha": 14.637075972279309,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 1329.5923695486924
+       }
+      },
+      {
+       "seed": 7,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [],
+        "effective_dates": [
+         "2010-04-19",
+         "2010-04-19"
+        ],
+        "footprint_area_ha": 19.09666739192264,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 1329.5923695486924
+       }
+      },
+      {
+       "seed": 8,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [],
+        "effective_dates": [
+         "2010-04-19",
+         "2010-04-19"
+        ],
+        "footprint_area_ha": 17.190996701267267,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 1329.5923695486924
+       }
+      },
+      {
+       "seed": 9,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [],
+        "effective_dates": [
+         "2010-04-19",
+         "2010-04-19"
+        ],
+        "footprint_area_ha": 11.675544854221407,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 1329.5923695486924
+       }
+      },
+      {
+       "seed": 10,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [],
+        "effective_dates": [
+         "2010-04-19",
+         "2010-04-19"
+        ],
+        "footprint_area_ha": 8.984959143472611,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 1329.5923695486924
+       }
+      },
+      {
+       "seed": 11,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [],
+        "effective_dates": [
+         "2010-04-19",
+         "2010-04-19"
+        ],
+        "footprint_area_ha": 9.928884467650327,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 1329.5923695486924
+       }
+      },
+      {
+       "seed": 12,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [],
+        "effective_dates": [
+         "2010-04-19",
+         "2010-04-19"
+        ],
+        "footprint_area_ha": 17.68524953498528,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 1329.5923695486924
+       }
+      },
+      {
+       "seed": 13,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [],
+        "effective_dates": [
+         "2010-04-19",
+         "2010-04-19"
+        ],
+        "footprint_area_ha": 13.76121262412714,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 1329.5923695486924
+       }
+      },
+      {
+       "seed": 14,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [],
+        "effective_dates": [
+         "2010-04-19",
+         "2010-04-19"
+        ],
+        "footprint_area_ha": 21.090770789007742,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 1329.5923695486924
+       }
+      },
+      {
+       "seed": 15,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [],
+        "effective_dates": [
+         "2010-04-19",
+         "2010-04-19"
+        ],
+        "footprint_area_ha": 22.13350317391528,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 1329.5923695486924
+       }
+      },
+      {
+       "seed": 16,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [],
+        "effective_dates": [
+         "2010-04-19",
+         "2010-04-19"
+        ],
+        "footprint_area_ha": 10.812599911954692,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 1329.5923695486924
+       }
+      },
+      {
+       "seed": 17,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [],
+        "effective_dates": [
+         "2010-04-19",
+         "2010-04-19"
+        ],
+        "footprint_area_ha": 8.61267862823726,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 1329.5923695486924
+       }
+      },
+      {
+       "seed": 18,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [],
+        "effective_dates": [
+         "2010-04-19",
+         "2010-04-19"
+        ],
+        "footprint_area_ha": 13.440953514187811,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 1329.5923695486924
+       }
+      },
+      {
+       "seed": 19,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [],
+        "effective_dates": [
+         "2010-04-19",
+         "2010-04-19"
+        ],
+        "footprint_area_ha": 24.693567603703688,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 1329.5923695486924
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "county": {
+    "fips5": "20019",
+    "dir": "20019_chautauqua_ks",
+    "snapshot": "20261116T231247Z-47f1dea",
+    "manifest_sha256": "149a53fa2f2141f79d40db4bc4c1b0f03f87712ec96c22e95a97b85accae8fe7",
+    "state": "KS",
+    "rucc_2023": 9
+   },
+   "modules": [
+    "flood"
+   ],
+   "backtest": null,
+   "site": {
+    "lon": -96.24534959212065,
+    "lat": 37.150038191321876,
+    "enu_m": [
+     2.935154121241691,
+     1.6179859016879743
+    ],
+    "note": "county centroid",
+    "provenance": "hypothetical"
+   },
+   "flood_context": {
+    "county_status": {
+     "fips5": "20019",
+     "state": "KS",
+     "county": "Chautauqua",
+     "county_km2": 1670.127,
+     "status": "none",
+     "effective_coverage": 0.0,
+     "dfirm_ids": "",
+     "panels": 0,
+     "panels_printed": 0,
+     "eff_date_min": null,
+     "eff_date_max": null,
+     "prelim_coverage": 0.0,
+     "prelim_issue_date_max": null,
+     "pending_coverage": 0.0,
+     "pending_eff_date_min": null,
+     "zones": 0,
+     "sfha_km2": 0.0,
+     "x_shaded_km2": 0.0,
+     "d_km2": 0.0,
+     "x_unshaded_km2": 0.0,
+     "sfha_share": 0.0,
+     "seconds": 0.8
+    },
+    "zones_within_search": 0
+   },
+   "scenarios": {
+    "site": {
+     "scenario": {
+      "name": "site",
+      "it_load_mw": 20
+     },
+     "summary": {
+      "flood": true,
+      "status_counts": {
+       "indeterminate": 20
+      },
+      "map_status": "none",
+      "reason": "no digital FIRM for this county (FEMA NFHL); this is not 'no flood risk'",
+      "site_point_zone": null,
+      "site_point_in_sfha": null,
+      "footprint_area_ha": null,
+      "footprint_share_sfha": null,
+      "footprint_share_x_shaded": null,
+      "footprint_share_zone_d": null,
+      "distance_to_sfha_m": null,
+      "flags": [],
+      "effective_dates": [
+       null,
+       null
+      ]
+     },
+     "seeds": [
+      {
+       "seed": 0,
+       "flood": {
+        "status": "indeterminate",
+        "map_status": "none",
+        "flags": [],
+        "effective_dates": [
+         null,
+         null
+        ],
+        "reason": "no digital FIRM for this county (FEMA NFHL); this is not 'no flood risk'"
+       }
+      },
+      {
+       "seed": 1,
+       "flood": {
+        "status": "indeterminate",
+        "map_status": "none",
+        "flags": [],
+        "effective_dates": [
+         null,
+         null
+        ],
+        "reason": "no digital FIRM for this county (FEMA NFHL); this is not 'no flood risk'"
+       }
+      },
+      {
+       "seed": 2,
+       "flood": {
+        "status": "indeterminate",
+        "map_status": "none",
+        "flags": [],
+        "effective_dates": [
+         null,
+         null
+        ],
+        "reason": "no digital FIRM for this county (FEMA NFHL); this is not 'no flood risk'"
+       }
+      },
+      {
+       "seed": 3,
+       "flood": {
+        "status": "indeterminate",
+        "map_status": "none",
+        "flags": [],
+        "effective_dates": [
+         null,
+         null
+        ],
+        "reason": "no digital FIRM for this county (FEMA NFHL); this is not 'no flood risk'"
+       }
+      },
+      {
+       "seed": 4,
+       "flood": {
+        "status": "indeterminate",
+        "map_status": "none",
+        "flags": [],
+        "effective_dates": [
+         null,
+         null
+        ],
+        "reason": "no digital FIRM for this county (FEMA NFHL); this is not 'no flood risk'"
+       }
+      },
+      {
+       "seed": 5,
+       "flood": {
+        "status": "indeterminate",
+        "map_status": "none",
+        "flags": [],
+        "effective_dates": [
+         null,
+         null
+        ],
+        "reason": "no digital FIRM for this county (FEMA NFHL); this is not 'no flood risk'"
+       }
+      },
+      {
+       "seed": 6,
+       "flood": {
+        "status": "indeterminate",
+        "map_status": "none",
+        "flags": [],
+        "effective_dates": [
+         null,
+         null
+        ],
+        "reason": "no digital FIRM for this county (FEMA NFHL); this is not 'no flood risk'"
+       }
+      },
+      {
+       "seed": 7,
+       "flood": {
+        "status": "indeterminate",
+        "map_status": "none",
+        "flags": [],
+        "effective_dates": [
+         null,
+         null
+        ],
+        "reason": "no digital FIRM for this county (FEMA NFHL); this is not 'no flood risk'"
+       }
+      },
+      {
+       "seed": 8,
+       "flood": {
+        "status": "indeterminate",
+        "map_status": "none",
+        "flags": [],
+        "effective_dates": [
+         null,
+         null
+        ],
+        "reason": "no digital FIRM for this county (FEMA NFHL); this is not 'no flood risk'"
+       }
+      },
+      {
+       "seed": 9,
+       "flood": {
+        "status": "indeterminate",
+        "map_status": "none",
+        "flags": [],
+        "effective_dates": [
+         null,
+         null
+        ],
+        "reason": "no digital FIRM for this county (FEMA NFHL); this is not 'no flood risk'"
+       }
+      },
+      {
+       "seed": 10,
+       "flood": {
+        "status": "indeterminate",
+        "map_status": "none",
+        "flags": [],
+        "effective_dates": [
+         null,
+         null
+        ],
+        "reason": "no digital FIRM for this county (FEMA NFHL); this is not 'no flood risk'"
+       }
+      },
+      {
+       "seed": 11,
+       "flood": {
+        "status": "indeterminate",
+        "map_status": "none",
+        "flags": [],
+        "effective_dates": [
+         null,
+         null
+        ],
+        "reason": "no digital FIRM for this county (FEMA NFHL); this is not 'no flood risk'"
+       }
+      },
+      {
+       "seed": 12,
+       "flood": {
+        "status": "indeterminate",
+        "map_status": "none",
+        "flags": [],
+        "effective_dates": [
+         null,
+         null
+        ],
+        "reason": "no digital FIRM for this county (FEMA NFHL); this is not 'no flood risk'"
+       }
+      },
+      {
+       "seed": 13,
+       "flood": {
+        "status": "indeterminate",
+        "map_status": "none",
+        "flags": [],
+        "effective_dates": [
+         null,
+         null
+        ],
+        "reason": "no digital FIRM for this county (FEMA NFHL); this is not 'no flood risk'"
+       }
+      },
+      {
+       "seed": 14,
+       "flood": {
+        "status": "indeterminate",
+        "map_status": "none",
+        "flags": [],
+        "effective_dates": [
+         null,
+         null
+        ],
+        "reason": "no digital FIRM for this county (FEMA NFHL); this is not 'no flood risk'"
+       }
+      },
+      {
+       "seed": 15,
+       "flood": {
+        "status": "indeterminate",
+        "map_status": "none",
+        "flags": [],
+        "effective_dates": [
+         null,
+         null
+        ],
+        "reason": "no digital FIRM for this county (FEMA NFHL); this is not 'no flood risk'"
+       }
+      },
+      {
+       "seed": 16,
+       "flood": {
+        "status": "indeterminate",
+        "map_status": "none",
+        "flags": [],
+        "effective_dates": [
+         null,
+         null
+        ],
+        "reason": "no digital FIRM for this county (FEMA NFHL); this is not 'no flood risk'"
+       }
+      },
+      {
+       "seed": 17,
+       "flood": {
+        "status": "indeterminate",
+        "map_status": "none",
+        "flags": [],
+        "effective_dates": [
+         null,
+         null
+        ],
+        "reason": "no digital FIRM for this county (FEMA NFHL); this is not 'no flood risk'"
+       }
+      },
+      {
+       "seed": 18,
+       "flood": {
+        "status": "indeterminate",
+        "map_status": "none",
+        "flags": [],
+        "effective_dates": [
+         null,
+         null
+        ],
+        "reason": "no digital FIRM for this county (FEMA NFHL); this is not 'no flood risk'"
+       }
+      },
+      {
+       "seed": 19,
+       "flood": {
+        "status": "indeterminate",
+        "map_status": "none",
+        "flags": [],
+        "effective_dates": [
+         null,
+         null
+        ],
+        "reason": "no digital FIRM for this county (FEMA NFHL); this is not 'no flood risk'"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "county": {
+    "fips5": "54047",
+    "dir": "54047_mcdowell_wv",
+    "snapshot": "20261119T185041Z-d287c5c",
+    "manifest_sha256": "8d90357ffcf9c855f3a6525dbf0cffeb97b89c486452ae524880976727bc7eb5",
+    "state": "WV",
+    "rucc_2023": 9
+   },
+   "modules": [
+    "flood"
+   ],
+   "backtest": null,
+   "site": {
+    "lon": -81.65353455843476,
+    "lat": 37.378484433288115,
+    "enu_m": [
+     6.538049147923491,
+     3.20634760327581
+    ],
+    "note": "county centroid",
+    "provenance": "hypothetical"
+   },
+   "flood_context": {
+    "county_status": {
+     "fips5": "54047",
+     "state": "WV",
+     "county": "McDowell",
+     "county_km2": 1385.808,
+     "status": "effective",
+     "effective_coverage": 0.9976,
+     "dfirm_ids": "54047C",
+     "panels": 81,
+     "panels_printed": 53,
+     "eff_date_min": "2005-06-16",
+     "eff_date_max": "2005-06-16",
+     "prelim_coverage": 0.9984,
+     "prelim_issue_date_max": "2026-04-17",
+     "pending_coverage": 0.0,
+     "pending_eff_date_min": null,
+     "zones": 855,
+     "sfha_km2": 17.683,
+     "x_shaded_km2": 1.968,
+     "d_km2": 0.0,
+     "x_unshaded_km2": 1362.832,
+     "sfha_share": 0.0128,
+     "seconds": 15.6
+    },
+    "zones_within_search": 3
+   },
+   "scenarios": {
+    "site": {
+     "scenario": {
+      "name": "site",
+      "it_load_mw": 20
+     },
+     "summary": {
+      "flood": true,
+      "status_counts": {
+       "computed": 20
+      },
+      "map_status": "effective",
+      "reason": null,
+      "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+      "site_point_in_sfha": false,
+      "footprint_area_ha": {
+       "p10": 9.631242526752473,
+       "p50": 19.143023893886348,
+       "p90": 24.467069647715167,
+       "n": 20
+      },
+      "footprint_share_sfha": {
+       "p10": 0.0,
+       "p50": 0.0,
+       "p90": 0.0,
+       "n": 20
+      },
+      "footprint_share_x_shaded": {
+       "p10": 0.0,
+       "p50": 0.0,
+       "p90": 0.0,
+       "n": 20
+      },
+      "footprint_share_zone_d": {
+       "p10": 0.0,
+       "p50": 0.0,
+       "p90": 0.0,
+       "n": 20
+      },
+      "distance_to_sfha_m": 503.3491356197972,
+      "flags": [
+       "effective map about to change: preliminary maps cover 99.8% (issued 2026-04-17), pending 0.0%"
+      ],
+      "effective_dates": [
+       "2005-06-16",
+       "2005-06-16"
+      ]
+     },
+     "seeds": [
+      {
+       "seed": 0,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [
+         "effective map about to change: preliminary maps cover 99.8% (issued 2026-04-17), pending 0.0%"
+        ],
+        "effective_dates": [
+         "2005-06-16",
+         "2005-06-16"
+        ],
+        "footprint_area_ha": 23.165192864188732,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 503.3491356197972
+       }
+      },
+      {
+       "seed": 1,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [
+         "effective map about to change: preliminary maps cover 99.8% (issued 2026-04-17), pending 0.0%"
+        ],
+        "effective_dates": [
+         "2005-06-16",
+         "2005-06-16"
+        ],
+        "footprint_area_ha": 22.54426582817988,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 503.3491356197972
+       }
+      },
+      {
+       "seed": 2,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [
+         "effective map about to change: preliminary maps cover 99.8% (issued 2026-04-17), pending 0.0%"
+        ],
+        "effective_dates": [
+         "2005-06-16",
+         "2005-06-16"
+        ],
+        "footprint_area_ha": 10.964473583607816,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 503.3491356197972
+       }
+      },
+      {
+       "seed": 3,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [
+         "effective map about to change: preliminary maps cover 99.8% (issued 2026-04-17), pending 0.0%"
+        ],
+        "effective_dates": [
+         "2005-06-16",
+         "2005-06-16"
+        ],
+        "footprint_area_ha": 8.275541399886299,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 503.3491356197972
+       }
+      },
+      {
+       "seed": 4,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [
+         "effective map about to change: preliminary maps cover 99.8% (issued 2026-04-17), pending 0.0%"
+        ],
+        "effective_dates": [
+         "2005-06-16",
+         "2005-06-16"
+        ],
+        "footprint_area_ha": 12.598405045533084,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 503.3491356197972
+       }
+      },
+      {
+       "seed": 5,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [
+         "effective map about to change: preliminary maps cover 99.8% (issued 2026-04-17), pending 0.0%"
+        ],
+        "effective_dates": [
+         "2005-06-16",
+         "2005-06-16"
+        ],
+        "footprint_area_ha": 24.64576277914653,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 503.3491356197972
+       }
+      },
+      {
+       "seed": 6,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [
+         "effective map about to change: preliminary maps cover 99.8% (issued 2026-04-17), pending 0.0%"
+        ],
+        "effective_dates": [
+         "2005-06-16",
+         "2005-06-16"
+        ],
+        "footprint_area_ha": 16.869609351411356,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 503.3491356197972
+       }
+      },
+      {
+       "seed": 7,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [
+         "effective map about to change: preliminary maps cover 99.8% (issued 2026-04-17), pending 0.0%"
+        ],
+        "effective_dates": [
+         "2005-06-16",
+         "2005-06-16"
+        ],
+        "footprint_area_ha": 23.226961986021347,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 503.3491356197972
+       }
+      },
+      {
+       "seed": 8,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [
+         "effective map about to change: preliminary maps cover 99.8% (issued 2026-04-17), pending 0.0%"
+        ],
+        "effective_dates": [
+         "2005-06-16",
+         "2005-06-16"
+        ],
+        "footprint_area_ha": 9.523803377710777,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 503.3491356197972
+       }
+      },
+      {
+       "seed": 9,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [
+         "effective map about to change: preliminary maps cover 99.8% (issued 2026-04-17), pending 0.0%"
+        ],
+        "effective_dates": [
+         "2005-06-16",
+         "2005-06-16"
+        ],
+        "footprint_area_ha": 21.47571825304267,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 503.3491356197972
+       }
+      },
+      {
+       "seed": 10,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [
+         "effective map about to change: preliminary maps cover 99.8% (issued 2026-04-17), pending 0.0%"
+        ],
+        "effective_dates": [
+         "2005-06-16",
+         "2005-06-16"
+        ],
+        "footprint_area_ha": 17.100380475108864,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 503.3491356197972
+       }
+      },
+      {
+       "seed": 11,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [
+         "effective map about to change: preliminary maps cover 99.8% (issued 2026-04-17), pending 0.0%"
+        ],
+        "effective_dates": [
+         "2005-06-16",
+         "2005-06-16"
+        ],
+        "footprint_area_ha": 24.447214855333904,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 503.3491356197972
+       }
+      },
+      {
+       "seed": 12,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [
+         "effective map about to change: preliminary maps cover 99.8% (issued 2026-04-17), pending 0.0%"
+        ],
+        "effective_dates": [
+         "2005-06-16",
+         "2005-06-16"
+        ],
+        "footprint_area_ha": 22.464337426867736,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 503.3491356197972
+       }
+      },
+      {
+       "seed": 13,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [
+         "effective map about to change: preliminary maps cover 99.8% (issued 2026-04-17), pending 0.0%"
+        ],
+        "effective_dates": [
+         "2005-06-16",
+         "2005-06-16"
+        ],
+        "footprint_area_ha": 24.960153258067027,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 503.3491356197972
+       }
+      },
+      {
+       "seed": 14,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [
+         "effective map about to change: preliminary maps cover 99.8% (issued 2026-04-17), pending 0.0%"
+        ],
+        "effective_dates": [
+         "2005-06-16",
+         "2005-06-16"
+        ],
+        "footprint_area_ha": 10.705201104304692,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 503.3491356197972
+       }
+      },
+      {
+       "seed": 15,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [
+         "effective map about to change: preliminary maps cover 99.8% (issued 2026-04-17), pending 0.0%"
+        ],
+        "effective_dates": [
+         "2005-06-16",
+         "2005-06-16"
+        ],
+        "footprint_area_ha": 9.643180209979327,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 503.3491356197972
+       }
+      },
+      {
+       "seed": 16,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [
+         "effective map about to change: preliminary maps cover 99.8% (issued 2026-04-17), pending 0.0%"
+        ],
+        "effective_dates": [
+         "2005-06-16",
+         "2005-06-16"
+        ],
+        "footprint_area_ha": 17.067514920765998,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 503.3491356197972
+       }
+      },
+      {
+       "seed": 17,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [
+         "effective map about to change: preliminary maps cover 99.8% (issued 2026-04-17), pending 0.0%"
+        ],
+        "effective_dates": [
+         "2005-06-16",
+         "2005-06-16"
+        ],
+        "footprint_area_ha": 23.453237999885054,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 503.3491356197972
+       }
+      },
+      {
+       "seed": 18,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [
+         "effective map about to change: preliminary maps cover 99.8% (issued 2026-04-17), pending 0.0%"
+        ],
+        "effective_dates": [
+         "2005-06-16",
+         "2005-06-16"
+        ],
+        "footprint_area_ha": 15.462391980091834,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 503.3491356197972
+       }
+      },
+      {
+       "seed": 19,
+       "flood": {
+        "status": "computed",
+        "map_status": "effective",
+        "flags": [
+         "effective map about to change: preliminary maps cover 99.8% (issued 2026-04-17), pending 0.0%"
+        ],
+        "effective_dates": [
+         "2005-06-16",
+         "2005-06-16"
+        ],
+        "footprint_area_ha": 21.18566731266383,
+        "site_point_zone": "X unshaded (minimal hazard; not drawn)",
+        "site_point_in_sfha": false,
+        "footprint_share_sfha": 0.0,
+        "footprint_share_x_shaded": 0.0,
+        "footprint_share_zone_d": 0.0,
+        "distance_to_sfha_m": 503.3491356197972
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "county": {
+    "fips5": "31173",
+    "dir": "31173_thurston_ne",
+    "snapshot": "20261121T055536Z-6f61b6f",
+    "manifest_sha256": "2e12cb03e54c4cff4ac9a3948b0692f35b57ae77acd8065f76d0e6cab53c81f4",
+    "state": "NE",
+    "rucc_2023": 8
+   },
+   "modules": [
+    "flood"
+   ],
+   "backtest": null,
+   "site": {
+    "note": "county is entirely tribal land: no site (siting constraint)"
+   },
+   "scenarios": {}
+  }
+ ],
+ "not_modelled": [
+  "N-1 contingency",
+  "regional through-flow (background_utilisation stands in)",
+  "local tax effects and abatements",
+  "fiber (later PR)",
+  "drainage-area scaling between gauge and site (needs NHDPlus)",
+  "which utility actually serves the site (all candidates run)"
+ ]
+}

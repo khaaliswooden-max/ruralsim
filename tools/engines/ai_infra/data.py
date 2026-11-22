@@ -162,6 +162,22 @@ def power_daily(fips5: str) -> pd.DataFrame:
                                 CACHE / "climate" / "power" / f"{fips5}.parquet"))
 
 
+@lru_cache(maxsize=1)
+def nfhl_status() -> pd.DataFrame:
+    """FEMA NFHL map status per county (LR-8, D-057)."""
+    return pd.read_parquet(_get(f"{BASE}/flood/nfhl/county_status.parquet", CACHE / "flood" / "county_status.parquet"))
+
+
+@lru_cache(maxsize=8)
+def nfhl_zones(fips5: str) -> pd.DataFrame:
+    """FEMA NFHL hazard zones clipped to the county, WKB EPSG:4326 (LR-8, D-057). Zone X unshaded not drawn."""
+    return pd.read_parquet(_get(f"{BASE}/flood/nfhl/zones/{fips5}.parquet", CACHE / "flood" / "zones" / f"{fips5}.parquet"))
+
+
+def nfhl_meta() -> dict:
+    return json.loads(_get(f"{BASE}/flood/nfhl/_meta.json", CACHE / "flood" / "_meta.json").read_text())
+
+
 def water_meta() -> dict:
     out = {}
     for k, rel in (("usgs_wateruse_2015", "water/usgs_wateruse_2015/_meta.json"), ("nwis", "water/nwis/_meta.json"),

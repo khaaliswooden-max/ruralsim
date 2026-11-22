@@ -184,16 +184,9 @@ modules:
   flood:
     question: "Is the site in a mapped flood hazard area?"
     method: "Point-in-polygon against FEMA NFHL flood zones; report zone and whether the county has a modernised effective FIRM."
-    status_v0_1: blocked    # D-013 stands: flood is blocked, not approximated
-    inputs:
-      - {name: nfhl_flood_zones, provenance: observed, source: "FEMA National Flood Hazard Layer (public domain) — LR-8", gap: "unreachable from the pilot sandbox (D-013); to retest from GitHub runners"}
-    outputs:
-      - {name: flood_zone, values: [A, AE, AH, AO, VE, X_shaded, X, D, unmapped]}
-      - {name: firm_status, values: [modernized, paper, none]}
-    open_decision: >
-      A height-above-nearest-drainage screen could be derived today from published 3DEP terrain
-      and NHD flowlines, but D-013 says flood is blocked until an authoritative layer exists. The
-      engine will not compute one unless Khaalis decides to supersede D-013.
+    status_v0_1: active    # D-057 supersedes D-013 (layer delivered); implemented in D-107
+    inputs_delivered: "flood/nfhl/county_status.parquet and flood/nfhl/zones/<fips5>.parquet (D-057)"
+    status_rules: "none = no digital FIRM, never 'no flood risk' (indeterminate); partial = indeterminate unless the site is inside a drawn zone; prelim/pending coverage > 0 flags a map about to change"
     replaces_exp0007: ["none — EXP-0007 had no flood channel"]
 
 # ---------------------------------------------------------------------------
