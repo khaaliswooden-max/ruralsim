@@ -1,10 +1,17 @@
 """Synthetic household population for a pilot county.
 
 GUARDRAIL: synthetic people, never real ones. Households are random points placed on
-OSM building centroids (derived locations), with incomes drawn from a lognormal
-calibrated only to county-level median household income and poverty rate
-(calibrated, from data/county_master.csv). No address-level records are read or
+OSM building centroids (derived locations). No address-level records are read or
 written; outputs are aggregates and deciles only.
+
+Incomes (D-104): calibrated to the county's ACS 2020-2024 household income quintiles
+(B19081 means, B19080 limits; data/acs_income_quintiles_2024.csv, from D-053). Each seed
+draws the ten ACS figures inside their margins of error, assigns a fifth of households to
+each quintile, and draws incomes within each quintile's range so its mean matches ACS.
+Counties without a complete ACS row fall back to the earlier lognormal calibrated to SAIPE
+median income and poverty (D-025), and the population's provenance says so. The lognormal
+put the bottom quintile's mean under half of ACS in 6.6% of nonmetro counties (Wilcox AL
+0.17x, McDowell WV 0.09x), which inflated every cost-share indicator for poor households.
 """
 from __future__ import annotations
 
@@ -21,6 +28,59 @@ ROOT = Path(__file__).resolve().parents[2]  # ruralsim/
 DATA = ROOT / "data"
 
 RESIDENTIAL_KINDS = None  # accept all building kinds as candidate dwelling sites (derived)
+
+MODEL = "acs-quintiles-v2"  # part of the baseline-cache key; bump when the income model changes
+ACS_FILE = DATA / "acs_income_quintiles_2024.csv"
+_BETA_CONCENTRATION = 4.0   # shape of the within-quintile draw (assumed); the mean is fixed by ACS
+
+
+def acs_row(fips: str):
+    """The county's ACS quintile row, or None if any figure the sampler needs is missing."""
+    if not ACS_FILE.exists():
+        return None
+    df = pd.read_csv(ACS_FILE, dtype={"fips5": str})
+    r = df.loc[df["fips5"] == fips]
+    if r.empty:
+        return None
+    r = r.iloc[0]
+    need = [f"mean_q{k}" for k in range(1, 6)] + [f"upper_q{k}" for k in range(1, 5)]
+    if any(pd.isna(r[c]) for c in need):
+        return None
+    return r
+
+
+def _draw_acs(r, rng):
+    """One seed's draw of the ACS means and limits inside their 90% margins (sd = MOE/1.645),
+    repaired so limits increase and each mean lies inside its band."""
+    def draw(col):
+        est, moe = float(r[col]), float(r.get(col + "_moe") or 0.0)
+        return max(rng.normal(est, moe / 1.645) if moe > 0 else est, 1.0)
+    u = sorted(draw(f"upper_q{k}") for k in range(1, 5))
+    m = [draw(f"mean_q{k}") for k in range(1, 6)]
+    lo = [0.0] + u
+    for k in range(4):
+        a, b = lo[k], u[k]
+        m[k] = min(max(m[k], a + 0.05 * (b - a)), b - 0.05 * (b - a))
+    m[4] = max(m[4], 1.05 * u[3])
+    return lo, u, m
+
+
+def acs_incomes(r, n, rng):
+    """Incomes for n households: a fifth in each ACS quintile, each quintile's mean equal in
+    expectation to the drawn ACS mean. Bounded quintiles use a scaled Beta on [lower, upper];
+    the top quintile is its lower limit plus an exponential tail."""
+    lo, u, m = _draw_acs(r, rng)
+    q = rng.permutation(np.resize(np.arange(5), n))
+    inc = np.empty(n)
+    kappa = _BETA_CONCENTRATION
+    for k in range(4):
+        a, b = lo[k], u[k]
+        idx = q == k
+        al = kappa * (m[k] - a) / (b - a)
+        inc[idx] = a + (b - a) * rng.beta(al, kappa - al, idx.sum())
+    idx = q == 4
+    inc[idx] = u[3] + rng.exponential(m[4] - u[3], idx.sum())
+    return inc, {"limits": u, "means": m}
 
 
 def county_row(fips: str) -> pd.Series:
@@ -72,11 +132,19 @@ def make_households(fips: str, n: int = 2000, seed: int = 0) -> pd.DataFrame:
     xs = cent[idx, 0] + rad * np.cos(ang)
     ys = cent[idx, 1] + rad * np.sin(ang)
 
-    row = county_row(fips)
-    median = float(row["median_hh_income_2023"])
-    pov = float(row["poverty_rate_2023"]) / 100.0
-    med, sigma = _calibrate_lognormal(median, pov, rng)
-    income = rng.lognormal(mean=math.log(med), sigma=sigma, size=len(idx))
+    ar = acs_row(fips)
+    if ar is not None:
+        income, _ = acs_incomes(ar, len(idx), rng)
+        income_tag = ("calibrated (ACS 2020-2024 B19081 quintile means and B19080 limits, "
+                      "drawn within MOE; D-104)")
+    else:
+        row = county_row(fips)
+        median = float(row["median_hh_income_2023"])
+        pov = float(row["poverty_rate_2023"]) / 100.0
+        med, sigma = _calibrate_lognormal(median, pov, rng)
+        income = rng.lognormal(mean=math.log(med), sigma=sigma, size=len(idx))
+        income_tag = ("calibrated (FALLBACK: lognormal to SAIPE median & poverty; ACS quintiles "
+                      "missing for this county; D-104)")
 
     hh = pd.DataFrame({"hid": [f"{fips}-{i:05d}" for i in range(len(idx))],
                        "x": xs, "y": ys, "income": income})
@@ -84,7 +152,8 @@ def make_households(fips: str, n: int = 2000, seed: int = 0) -> pd.DataFrame:
     hh["income_quintile"] = qs + 1
     hh.attrs["provenance"] = {
         "location": "derived (OSM building centroids + jitter)",
-        "income": "calibrated (lognormal to county median & poverty rate, ACS 2023)",
+        "income": income_tag,
+        "income_model": MODEL if ar is not None else "saipe-lognormal-v1 (fallback)",
         "identity": "synthetic — no real persons, no address-level records",
     }
     return hh
