@@ -142,6 +142,35 @@ def openmeteo_daily(lat, lon, attempts: int):
             time.sleep(wait)
 
 
+POWER = ("https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M_MAX,T2M_MIN,PRECTOTCORR,WS10M_MAX"
+         "&community=AG&longitude={lon:.4f}&latitude={lat:.4f}&start=19910101&end=20201231&format=JSON")
+
+
+def power_normals(lat, lon, attempts: int = 5):
+    """Third source (D-059): NASA POWER daily (MERRA-2), county centroid, 1991-2020.
+
+    Used only when nClimDiv lacks the county and Open-Meteo refuses (its daily quota was
+    spent during build #47: Lake and Peninsula AK, 02164). Public, no key, no daily quota.
+    POWER has no snowfall, so snow_in stays blank, as it does for nClimDiv."""
+    url = POWER.format(lat=lat, lon=lon)
+    for attempt in range(attempts):
+        try:
+            p = json.loads(_fetch(url, timeout=300))["properties"]["parameter"]
+            break
+        except Exception:
+            if attempt == attempts - 1:
+                raise
+            time.sleep(min(15 * 2 ** attempt, 240))
+    df = pd.DataFrame({k: pd.Series(v) for k, v in p.items()}).replace(-999.0, float("nan"))
+    df.index = pd.to_datetime(df.index, format="%Y%m%d")
+    m = df.groupby(df.index.month)
+    n = pd.DataFrame({"tmax_f": m["T2M_MAX"].mean() * 9 / 5 + 32, "tmin_f": m["T2M_MIN"].mean() * 9 / 5 + 32,
+                      "precip_in": m["PRECTOTCORR"].sum() / 25.4 / 30, "snow_in": float("nan"),
+                      "wind_max_mph": m["WS10M_MAX"].mean() * 2.23694})
+    n.index.name = "month"
+    return n.round(2)
+
+
 def normals_from_daily(df):
     df = df.assign(month=df.date.dt.month)
     n = df.groupby("month").agg(
@@ -189,11 +218,19 @@ def main(argv=None):
             daily.to_csv(out / "openmeteo_daily_1991_2020.csv", index=False)
             daily_note = "present"
         except Exception as e:
-            if normals is None:
-                raise SystemExit(f"FAILED: no normals for {C.fips} — nClimDiv lacks the county "
-                                 f"and Open-Meteo failed ({e})")
             daily_note = f"unavailable ({e}); EXP-0008 cannot run on this county until refetched"
             print(f"  Open-Meteo daily series skipped: {e}", file=sys.stderr)
+            if normals is None:
+                try:
+                    normals = power_normals(lat, lon)
+                    normals_src = {"source": "NASA POWER daily API (MERRA-2 reanalysis), point at county centroid",
+                                   "license": "public (NASA); credit the NASA Langley Research Center POWER Project",
+                                   "provenance": "observed (modelled reanalysis)",
+                                   "note": f"fallback (D-059): nClimDiv lacks the county and Open-Meteo failed ({e})"}
+                    print(f"  normals from NASA POWER (Open-Meteo failed: {e})")
+                except Exception as e2:
+                    raise SystemExit(f"FAILED: no normals for {C.fips} — nClimDiv lacks the county, "
+                                     f"Open-Meteo failed ({e}) and NASA POWER failed ({e2})")
 
     if normals is None:
         normals = normals_from_daily(daily)
