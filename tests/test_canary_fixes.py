@@ -539,3 +539,21 @@ def test_bdc_fiber_tables_keep_counts_not_locations(tmp_path):
         assert "location_id" not in cols and "block_geoid" not in cols   # Fabric identifiers never written
     h = duckdb.sql(f"SELECT providers, fiber_locations FROM '{out}/fiber_h3.parquet'").fetchone()
     assert h == (2, 1)
+
+
+def test_bdc_fiber_reads_quoted_names_after_unquoted_rows(tmp_path):
+    """Nebraska J26 (2026-11-22): a quoted name with a comma at line 54,895; the sniffer had chosen no quoting."""
+    import duckdb, mirror_bdc_fiber as mb
+    hdr = ("frn,provider_id,brand_name,location_id,technology,max_advertised_download_speed,"
+           "max_advertised_upload_speed,low_latency,business_residential_code,state_usps,block_geoid,h3_res8_id\n")
+    plain = "".join(f"1,100,FiberCo,L{i},50,1000,1000,1,R,NE,311179579001032,88a\n" for i in range(30000))
+    quoted = '0002387033,130546,"Glenwood Network Services, Inc.",1139998674,50,1000,1000,1,X,NE,311179579001032,88a\n'
+    csv = tmp_path / "ne.csv"
+    csv.write_text(hdr + plain + quoted)
+    parts, out = tmp_path / "parts", tmp_path / "out"
+    parts.mkdir(); out.mkdir()
+    mb.aggregate_state([csv], parts, "t")
+    c = mb.combine(parts, out)
+    assert c["providers"] == 2 and c["fiber_locations"] == 30001
+    names = duckdb.sql(f"SELECT brand_names FROM '{out}/fiber_county.parquet'").fetchone()[0]
+    assert "Glenwood Network Services, Inc." in names
