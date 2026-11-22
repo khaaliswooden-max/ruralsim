@@ -197,7 +197,7 @@ def run_card(card: dict, seeds: int, seed_offset: int = 0) -> dict:
     wod_ok = bool(np.percentile(deltas, 5) >= -1e-9) if len(deltas) >= 2 else bool(deltas[0] >= 0)
     for r in rows:
         if not wod_ok:
-            r["constraints"]["worst_off_decile_must_gain"] = {
+            r["constraints"]["worst_off_decile_not_worse_off"] = {
                 "passed": False, "note": "90% lower bound across seeds falls below baseline"}
             r["constraints_passed"] = False
     return {
