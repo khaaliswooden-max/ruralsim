@@ -101,6 +101,14 @@ class Cfg:
                                  "", self.county_name)             # "Teton"
         self.st = row["state_abbr"]                                # "ID"
         self.centroid = (float(row["centroid_lon"]), float(row["centroid_lat"]))  # lon, lat
+        if self.geom.bounds[2] - self.geom.bounds[0] > 180:
+            # D-060: Aleutians West AK (02016) crosses the 180th meridian (Attu, Shemya and
+            # the Rat Islands lie at 172-180 E), so its bbox spans the globe and every
+            # bbox-driven fetch asked for the whole world (build #47). The world keeps the
+            # western-hemisphere part, where nearly all residents live (Unalaska, Adak).
+            from shapely.geometry import box
+            self.geom = self.geom.intersection(box(-180, -90, 0, 90))
+            self.boundary_source += "; clipped to the western hemisphere (crosses 180 deg, D-060)"
         w, s, e, n = self.geom.bounds
         self.bbox = (w, s, e, n)                                   # W, S, E, N
         self.buf_bbox = (w - BUF_DEG, s - BUF_DEG, e + BUF_DEG, n + BUF_DEG)

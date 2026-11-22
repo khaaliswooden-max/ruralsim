@@ -109,12 +109,27 @@ def write_layer(name, builder):
     return path.name
 
 # ---------------- terrain ----------------
+MAX_MESH_CELLS = 3_000_000
+
+
+def mesh_step(height, width, res_deg):
+    """Every step-th DEM cell becomes a mesh vertex: ~160 m, widened to stay under MAX_MESH_CELLS.
+
+    D-060: at ~160 m Yukon-Koyukuk AK (02290) needs ~15 M vertices, built as Python
+    objects, and its runner was killed (build #47); Coconino AZ, the largest built before,
+    needed ~2 M."""
+    step = max(1, round(160 / (res_deg * 111320)))
+    while (-(-height // step)) * (-(-width // step)) > MAX_MESH_CELLS:
+        step += 1
+    return step
+
+
 def build_terrain(stage):
     from rasterio.fill import fillnodata
     with rasterio.open(next((LAYERS / "terrain").glob("dem_*_*.tif"))) as src:
         # ~160 m effective for the stage mesh; payload resolution varies by
         # source (20 m from 1/3 arc-second, 30 m from the 1 arc-second fallback)
-        step = max(1, round(160 / (abs(src.transform.a) * 111320)))
+        step = mesh_step(src.height, src.width, abs(src.transform.a))
         # read only every step-th cell: the full grid is ~0.8 GB for Yukon-Koyukuk AK
         from rasterio.windows import Window
         arr = np.stack([src.read(1, window=Window(0, r, src.width, 1))[0, ::step]
