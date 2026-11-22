@@ -25,7 +25,7 @@ Locations are only counted, inside H3 resolution-8 hexagons (about 0.7 km2) and 
                                                 locations_ge_1000_mbps
     broadband/bdc/<as_of>/fiber_county.parquet  fips5, state, fiber_providers, provider_ids,
                                                 brand_names, fiber_locations, hexes_with_fiber
-    broadband/bdc/<as_of>/fiber_providers.parquet  provider_id, frn, brand_name, states, locations
+    broadband/bdc/<as_of>/fiber_providers.parquet  provider_id, frns, brand_names (every brand the id files under), states, locations
     broadband/bdc/<as_of>/_meta.json            source, files read, counts (written last)
 
 Availability is what providers report they can serve within 10 business days, not
@@ -161,8 +161,11 @@ def aggregate_state(csv_paths: list[pathlib.Path], out: pathlib.Path, tag: str) 
                 string_agg(DISTINCT brand_name, '; ' ORDER BY brand_name) brand_names,
                 count(DISTINCT location_id) fiber_locations, count(DISTINCT h3) hexes_with_fiber
          FROM f GROUP BY 1""", "county")
-    q("""SELECT provider_id, any_value(frn) frn, any_value(brand_name) brand_name, any_value(state_usps) state,
-                count(DISTINCT location_id) locations, count(*) n_rows
+    # A provider id files under several brands and FRNs (130077 is AT&T, which now also files
+    # Quantum Fiber; 130370 is Altice: Optimum, Suddenlink, Lightpath), so all are kept.
+    q("""SELECT provider_id, string_agg(DISTINCT frn, ',' ORDER BY frn) frns,
+                string_agg(DISTINCT brand_name, '; ' ORDER BY brand_name) brand_names,
+                any_value(state_usps) state, count(DISTINCT location_id) locations, count(*) n_rows
          FROM f GROUP BY 1""", "prov")
 
 
@@ -173,9 +176,14 @@ def combine(parts: pathlib.Path, out: pathlib.Path) -> dict:
     w = lambda sql, name: con.sql(f"COPY ({sql}) TO '{out / name}' (FORMAT parquet, COMPRESSION zstd)")  # noqa: E731
     w(f"SELECT * FROM '{parts}/h3_*.parquet' ORDER BY fips5, h3_res8_id", "fiber_h3.parquet")
     w(f"SELECT * FROM '{parts}/county_*.parquet' ORDER BY fips5", "fiber_county.parquet")
-    w(f"""SELECT provider_id, any_value(frn) frn, any_value(brand_name) brand_name,
-                 string_agg(DISTINCT state, ',' ORDER BY state) states, CAST(sum(locations) AS BIGINT) locations
-          FROM '{parts}/prov_*.parquet' GROUP BY 1 ORDER BY 1""", "fiber_providers.parquet")
+    w(f"""WITH p AS (SELECT provider_id, unnest(string_split(frns, ',')) frn, unnest(string_split(brand_names, '; ')) brand,
+                            state, locations FROM '{parts}/prov_*.parquet'),
+               t AS (SELECT provider_id, string_agg(DISTINCT state, ',' ORDER BY state) states,
+                            CAST(sum(locations) AS BIGINT) locations FROM '{parts}/prov_*.parquet' GROUP BY 1)
+          SELECT t.provider_id, string_agg(DISTINCT p.frn, ',' ORDER BY p.frn) frns,
+                 string_agg(DISTINCT p.brand, '; ' ORDER BY p.brand) brand_names, any_value(t.states) states,
+                 any_value(t.locations) locations
+          FROM t JOIN p USING (provider_id) GROUP BY 1 ORDER BY 1""", "fiber_providers.parquet")
     one = lambda sql: con.sql(sql).fetchone()[0]  # noqa: E731
     return {"rows": one(f"SELECT sum(n_rows) FROM '{parts}/prov_*.parquet'"),
             "fiber_locations": one(f"SELECT sum(fiber_locations) FROM '{parts}/county_*.parquet'"),
