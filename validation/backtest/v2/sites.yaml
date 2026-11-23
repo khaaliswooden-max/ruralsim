@@ -1,0 +1,134 @@
+# Back-test v2 sites. Pre-registered 2026-11-22 (D-207). None was used in v1 (D-200..D-206).
+#
+# Same split as v1: `before:` is what the engine may read (with the site point, the mask
+# terms and the design inputs of the conditional run); `observed:` is what happened, read
+# only by the scorer. Source keys resolve in SITES.md. PENDING = must be filled from a dated
+# primary source by an amendment merged before the first v2 run, else the comparison is
+# NOT SCORED. Years: T0 = first public announcement; E = first year of operation; where
+# sources disagree, every candidate E is listed and a comparison passes only if it passes
+# for all of them.
+#
+# Load (fix 3, PREREGISTRATION §5.3): operator-disclosed site electricity for the year a
+# comparison needs, where the operator publishes it per site; otherwise the serving
+# utility's EIA-861 delivered-energy increment, only if detectable.
+
+scored_sites:
+
+  - id: V2-01
+    fips5: "41013"
+    county: Crook County, OR
+    state: OR
+    rucc: {"2003": 6, "2013": 6, "2023": 3}   # nonmetro in the vintage in force at T0 (2003) (§3.1)
+    operator: Meta (Facebook)
+    site: Prineville data center campus
+    site_point: [-120.88562, 44.29732]        # mean of the 11 OSM buildings tagged operator Meta / Meta Platforms
+                                              # (ways 321385147, 373945186, 592160495, 706759845, 772827597, 772827601,
+                                              # 1152747559, 1152748037, 1230289118, 1230289120, 1460426704);
+                                              # Apple's campus (~1 km east) is not in the site
+                                              # world 41013_crook_or snapshot 20261122T224804Z-4b80cd1
+    mask_owner_terms: [Meta, Facebook]
+    mask_keep_osm_ids: []                     # OSM had no substation mapped in the county before 2016 (ohsome, §4.2)
+    T0: 2010              # announced 2010-01-21 [CR-1]
+    E: [2011]             # 71 GWh used in 2011 [CR-4]; opened April 2011 [CR-2]
+    serving_utility: {name: PacifiCorp (Pacific Power), eia_id: 14354, ownership: investor_owned, source: [CR-3]}
+    load:
+      operator_disclosed_mwh: {2011: 71000, 2012: 153000, 2013: 224000, 2014: 262000, 2015: 284000,
+                               2016: 327000, 2017: 426000, 2018: 488000, 2019: 573000, 2020: 686000}
+      operator_source: [CR-4, CR-5]
+      eia_utility: null                       # PacifiCorp's Oregon sales are too large to show the site (§5.3)
+    cooling: adiabatic_hybrid                 # outside air through an evaporative "mister" wall; no cooling towers
+                                              # or chillers [CR-6]; mapped by design (§5.4), not by water figures
+    before:
+      announced_investment_usd: null          # not disclosed at T0 [CR-1]
+      announced_jobs: 35                      # permanent, plus ~200 construction [CR-1]
+      announced_mw: null
+    observed:
+      G1_grid_build: {new_substation: true, new_line_ge_69kv: null,
+                      detail: "BPA and Pacific Power completed the Ponderosa substation upgrade (+350 MW to the local grid) in January 2013, which BPA had planned for 2014; in October 2010 the local BPA substation lacked capacity for Facebook's planned buildings",
+                      source: [CR-3, CR-7]}
+      R1_rate_utility: {eia_id: 14354, name: PacifiCorp}
+      W1_water:                               # withdrawal, the site's own disclosure [CR-4, CR-5]
+        - {year: 2014, m3: 41639, note: "11,000,000 gal"}
+        - {year: 2015, m3: 68137, note: "18,000,000 gal"}
+        - {year: 2016, m3: 70000}
+        - {year: 2017, m3: 172000}
+        - {year: 2018, m3: 160000}
+        - {year: 2019, m3: 208000}
+        - {year: 2020, m3: 445000}
+
+  - id: V2-02
+    fips5: "37161"
+    county: Rutherford County, NC
+    state: NC
+    rucc: {"2003": 4, "2013": 4, "2023": 4}
+    operator: Meta (Facebook)
+    site: Forest City data center campus
+    site_point: [-81.82411, 35.31584]         # mean of the 4 OSM buildings tagged operator=Meta (ways 460089167-8,
+                                              # 883809860, 1109074150), world 37161_rutherford_nc snapshot 20261119T173843Z-d287c5c
+    mask_owner_terms: [Meta, Facebook]        # matches the 100 kV substation tagged operator=Facebook (way 460089170)
+    mask_keep_osm_ids: []
+    T0: 2010              # announced 2010-11-11 [RU-1]
+    E: [2011, 2012]       # "came online at the end of 2011" (6 GWh in 2011) [RU-4]; serving live traffic April 2012 [RU-2]
+    serving_utility: {name: Duke Energy Carolinas, eia_id: 5416, ownership: investor_owned,
+                      source: [RU-3], note: "'served by Duke Energy' (Nov 2010); in 2010 Duke's western-NC utility was Duke Energy Carolinas (Progress Energy joined Duke in 2012)"}
+    load:
+      operator_disclosed_mwh: {2011: 6000, 2012: 98000, 2013: 225000, 2014: 322000, 2015: 310000,
+                               2016: 339000, 2017: 433000, 2018: 547000, 2019: 614000, 2020: 595000}
+      operator_source: [CR-4, CR-5]
+      eia_utility: null
+    cooling: adiabatic_hybrid                 # same outdoor-air design as Prineville [RU-2]; mapped by design (§5.4)
+    before:
+      announced_investment_usd: 450000000     # [RU-1]
+      announced_mw: null
+    observed:
+      G1_grid_build: {new_substation: true, new_line_ge_69kv: null,
+                      detail: "a 100 kV substation on the campus tagged operator=Facebook in OSM; it serves the site by construction, but no record dates it",
+                      source: [RU-5], caveat: "build date not documented; counted as built for the site because its operator is the site's owner"}
+      R1_rate_utility: {eia_id: 5416, name: Duke Energy Carolinas}
+      W1_water:
+        - {year: 2014, m3: 117348, note: "31,000,000 gal"}
+        - {year: 2015, m3: 124919, note: "33,000,000 gal"}
+        - {year: 2016, m3: 123000}
+        - {year: 2017, m3: 129000}
+        - {year: 2018, m3: 99000}
+        - {year: 2019, m3: 85000}
+        - {year: 2020, m3: 68000}
+
+  - id: V2-03
+    fips5: "41049"
+    county: Morrow County, OR
+    state: OR
+    rucc: {"2003": 6, "2013": 6, "2023": 8}
+    operator: Amazon (AWS)
+    site: Port of Morrow, Boardman (first Eastern Oregon AWS campus)
+    site_point: [-119.6546, 45.84088]         # mean of the 6 OSM buildings tagged operator="Amazon Web Services" in the Port
+                                              # of Morrow cluster (ways 460070144, 592171280, 633034071, 633034074,
+                                              # 697415321, 1252196819), world 41049_morrow_or snapshot 20261122T230548Z-4b80cd1
+    mask_owner_terms: [Amazon, AWS, Vadata]
+    mask_keep_osm_ids: []
+    T0: 2008              # Port of Morrow site, first of three buildings underway, 2008-11-07 [MO-1]
+    E: [2011, 2013]       # AWS "a dozen years" in Eastern Oregon as of 2023 [MO-3]; UEC: first data center stalled ~2009,
+                          # resumed 2012 [MO-2]; EIA-861 shows UEC's sales rising from 2013
+    serving_utility: {name: Umatilla Electric Coop Assn, eia_id: 19325, ownership: cooperative, source: [MO-2, MO-3]}
+    load:
+      operator_disclosed_mwh: {}
+      eia_utility: 19325                      # detectable (§5.3): see observed/observed_values.json
+      scope_note: "UEC's increment includes every AWS campus it serves, in Morrow and Umatilla counties; the run places it all at this point"
+    cooling: null                             # W1 not scored here (no site-scope water record)
+    before:
+      announced_investment_usd: 100000000     # [MO-1]
+      announced_mw: null
+    observed:
+      G1_grid_build: {new_substation: true, new_line_ge_69kv: null,
+                      detail: "a 10 MW substation being built next to the site, 2008 [MO-1]; UEC expanded existing substations and used mobile substations for new campuses [MO-2]",
+                      source: [MO-1, MO-2]}
+      R1_rate_utility: {eia_id: 19325, name: Umatilla Electric Coop Assn}
+      W1_water: []                            # AWS's 2024 Port of Morrow water (136 Mgal) [MO-4] is one campus group, but the only
+                                              # load is UEC-wide: scopes differ, so context only
+
+not_selected:
+  - {fips5: "51117", county: "Mecklenburg County, VA", site: "Microsoft Boydton (2010)",
+     reason: "served by Dominion Virginia Power [ME-1]; no per-site load disclosure and Dominion's sales hide the site (§5.3)"}
+  - {fips5: "41059", county: "Umatilla County, OR", site: "AWS Hermiston/Umatilla",
+     reason: "same utility (UEC) as V2-03, so not an independent load; partly tribal (Umatilla Reservation)"}
+  - {fips5: "40097..53025", county: "every v1 county", reason: "used in v1 (D-200..D-206): not held out"}
