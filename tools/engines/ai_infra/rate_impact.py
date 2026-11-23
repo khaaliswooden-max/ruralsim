@@ -60,12 +60,14 @@ def candidates(fips5: str, state: str, eia, year: int = 2024) -> list[dict]:
         if len(d):
             c["ownership"], c["ownership_provenance"] = d.ownership_type.iloc[0], f"observed (EIA-861 Utility_Data {year})"
             tv = d.transmission.dropna()
-            c["transmission_owner"] = bool((tv == "Y").any())
-            # EIA marks activities "Y"; most other utilities leave the field blank. Blank is read as
-            # not an owner, and labelled so (D-109).
-            c["transmission_owner_provenance"] = (f"observed (EIA-861 Utility_Data {year}: Y)" if c["transmission_owner"]
-                                                  else f"observed (EIA-861 Utility_Data {year}: N)" if len(tv)
-                                                  else f"assumed (EIA-861 Utility_Data {year}: transmission blank, read as not an owner)")
+            # EIA marks activities "Y"; most other utilities leave the field blank. Blank is unknown
+            # (D-110): transmission_owner is None and run() carries both cost-share cases.
+            if len(tv):
+                c["transmission_owner"] = bool((tv == "Y").any())
+                c["transmission_owner_provenance"] = f"observed (EIA-861 Utility_Data {year}: {'Y' if c['transmission_owner'] else 'N'})"
+            else:
+                c["transmission_owner"] = None
+                c["transmission_owner_provenance"] = f"assumed (EIA-861 Utility_Data {year}: transmission blank: unknown; both cases carried)"
         elif len(f) and f.ownership.iloc[0]:
             c["ownership"], c["ownership_provenance"] = f.ownership.iloc[0], f"observed (EIA-861 Short_Form {year})"
             c["transmission_owner"] = False
@@ -165,7 +167,11 @@ def run(cands, upgrades, site, onsite, allocation, acs_row, cfg, rng):
         if "rate_basis" not in c:
             res.append({"utility_number": c["utility_number"], "status": "indeterminate", "reason": c["data"]})
             continue
-        retail = r["retail_share_if_transmission_owner"] if c["transmission_owner"] else dist_share
+        owner = c.get("transmission_owner")
+        cases = ({"transmission_owner": r["retail_share_if_transmission_owner"], "distribution_only": dist_share}
+                 if owner is None else
+                 {("transmission_owner" if owner else "distribution_only"):
+                  r["retail_share_if_transmission_owner"] if owner else dist_share})
         if c["rate_basis"] == "residential":
             ind_rate, rev, share = c["industrial_avg_rate_usd_per_kwh"], c["residential_revenue_usd"], (
                 c["residential_mwh"] / c["total_mwh"] if c["total_mwh"] else 1.0)
@@ -176,19 +182,31 @@ def run(cands, upgrades, site, onsite, allocation, acs_row, cfg, rng):
         util_mwh = c["total_mwh"] if c["rate_basis"] == "residential" else c["all_sector_mwh"]
         site_share = site["grid_mwh"] / util_mwh if util_mwh else float("inf")
         margin = site["grid_mwh"] * 1000 * ind_rate * margin_share
-        net = cap * crf * alloc * retail + capacity - margin
-        d_rate = 100 * net * share / rev
         bill = kwh * q1_share * rate
-        d_bill = bill * d_rate / 100
-        res.append({"utility_number": c["utility_number"], "status": "computed", "rate_basis": c["rate_basis"],
-                    "site_share_of_utility_sales": site_share,
-                    "outside_validity": site_share > r["max_site_share_of_utility_sales"],
-                    "lowest_quintile_rate_change_pct": d_rate,
-                    "lowest_quintile_bill_change_usd_per_yr": d_bill,
-                    "lowest_quintile_energy_cost_share_change_pp": (100 * d_bill / inc) if inc else INCOME_MISSING,
-                    "net_annual_cost_to_customers_usd": net,
-                    "components_usd_per_yr": {"upgrades": cap * crf * alloc * retail, "capacity_unrecovered": capacity,
-                                              "margin_on_site_sales": -margin}})
+        by_case = {}
+        for name, retail in cases.items():
+            net = cap * crf * alloc * retail + capacity - margin
+            d_rate = 100 * net * share / rev
+            d_bill = bill * d_rate / 100
+            by_case[name] = {
+                "retail_share_of_upgrades": retail,
+                "lowest_quintile_rate_change_pct": d_rate,
+                "lowest_quintile_bill_change_usd_per_yr": d_bill,
+                "lowest_quintile_energy_cost_share_change_pp": (100 * d_bill / inc) if inc else INCOME_MISSING,
+                "net_annual_cost_to_customers_usd": net,
+                "components_usd_per_yr": {"upgrades": cap * crf * alloc * retail, "capacity_unrecovered": capacity,
+                                          "margin_on_site_sales": -margin}}
+        # Headline fields: the single case, or, when ownership is unknown, the case with the larger
+        # rate change (the upper end of the range). The range itself is in `cases` (D-110).
+        top = max(by_case.values(), key=lambda v: v["lowest_quintile_rate_change_pct"])
+        x = {"utility_number": c["utility_number"], "status": "computed", "rate_basis": c["rate_basis"],
+             "site_share_of_utility_sales": site_share,
+             "outside_validity": site_share > r["max_site_share_of_utility_sales"],
+             "transmission_case": "unknown; both cases carried" if owner is None else next(iter(by_case)),
+             **{k: v for k, v in top.items() if k != "retail_share_of_upgrades"}}
+        if owner is None:
+            x["cases"] = by_case
+        res.append(x)
     draws = {"capital_recovery_factor": crf, "allocation_ratepayer_share": alloc,
              "margin_on_new_sales_share": margin_share, "lowest_quintile_kwh_share": q1_share,
              "retail_share_if_distribution_only": dist_share, "capacity_cost_unrecovered_usd": capacity,

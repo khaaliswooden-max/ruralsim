@@ -375,7 +375,15 @@ def summarise(per_seed, cands):
                 "lowest_quintile_energy_cost_share_change_pp": (
                     band([x["lowest_quintile_energy_cost_share_change_pp"] for x in comp_u])
                     or (rate_impact.INCOME_MISSING if comp_u else None)),
+                "transmission_owner_provenance": c.get("transmission_owner_provenance"),
             }
+            if comp_u and "cases" in comp_u[0]:   # ownership unknown: one band per case (D-110)
+                out_u[str(c["utility_number"])]["lowest_quintile_rate_change_pct_by_case"] = {
+                    k: band([x["cases"][k]["lowest_quintile_rate_change_pct"] for x in comp_u])
+                    for k in comp_u[0]["cases"]}
+                out_u[str(c["utility_number"])]["lowest_quintile_bill_change_usd_per_yr_by_case"] = {
+                    k: band([x["cases"][k]["lowest_quintile_bill_change_usd_per_yr"] for x in comp_u])
+                    for k in comp_u[0]["cases"]}
         rates[alloc] = {"upgrade_capex_usd": band(cap), "per_utility": out_u,
                         "sensitivity_spearman": sensitivity(per_seed, alloc, cands)}
     return {"power_flow": pf, "rate_impact": rates}
@@ -541,6 +549,19 @@ def judge(card, rec):
                                    "note": f"site would be {sh:.2f}x this utility's annual sales, above the rate "
                                            f"model's validity limit of {lim}; the outcome depends on the large-load "
                                            "contract, which is not modelled"})
+                elif "lowest_quintile_rate_change_pct_by_case" in x:
+                    # D-110: ownership unknown; the bar is applied to both ends of the range.
+                    bc = x["lowest_quintile_rate_change_pct_by_case"]
+                    ok = [v["p50"] <= crit["rate_change_pct_max"] for v in bc.values()]
+                    item = {**item, "value": bc, "note": x["transmission_owner_provenance"]}
+                    if all(ok):
+                        passes.append({**item, "status": "pass"})
+                    elif not any(ok):
+                        misses.append({**item, "status": "miss"})
+                    else:
+                        misses.append({**item, "status": "indeterminate",
+                                       "note": "range straddles the bar: passes in one ownership case, fails in "
+                                               "the other; transmission ownership is unknown (EIA-861 blank, D-110)"})
                 elif b["p50"] > crit["rate_change_pct_max"]:
                     misses.append({**item, "status": "miss", "value": b})
                 else:
