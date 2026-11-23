@@ -61,6 +61,9 @@ def check(fips5: str, backtest_id: str | None, eia_available) -> dict | None:
     s = next((v for v in sites.values() if v.get("id") == backtest_id), None)
     if s is None or s["fips5"] != fips5:
         raise Refused(f"{backtest_id} is not a registered back-test site for {fips5}")
+    if s.get("refused"):
+        r = s["refused"]
+        raise Refused(f"{backtest_id} is refused under {r.get('by')}: {r.get('reason')}. {r.get('scoring', '')}".strip())
     commit = preregistration_commit()
     if commit is None:
         raise Refused("PREREGISTRATION.md is not committed")

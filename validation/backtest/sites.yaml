@@ -20,6 +20,10 @@ scored_sites:
 
   - id: BT-01
     fips5: "40097"
+    refused:                       # D-204: Khaalis decided 2026-11-22 to drop Mayes
+      by: D-420
+      reason: "Mayes County lies entirely inside the Cherokee OTSA (CLASSFP D6), which D-420 treats as reservation; no run without the Cherokee Nation's request, and none is sought"
+      scoring: "every BT-01 comparison is NOT SCORED; BT-01 stays in the count of four scored sites (PREREGISTRATION §7, §8)"
     county: Mayes County, OK
     rucc: {"2003": 6, "2023": 6}   # nonmetro both vintages (data/county_master.csv)
     operator: Google
