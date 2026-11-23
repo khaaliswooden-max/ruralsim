@@ -188,7 +188,11 @@ No engine output exists for any v2 site. Neither rule changes a bar.
 
 ## 13. Amendment and status log
 
-(empty)
+**D-208 (2026-11-22), status, no rule change.** Step 1's inputs for v2 are in R2 (D-064, PR #92): EIA-860/861 for 2007 and 2009, LR-12 population vintages 2007 and 2009, and Census 2000 households. Checked against the frozen engine's own reader (`households_input`, commit `7feff94`): `vintage_ok` is true for all three v2 sites (households 8,651 Crook, 25,398 Rutherford, 3,846 Morrow). EIA-861 archives may carry current utility names; the figures are historical. **Still open, all on step 2 (§11):**
+- `gate.py` reading `v2/sites.yaml`;
+- per-run `mask_radius_m` for the two mask bounds;
+- the large-load rate output;
+- per-site cooling.
 
 ---
 
