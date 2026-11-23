@@ -1,0 +1,517 @@
+{
+ "rules": "v2 PREREGISTRATION.md \u00a75-\u00a76",
+ "sites": {
+  "V2-01": {
+   "fips5": "41013",
+   "T0": 2010,
+   "E": [
+    2011
+   ],
+   "loads": {
+    "G1_E2011": {
+     "year": 2013,
+     "source": "operator disclosure",
+     "load_aMW": 25.6,
+     "mwh": 224000,
+     "ref": [
+      "CR-4",
+      "CR-5"
+     ]
+    },
+    "R1_E2011": {
+     "year": 2016,
+     "source": "operator disclosure",
+     "load_aMW": 37.3,
+     "mwh": 327000,
+     "ref": [
+      "CR-4",
+      "CR-5"
+     ]
+    }
+   },
+   "R1": [
+    {
+     "E": 2011,
+     "utility_eia_id": 14354,
+     "years": [
+      2009,
+      2016
+     ],
+     "state": "OR",
+     "peer_class": "investor_owned",
+     "peer_n": 2,
+     "utility_cents_kwh": [
+      8.388,
+      11.06
+     ],
+     "peer_cents_kwh": [
+      9.956,
+      11.372
+     ],
+     "state_cents_kwh": [
+      8.678,
+      10.664
+     ],
+     "R1_obs_pp": 17.62,
+     "R1_state_pp": 8.97,
+     "site_share_of_T0m1_sales": 0.0244
+    }
+   ],
+   "W1": [
+    {
+     "year": 2014,
+     "observed_gallons": 10999857.908000002,
+     "observed_m3": 41639.0,
+     "load": {
+      "year": 2014,
+      "source": "operator disclosure",
+      "load_aMW": 29.9,
+      "mwh": 262000,
+      "ref": [
+       "CR-4",
+       "CR-5"
+      ]
+     }
+    },
+    {
+     "year": 2015,
+     "observed_gallons": 17999887.564000003,
+     "observed_m3": 68137.0,
+     "load": {
+      "year": 2015,
+      "source": "operator disclosure",
+      "load_aMW": 32.4,
+      "mwh": 284000,
+      "ref": [
+       "CR-4",
+       "CR-5"
+      ]
+     }
+    },
+    {
+     "year": 2016,
+     "observed_gallons": 18492040.0,
+     "observed_m3": 70000.0,
+     "load": {
+      "year": 2016,
+      "source": "operator disclosure",
+      "load_aMW": 37.3,
+      "mwh": 327000,
+      "ref": [
+       "CR-4",
+       "CR-5"
+      ]
+     }
+    },
+    {
+     "year": 2017,
+     "observed_gallons": 45437584.00000001,
+     "observed_m3": 172000.0,
+     "load": {
+      "year": 2017,
+      "source": "operator disclosure",
+      "load_aMW": 48.6,
+      "mwh": 426000,
+      "ref": [
+       "CR-4",
+       "CR-5"
+      ]
+     }
+    },
+    {
+     "year": 2018,
+     "observed_gallons": 42267520.00000001,
+     "observed_m3": 160000.0,
+     "load": {
+      "year": 2018,
+      "source": "operator disclosure",
+      "load_aMW": 55.7,
+      "mwh": 488000,
+      "ref": [
+       "CR-4",
+       "CR-5"
+      ]
+     }
+    },
+    {
+     "year": 2019,
+     "observed_gallons": 54947776.00000001,
+     "observed_m3": 208000.0,
+     "load": {
+      "year": 2019,
+      "source": "operator disclosure",
+      "load_aMW": 65.4,
+      "mwh": 573000,
+      "ref": [
+       "CR-4",
+       "CR-5"
+      ]
+     }
+    },
+    {
+     "year": 2020,
+     "observed_gallons": 117556540.00000001,
+     "observed_m3": 445000.0,
+     "load": {
+      "year": 2020,
+      "source": "operator disclosure",
+      "load_aMW": 78.3,
+      "mwh": 686000,
+      "ref": [
+       "CR-4",
+       "CR-5"
+      ]
+     }
+    }
+   ]
+  },
+  "V2-02": {
+   "fips5": "37161",
+   "T0": 2010,
+   "E": [
+    2011,
+    2012
+   ],
+   "loads": {
+    "G1_E2011": {
+     "year": 2013,
+     "source": "operator disclosure",
+     "load_aMW": 25.7,
+     "mwh": 225000,
+     "ref": [
+      "CR-4",
+      "CR-5"
+     ]
+    },
+    "G1_E2012": {
+     "year": 2014,
+     "source": "operator disclosure",
+     "load_aMW": 36.8,
+     "mwh": 322000,
+     "ref": [
+      "CR-4",
+      "CR-5"
+     ]
+    },
+    "R1_E2011": {
+     "year": 2016,
+     "source": "operator disclosure",
+     "load_aMW": 38.7,
+     "mwh": 339000,
+     "ref": [
+      "CR-4",
+      "CR-5"
+     ]
+    },
+    "R1_E2012": {
+     "year": 2017,
+     "source": "operator disclosure",
+     "load_aMW": 49.4,
+     "mwh": 433000,
+     "ref": [
+      "CR-4",
+      "CR-5"
+     ]
+    }
+   },
+   "R1": [
+    {
+     "E": 2011,
+     "utility_eia_id": 5416,
+     "years": [
+      2009,
+      2016
+     ],
+     "state": "NC",
+     "peer_class": "investor_owned",
+     "peer_n": 2,
+     "utility_cents_kwh": [
+      8.403,
+      10.418
+     ],
+     "peer_cents_kwh": [
+      10.383,
+      10.748
+     ],
+     "state_cents_kwh": [
+      9.993,
+      11.027
+     ],
+     "R1_obs_pp": 20.46,
+     "R1_state_pp": 13.63,
+     "site_share_of_T0m1_sales": 0.0062
+    },
+    {
+     "E": 2012,
+     "utility_eia_id": 5416,
+     "years": [
+      2009,
+      2017
+     ],
+     "state": "NC",
+     "peer_class": "investor_owned",
+     "peer_n": 2,
+     "utility_cents_kwh": [
+      8.403,
+      10.175
+     ],
+     "peer_cents_kwh": [
+      10.383,
+      10.46
+     ],
+     "state_cents_kwh": [
+      9.993,
+      10.935
+     ],
+     "R1_obs_pp": 20.35,
+     "R1_state_pp": 11.66,
+     "site_share_of_T0m1_sales": 0.008
+    }
+   ],
+   "W1": [
+    {
+     "year": 2014,
+     "observed_gallons": 31000055.856000002,
+     "observed_m3": 117348.0,
+     "load": {
+      "year": 2014,
+      "source": "operator disclosure",
+      "load_aMW": 36.8,
+      "mwh": 322000,
+      "ref": [
+       "CR-4",
+       "CR-5"
+      ]
+     }
+    },
+    {
+     "year": 2015,
+     "observed_gallons": 33000102.068000004,
+     "observed_m3": 124919.0,
+     "load": {
+      "year": 2015,
+      "source": "operator disclosure",
+      "load_aMW": 35.4,
+      "mwh": 310000,
+      "ref": [
+       "CR-4",
+       "CR-5"
+      ]
+     }
+    },
+    {
+     "year": 2016,
+     "observed_gallons": 32493156.000000004,
+     "observed_m3": 123000.0,
+     "load": {
+      "year": 2016,
+      "source": "operator disclosure",
+      "load_aMW": 38.7,
+      "mwh": 339000,
+      "ref": [
+       "CR-4",
+       "CR-5"
+      ]
+     }
+    },
+    {
+     "year": 2017,
+     "observed_gallons": 34078188.0,
+     "observed_m3": 129000.0,
+     "load": {
+      "year": 2017,
+      "source": "operator disclosure",
+      "load_aMW": 49.4,
+      "mwh": 433000,
+      "ref": [
+       "CR-4",
+       "CR-5"
+      ]
+     }
+    },
+    {
+     "year": 2018,
+     "observed_gallons": 26153028.000000004,
+     "observed_m3": 99000.0,
+     "load": {
+      "year": 2018,
+      "source": "operator disclosure",
+      "load_aMW": 62.4,
+      "mwh": 547000,
+      "ref": [
+       "CR-4",
+       "CR-5"
+      ]
+     }
+    },
+    {
+     "year": 2019,
+     "observed_gallons": 22454620.000000004,
+     "observed_m3": 85000.0,
+     "load": {
+      "year": 2019,
+      "source": "operator disclosure",
+      "load_aMW": 70.1,
+      "mwh": 614000,
+      "ref": [
+       "CR-4",
+       "CR-5"
+      ]
+     }
+    },
+    {
+     "year": 2020,
+     "observed_gallons": 17963696.0,
+     "observed_m3": 68000.0,
+     "load": {
+      "year": 2020,
+      "source": "operator disclosure",
+      "load_aMW": 67.9,
+      "mwh": 595000,
+      "ref": [
+       "CR-4",
+       "CR-5"
+      ]
+     }
+    }
+   ]
+  },
+  "V2-03": {
+   "fips5": "41049",
+   "T0": 2008,
+   "E": [
+    2011,
+    2013
+   ],
+   "loads": {
+    "G1_E2011": {
+     "year": 2013,
+     "pre_years": [
+      2005,
+      2007
+     ],
+     "post_years": [
+      2012,
+      2013
+     ],
+     "increment_mwh": 190019,
+     "noise_sd_mwh": 33739,
+     "detect_ratio": 5.6,
+     "detectable": true,
+     "load_aMW": 21.7,
+     "share_of_T0m1_sales": 0.217,
+     "source": "EIA-861 Parts A+B, utility 19325"
+    },
+    "G1_E2013": {
+     "year": 2015,
+     "pre_years": [
+      2005,
+      2007
+     ],
+     "post_years": [
+      2014,
+      2015
+     ],
+     "increment_mwh": 624518,
+     "noise_sd_mwh": 33739,
+     "detect_ratio": 18.5,
+     "detectable": true,
+     "load_aMW": 71.3,
+     "share_of_T0m1_sales": 0.714,
+     "source": "EIA-861 Parts A+B, utility 19325"
+    },
+    "R1_E2011": {
+     "year": 2016,
+     "pre_years": [
+      2005,
+      2007
+     ],
+     "post_years": [
+      2015,
+      2016
+     ],
+     "increment_mwh": 846728,
+     "noise_sd_mwh": 33739,
+     "detect_ratio": 25.1,
+     "detectable": true,
+     "load_aMW": 96.7,
+     "share_of_T0m1_sales": 0.968,
+     "source": "EIA-861 Parts A+B, utility 19325"
+    },
+    "R1_E2013": {
+     "year": 2018,
+     "pre_years": [
+      2005,
+      2007
+     ],
+     "post_years": [
+      2017,
+      2018
+     ],
+     "increment_mwh": 1492275,
+     "noise_sd_mwh": 33739,
+     "detect_ratio": 44.2,
+     "detectable": true,
+     "load_aMW": 170.4,
+     "share_of_T0m1_sales": 1.706,
+     "source": "EIA-861 Parts A+B, utility 19325"
+    }
+   },
+   "R1": [
+    {
+     "E": 2011,
+     "utility_eia_id": 19325,
+     "years": [
+      2007,
+      2016
+     ],
+     "state": "OR",
+     "peer_class": "cooperative",
+     "peer_n": 17,
+     "utility_cents_kwh": [
+      6.597,
+      8.594
+     ],
+     "peer_cents_kwh": [
+      7.623,
+      9.779
+     ],
+     "state_cents_kwh": [
+      8.185,
+      10.664
+     ],
+     "R1_obs_pp": 1.98,
+     "R1_state_pp": -0.01,
+     "site_share_of_T0m1_sales": 0.9678
+    },
+    {
+     "E": 2013,
+     "utility_eia_id": 19325,
+     "years": [
+      2007,
+      2018
+     ],
+     "state": "OR",
+     "peer_class": "cooperative",
+     "peer_n": 17,
+     "utility_cents_kwh": [
+      6.597,
+      8.336
+     ],
+     "peer_cents_kwh": [
+      7.623,
+      9.926
+     ],
+     "state_cents_kwh": [
+      8.185,
+      10.983
+     ],
+     "R1_obs_pp": -3.86,
+     "R1_state_pp": -7.83,
+     "site_share_of_T0m1_sales": 1.7057
+    }
+   ],
+   "W1": []
+  }
+ }
+}
