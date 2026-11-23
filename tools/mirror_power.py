@@ -147,7 +147,7 @@ def main(argv=None):
             import duckdb
             import os
             base = (os.environ.get("RURALSIM_DATA_BASE")
-                    or "https://pub-b414cd9251804d11871e4bec734e096e.r2.dev").rstrip("/")
+                    or "https://data.ruralsim.io").rstrip("/")
             con = duckdb.connect(); con.sql("INSTALL httpfs; LOAD httpfs")
             old = con.sql(f"SELECT * FROM '{base}/{PREFIX}summary.parquet'").df()
             summary = pd.concat([old[~old["fips5"].isin(summary.get("fips5", []))], summary])

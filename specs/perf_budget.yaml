@@ -8,7 +8,7 @@
 # Re-baseline the ceilings from a CI run (the job summary prints the numbers) when the runner
 # or the harness changes, never to make a slower change pass.
 decision: D-500
-data_base: https://pub-b414cd9251804d11871e4bec734e096e.r2.dev   # RURALSIM_DATA_BASE overrides
+data_base: https://data.ruralsim.io   # RURALSIM_DATA_BASE overrides
 runs: 2                     # median of this many cold-cache loads per county and profile
 
 profiles:

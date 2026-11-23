@@ -5,9 +5,12 @@ runner and uploads it to an R2 bucket. The public site links to the viewers serv
 that bucket. Setup takes about 15 minutes and is done once. Labels in the Cloudflare
 dashboard change from time to time; the steps below describe what to look for.
 
-## Current setup (2026-11-15)
-Bucket `ruralsim-data` (Standard, ENAM), public development URL
-`https://pub-b414cd9251804d11871e4bec734e096e.r2.dev`.
+## Current setup (2026-11-22)
+Bucket `ruralsim-data` (Standard, ENAM), served at the custom domain
+`https://data.ruralsim.io` (ruralsim.io's DNS moved from Vercel to Cloudflare on 2026-11-22,
+D-066; steps in the project doc `ruralsim/operations/DNS_MOVE_TO_CLOUDFLARE.md`). The public
+development URL `https://pub-b414cd9251804d11871e4bec734e096e.r2.dev` still answers until it
+is turned off; nothing in the repo or the site uses it.
 Deploy hook (§7): Vercel hook `r2-index-rebuild` on branch `main`, created 2026-11-16;
 its URL is stored only as the GitHub secret `VERCEL_DEPLOY_HOOK`. To rotate it, delete
 the hook in Vercel, create a new one, and replace the secret.

@@ -34,7 +34,7 @@ S3 = "https://prd-tnm.s3.amazonaws.com/StagedProducts/Hydrography/NHD/State/GPKG
 PREFIX = "nhd/"
 UA = {"User-Agent": "RuralSim/1.0 (+https://www.ruralsim.io; county twin build)"}
 DATA_BASE = (os.environ.get("RURALSIM_DATA_BASE")
-             or "https://pub-b414cd9251804d11871e4bec734e096e.r2.dev").rstrip("/")
+             or "https://data.ruralsim.io").rstrip("/")
 LAYERS = {
     "flowline": ("NHDFlowline", "permanent_identifier, gnis_name, ftype, fcode, reachcode, lengthkm"),
     "waterbody": ("NHDWaterbody", "permanent_identifier, gnis_name, ftype, fcode, reachcode, areasqkm"),
