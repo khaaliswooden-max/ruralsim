@@ -7,9 +7,10 @@
 # graded SPECULATIVE: screening-grade, reduced-order, assumed parameters.
 # Decision support, not a finding.
 
-version: "0.1-draft"
+version: "0.2-draft"
 status: draft          # draft -> accepted (on merge) -> superseded
 decision: D-100
+amended_by: [D-111]    # D-111: proposal-card intake, options with no-build, not_modelled block; applies D-420 and D-430
 engine_module: tools/engines/ai_infra/     # planned location; not created by this PR
 reads_from: "R2 public snapshot: worlds/<dir>/snapshots/<snapshot>/ (manifest.json pins sha256 per file)"
 target_population: "nonmetro counties (RUCC 2023 4-9; 1,958 counties). Metro counties run only as contrast cases."
@@ -41,6 +42,74 @@ rules:
     political variables denylisted (D-007); no option relocates residents; tribal land
     is a siting constraint, not an input to optimise over.
   no_workflow_on_push: "batch runs are manual; heavy batches run between county-build batches (20 shared Actions jobs)"
+  # --- D-111 -------------------------------------------------------------------
+  run_kinds: >
+    every run declares run_kind: experiment_card (EXP-*, RuralSim's own questions),
+    proposal_card (PC-*, a question brought by a county, a resident or anyone else), or
+    backtest (BT-*, under validation/backtest/PREREGISTRATION.md). The engine, its
+    parameters and its outputs are the same for all three; only the intake differs.
+  options_always_include_no_build: >
+    a proposal_card run screens at least two options, and one of them is always
+    no_build. A card without no_build is refused, never patched silently. no_build is
+    the county as it stands (same seed, same network, same county load, no site); it is
+    screened and reported like any other option, including its own misses and its own
+    not_modelled entries, so that it is never presented as the costless default.
+  options_are_the_submitters: >
+    RuralSim does not add a build option the submitter did not ask for. The intake may
+    suggest standard alternatives (smaller or first phase only, other cooling, other
+    site, with conditions); each runs only if the submitter ticks it. no_build is the
+    one option added by rule.
+  not_modelled_always: >
+    every run record, every summary, every county brief and every viewer panel that
+    shows a result carries the not_modelled block in full (output_schema.not_modelled).
+    The fixed core list cannot be shortened by a card, a client or a layout. A record
+    without it fails validation and is not written to the ledger.
+  site_public_geography_only: >
+    a proposal_card names its site only at public-geography level: an H3 resolution-8
+    cell (about 0.74 km2), a 2020 Census block group, or a PLSS section. Never a street
+    address, a parcel number or an owner name. A map click in the intake is converted to
+    its H3 cell and the click is discarded. The engine runs at the cell centroid, and the
+    record says so (site.resolution).
+  proposal_sites_are_never_moved: >
+    a proposal card's site is the submitter's, so it is never moved. A site outside the
+    county is refused. A site that touches tribal land is refused under D-420 unless the
+    card is a request from that nation's government (tribal_land rule below).
+  tribal_land: >
+    D-420. Tribal land = Census TIGER AIANNH CLASSFP D0, D2, D3, D5, D8 and Oklahoma Tribal
+    Statistical Areas D6, including fee land inside reservation boundaries; Alaska Native
+    village areas, Hawaiian Home Lands and state reservations are treated the same until
+    decided. Without a request from the nation's government, no run of any kind places a
+    site, an intervention or a modelled population on tribal land, and no output reports a
+    score, subtotal or narrative claim about it. In a partly tribal county every run (1)
+    masks tribal land from candidate sites (experiment cards: no site on tribal land;
+    proposal cards: refusal), (2) masks tribal-land households from the synthetic
+    population and from every lowest-quintile or worst-off output, and (3) reports
+    utility-wide results that cannot be split by location with no figure for the tribal
+    area. Every such record carries a not_modelled entry "tribal land masked (D-420)" naming
+    the nation(s). A request from a county, state, utility, co-op, developer, researcher
+    or client is not a nation's request. A card from a nation's government
+    (submitter_role tribal_government, verified against the BIA Tribal Leaders Directory
+    and the nation's own site before intake) runs on that nation's land only, and its
+    results are governed by the nation's terms (record field publication: nation_terms),
+    which override revenue Rule 3 and D-400; anything published keeps its true grade and
+    both disclosure lines. Today the engine moves an experiment card's centroid site off
+    tribal land (site_point()) and masks no population: population masking is new work.
+  backtest_gate_applies_to_proposals: >
+    gate.check() is unchanged. A proposal card in a back-test county or brief candidate
+    (gate.BRIEF_CANDIDATES, validation/backtest/sites.yaml) is held, status
+    held_backtest_gate, until the first back-test run is recorded and the
+    pre-registration is frozen (PREREGISTRATION §8). It is then run as normal.
+  params_untouched: >
+    D-111 changes no value in params/assumed.yaml or params/activsg_distributions.json,
+    so params_sha256 is unaffected. Two parts do change results and land before step 3's
+    first back-test run (PREREGISTRATION §4.3 freezes the engine at that run, not before):
+    D-420 population masking changes lowest-quintile and worst-off outputs in partly tribal
+    counties, and D-420 refuses runs on tribal land. Affected EXP cards are rerun as new
+    ledger records; old records stay as written.
+  backtest_and_d420: >
+    No carve-out for back-tests. Back-test site BT-01 (Mayes OK) lies entirely inside the
+    Cherokee OTSA (CLASSFP D6); it is dropped by D-204 (sites.yaml refused, gate refuses,
+    every BT-01 comparison NOT SCORED).
 
 # ---------------------------------------------------------------------------
 # Scenario: what a run screens
@@ -55,6 +124,42 @@ scenario_inputs:
   onsite_generation: {provenance: hypothetical, fields: [solar_mw, storage_mwh, firm_mw], default: {solar_mw: 0, storage_mwh: 0, firm_mw: 0}}
   cost_allocation: {provenance: hypothetical, values: [direct_assignment, large_load_tariff, socialized],
                     note: "who pays for grid upgrades and on-site generation; run all three unless the card fixes one"}
+  # --- D-111: fields a proposal card can set. Experiment and back-test cards
+  # --- keep the fields above unchanged; these are optional and ignored when absent.
+  site_resolution:  {provenance: hypothetical, values: [point, h3_r8, blockgroup_2020, plss_section],
+                     note: "point is allowed for experiment and back-test cards only; proposal cards use one of the other three"}
+  phases:           {provenance: hypothetical, fields: [phase, year_offset, it_load_mw_cumulative],
+                     note: "each phase runs as its own variant at its cumulative load; steady state, no ramp dynamics"}
+  water_source:     {provenance: hypothetical, values: [public_system, groundwater, surface_water, reclaimed, none_dry, unknown],
+                     fields: [pwsid_or_name, stream_or_aquifer_name],
+                     note: "selects which comparison cooling_water leads with; unknown runs every comparison"}
+  cooling_type_unknown: {rule: "when a card says cooling is unknown, every cooling_type value is run and reported (as PREREGISTRATION §4.1 does)"}
+  backup_generation: {provenance: hypothetical, fields: [mw, fuel], note: "recorded and listed under not_modelled (emissions, noise); no module reads it in v0.2"}
+  local_setback_m:  {provenance: observed, note: "entered from the county's own ordinance if it has one; recorded and listed under not_modelled (setbacks) in v0.2"}
+
+# ---------------------------------------------------------------------------
+# Proposal-card intake (D-111). Template and fiscal checklist: specs/proposal_card.md
+# ---------------------------------------------------------------------------
+proposal_card_intake:
+  card_id: "PC-<yyyy>-<nnnn>; immutable once run; a revision is a new card with supersedes:"
+  compiles_to: >
+    one engine card in the existing card format (experiments/ai_infra_cards.yaml shape):
+    each option becomes one entry in scenarios[] with name = option_id; no_build becomes a
+    scenario with it_load_mw 0 and no on-site generation, evaluated on the same seed
+    streams as every other option (common random numbers, D-101 (5)).
+  modules: "all five run for every proposal card; a module a card cannot feed is reported blocked or indeterminate, never dropped"
+  criteria: >
+    pass bars are fixed before the run. The submitter may accept RuralSim's default bars
+    (the EXP-0011..0014 criterion blocks) or set its own; either way the bars, and who set
+    them, are written into the card before it runs and cannot change after.
+  stated_not_checked: >
+    figures the submitter supplies that no module reads (announced investment, jobs, tax
+    terms, construction schedule) are carried into the record under stated_not_checked,
+    labelled "stated by the submitter, not checked by RuralSim", and never scored.
+  grade: SPECULATIVE   # every proposal card; a proposal card is never a back-test
+  refusals: [no no_build option, fewer than two options, address or parcel or owner given as site,
+             site outside county, site touches tribal land and the card is not from that nation (D-420), political variable in an objective]
+  holds: [held_backtest_gate]
 
 # ---------------------------------------------------------------------------
 # Modules
@@ -201,16 +306,48 @@ modules:
 output_schema:
   record:
     run_id: string                       # <card or batch id>/<UTC time>
+    run_kind: "experiment_card | proposal_card | backtest"                    # D-111
+    proposal_card: "null, or {card_id, card_version, card_sha256, submitter_role, bars_set_by, pending_public_decision: bool}"   # D-111; role only, never a name. pending_public_decision per D-400's trigger, from the card's decision block
+    publication: "default | nation_terms"   # D-111/D-420; nation_terms only for a card from a nation's government
+    tribal_mask: "null, or {nations: [names], sites_masked: bool, population_masked: bool, households_removed: int}"   # D-111/D-420
     engine_version: string               # git commit of tools/engines/ai_infra
-    spec_version: "0.1"
+    spec_version: "0.2"
     grade: SPECULATIVE                   # fixed
     disclosure: "Simulated, screening-grade results with assumed parameters. Decision support, not a finding."
     county: {fips5: string, snapshot: string, manifest_sha256: string, rucc_2023: int}
-    site: {lon: float, lat: float, enu_m: [x, y]}
+    site: {lon: float, lat: float, enu_m: [x, y], resolution: "point | h3_r8 | blockgroup_2020 | plss_section", geography_id: "null or the cell/GEOID/section id"}   # D-111 adds the last two
     scenario: "scenario_inputs as run"
+    options: >
+      D-111. null for experiment and back-test runs. For proposal runs, a list of
+      {option_id, label, is_no_build, scenario_name}; every scenario_name is a key of the
+      existing per-county scenarios map, so the per-scenario output shape is unchanged.
     seeds: int
     provenance_floor: "weakest tag among inputs actually used"
-    misses: "list of {module, criterion, threshold, value_or_status} for every failed or indeterminate criterion — printed first"
+    misses: "list of {module, criterion, threshold, value_or_status, option_id} for every failed or indeterminate criterion — printed first (option_id added by D-111; null outside proposal runs)"
+    comparison: >
+      D-111. null outside proposal runs. Per option and per output: p10/p50/p90, and the
+      difference from no_build computed per seed and then summarised (never the
+      difference of two medians). Ordered misses first within each option.
+    not_modelled: >
+      D-111. REQUIRED in every record, never empty. A list of
+      {topic, status, why, who_can_answer, applies_to}; status is one of not_modelled,
+      not_observed, indeterminate_every_run, blocked_this_run; applies_to is "all options"
+      or a list of option_ids. Starts from the fixed core list below; modules append
+      their own entries (blocked inputs, out-of-range validity, e.g. D-102's site-share limit).
+      Replaces the flat not_modelled list run.py writes today; the old strings map onto core topics.
+    stated_not_checked: "D-111. null, or the card's stated_not_checked block copied verbatim, labelled"
+    fiscal_facts: >
+      D-111/D-430. Required in every proposal_card record; null elsewhere until built for
+      the county's state (Texas and Kansas first), and a null is itself listed under
+      not_modelled. Provenance observed, no grade, no dollar estimate. Fields:
+      taxing_units [{name, type, rate, rate_year, levy, levy_year, source}];
+      state_taxes_business_personal_property {value, source};
+      state_sales_tax_exemptions_for_data_centers [{statute, summary, source}];
+      local_agreements_found [{type, parties, date, terms_as_recorded, source}] with the
+      label "found in public registries; absence is not evidence there is none";
+      questions_to_demand: the fixed checklist (specs/proposal_card.md), never edited per card.
+      No revenue, incentive value, service cost or net figure is computed (D-430); a revenue
+      screen (F2) needs a published fiscal back-test first, and F3 is never a free public screen.
     inputs: "list of {name, value_or_range, unit, provenance, source, sampled: bool}"
     modules:
       power_flow:    {status: "computed | indeterminate | blocked", reason: string, outputs: "see modules.power_flow.outputs, p10/p50/p90 where sampled"}
@@ -228,6 +365,28 @@ output_schema:
     - {output: lowest_quintile_rate_change_pct, observed_counterpart: "residential rate change in a rate case tied to the load, where one exists"}
     - {output: annual_withdrawal_m3, observed_counterpart: "permitted or reported water volume"}
     - {output: timeline, observed_counterpart: "construction dates", note: "not modelled; step 3 should not score it against this engine"}
+  # D-111 leaves this list, the output names in it and the backtest field unchanged.
+
+  not_modelled_core:   # D-111. Printed in full on every output; a card cannot remove an entry.
+    - {topic: "fiscal impact: revenue, incentives, service costs and school-finance offsets are not estimated",
+       status: not_modelled, who_can_answer: "county appraisal district or assessor; state comptroller or revenue department; school district business office",
+       note: "D-430 (F1): public tax facts and the questions to demand are reported in fiscal_facts; no dollar figure"}
+    - {topic: noise (cooling plant, backup generators, substation), status: not_modelled, who_can_answer: "applicant's acoustic study; county noise ordinance"}
+    - {topic: air emissions (backup generators, on-site combustion, grid-attributable), status: not_modelled, who_can_answer: "state air permit (generators); EPA eGRID for grid emissions"}
+    - {topic: setbacks and distance to homes, schools and other buildings, status: not_modelled, who_can_answer: "county ordinance; site plan"}
+    - {topic: appearance, height, lighting and viewshed, status: not_modelled, who_can_answer: "site plan and elevations; county planning staff"}
+    - {topic: jobs, construction workforce, traffic and housing demand, status: not_modelled, who_can_answer: "applicant; any development agreement's job terms"}
+    - {topic: construction timeline and phasing dynamics (phases are screened as steady states), status: not_modelled, who_can_answer: "applicant; utility interconnection queue"}
+    - {topic: which utility serves the site, status: not_observed, why: "no public retail territory polygons; every candidate utility is run", who_can_answer: "the utilities; state commission territory maps"}
+    - {topic: N-1 contingency and regional through-flow, status: not_modelled, who_can_answer: "utility or RTO interconnection study"}
+    - {topic: middle-mile and long-haul fiber, status: not_observed, who_can_answer: "carriers; state broadband office"}
+    - {topic: sustainable groundwater yield (water_within_recharge), status: indeterminate_every_run, who_can_answer: "groundwater conservation district; state water agency"}
+    - {topic: nearby property values, land use change and other development of the same site under no_build, status: not_modelled, who_can_answer: "county appraisal district; planning staff"}
+    - {topic: ecology, cultural and archaeological resources, status: not_modelled, who_can_answer: "state historic preservation office; tribal historic preservation officers; wildlife agencies"}
+    - {topic: actual contract and tariff terms between the site and its utility, status: not_observed, who_can_answer: "the utility; state commission filings"}
+  # Conditional entries appended by the run, never removed when they apply:
+  #   tribal land masked (D-420), naming the nation(s), whenever tribal_mask is non-null;
+  #   fiscal_facts not yet built for this state, whenever fiscal_facts is null.
 
 # ---------------------------------------------------------------------------
 # Layer requests for the step-1 chat (Khaalis carries these over)
@@ -254,3 +413,4 @@ plan:
   - "PR C: cooling_water and fiber once LR-3..LR-7 land"
   - "PR D: flood once LR-8 lands, or on a decision superseding D-013"
   - "Back-test runs only after step 3's PREREGISTRATION.md is merged"
+  - "PR E (D-111): proposal-card intake (schema + compiler to the existing card format), options and comparison block, structured not_modelled block in every record and summary; fiscal_facts (D-430, TX and KS first); D-420 tribal-land site and population masking. No change to existing module outputs or params"
