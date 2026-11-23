@@ -155,3 +155,114 @@
   fidelity_tier: B_pilot_3d
   provenance_floor: observed
   risks_to_residents: "low from the screen itself; a fiber build for a site can bypass the homes along its route"
+
+# ---------------------------------------------------------------------------
+# Back-test run 1 (rollout step 3). Scored only by validation/backtest/PREREGISTRATION.md
+# (D-200..D-204) and D-113; the criterion blocks below are the engine's own screening
+# judge, kept so run.judge works, and are NOT the back-test pass bars. Load is the observed
+# EIA-861 increment L_obs (D-201, observed/observed_values.json), never a prediction.
+# BT-01 Mayes refused (D-204, D-420); BT-02 Jackson has no L_obs (retail seller PENDING, D-202).
+# ---------------------------------------------------------------------------
+- id: BACKTEST-1-BT03-power
+  title: "Back-test BT-03 Wasco OR (Google, The Dalles): grid build and residential rate, conditional on observed load"
+  category: energy_compute
+  hypothesis: "Scored by PREREGISTRATION.md §6.2 (G1) and §6.3 (R1), not by this card."
+  counties: ["41065"]
+  site: {rule: backtest, note: "site_point from validation/backtest/sites.yaml (D-203), set by gate.check"}
+  load_input: facility_avg_mw
+  intervention:
+    description: "the load that actually arrived, as facility average MW; no on-site generation; three cost allocations"
+    parameters: {facility_avg_mw: 33.8}
+    parameter_sources: {facility_avg_mw: "observed: L_obs, NWCPUD EIA-861 retail increment 2002-04 -> 2007-08 (D-201)",
+                        everything else: "params/assumed.yaml (assumed, sampled); EIA-861/860 of T0-1 = 2004; OSM masked (D-203)"}
+  scenarios:
+    - {name: observed_load, facility_avg_mw: 33.8}
+  baseline: same network and county load without the site, same seed
+  duration: "one peak hour (N-0 power flow) and one year (rates)"
+  time_step: "steady state"
+  engines: [power, economy]
+  seeds: 20
+  metrics:
+    primary: lowest_quintile_rate_change_pct for Northern Wasco County PUD (13788)
+    secondary: [required_upgrades, new_line_km]
+    rqli_domains_affected: [cost_burden, power_reliability]
+  criterion: {grid_clean_seed_share: 0.9, rate_change_pct_max: 2.0,
+              rule: "engine screening judge only; the back-test is scored by the pre-registration"}
+  success_criterion: "see validation/backtest/PREREGISTRATION.md"
+  fidelity_tier: B_pilot_3d
+  provenance_floor: assumed
+  risks_to_residents: "none: a back-test of a built site; no recommendation is made"
+
+- id: BACKTEST-1-BT04-power
+  title: "Back-test BT-04 Grant WA (Microsoft and Yahoo, Quincy): grid build and residential rate, conditional on observed load"
+  category: energy_compute
+  hypothesis: "Scored by PREREGISTRATION.md §6.2 (G1) and §6.3 (R1) with D-113, not by this card."
+  counties: ["53025"]
+  site: {rule: backtest, note: "site_point from validation/backtest/sites.yaml (D-203), set by gate.check"}
+  load_input: facility_avg_mw
+  intervention:
+    description: "the load that actually arrived, as facility average MW; no on-site generation; three cost allocations"
+    parameters: {facility_avg_mw: 82.5}
+    parameter_sources: {facility_avg_mw: "observed: L_obs, Grant PUD EIA-861 retail increment 2003-05 -> 2008-09 (D-201)",
+                        everything else: "params/assumed.yaml (assumed, sampled); EIA-861/860 of T0-1 = 2005; OSM masked (D-203)"}
+  scenarios:
+    - {name: observed_load, facility_avg_mw: 82.5}
+  baseline: same network and county load without the site, same seed
+  duration: "one peak hour (N-0 power flow) and one year (rates)"
+  time_step: "steady state"
+  engines: [power, economy]
+  seeds: 20
+  metrics:
+    primary: lowest_quintile_rate_change_pct for PUD No 2 of Grant County (14624), both transmission cases (D-113)
+    secondary: [required_upgrades, new_line_km]
+    rqli_domains_affected: [cost_burden, power_reliability]
+  criterion: {grid_clean_seed_share: 0.9, rate_change_pct_max: 2.0,
+              rule: "engine screening judge only; the back-test is scored by the pre-registration"}
+  success_criterion: "see validation/backtest/PREREGISTRATION.md"
+  fidelity_tier: B_pilot_3d
+  provenance_floor: assumed
+  risks_to_residents: "none: a back-test of a built site; no recommendation is made"
+
+- id: BACKTEST-1-BT03-water
+  title: "Back-test BT-03 Wasco OR (Google, The Dalles): annual water withdrawal per observed year, conditional on observed load"
+  category: energy_compute
+  hypothesis: "Scored by PREREGISTRATION.md §6.4 (W1), not by this card."
+  counties: ["41065"]
+  site: {rule: backtest, note: "site_point from validation/backtest/sites.yaml (D-203), set by gate.check"}
+  modules: [cooling_water]
+  load_input: facility_avg_mw
+  intervention:
+    description: "evaporative cooling (record: Google's cooling towers at The Dalles, OR-9); load per year = NWCPUD increment over 2002-04 (§6.4)"
+    parameters: {cooling: evaporative}
+    parameter_sources: {cooling: "observed: Google data-center location page, The Dalles (OR-9); a design fact, any date allowed (D-201)",
+                        facility_avg_mw: "observed: observed_values.json W1_load (§6.4)",
+                        everything else: "params/assumed.yaml cooling block (assumed, sampled)"}
+  scenarios:
+    - {name: y2012, facility_avg_mw: 33.6, cooling: evaporative}
+    - {name: y2013, facility_avg_mw: 33.3, cooling: evaporative}
+    - {name: y2014, facility_avg_mw: 39.1, cooling: evaporative}
+    - {name: y2015, facility_avg_mw: 39.8, cooling: evaporative}
+    - {name: y2016, facility_avg_mw: 33.7, cooling: evaporative}
+    - {name: y2017, facility_avg_mw: 40.8, cooling: evaporative}
+    - {name: y2018, facility_avg_mw: 60.3, cooling: evaporative}
+    - {name: y2019, facility_avg_mw: 74.9, cooling: evaporative}
+    - {name: y2020, facility_avg_mw: 82.8, cooling: evaporative}
+    - {name: y2021, facility_avg_mw: 97.6, cooling: evaporative}
+  baseline: none
+  duration: "30 years of daily weather (1991-2020)"
+  time_step: "1 day"
+  engines: [water_environment]
+  seeds: 20
+  metrics:
+    primary: annual_withdrawal_m3 (m3 per year), per observed year
+    secondary: [wue_l_per_it_kwh, pue_effective_annual]
+    rqli_domains_affected: [environment]
+  criterion:
+    peak_day_share_of_low_flow_max: 0.10
+    annual_share_of_public_supply_max: 0.10
+    source_rule: "largest-drainage gauge with low-flow statistics within 50 km of the site; nearest gauge reported, not scored"
+    rule: "engine screening judge only; the back-test is scored by the pre-registration"
+  success_criterion: "see validation/backtest/PREREGISTRATION.md"
+  fidelity_tier: B_pilot_3d
+  provenance_floor: assumed
+  risks_to_residents: "none: a back-test of a built site; no recommendation is made"
