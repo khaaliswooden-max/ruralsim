@@ -631,3 +631,16 @@ def test_eia_history_urls_and_file_names():
     assert zz._names["Service_Territory_2024.xlsx"] == "2004/Service_Territories_2004.xlsx"
     sf = h.short_form(zz)
     assert len(sf) == 0 and "avg_rate_all_sectors_usd_per_kwh" in sf.columns          # no 861S before 2012
+
+
+def test_popest_vintage_reads_unpadded_codes(tmp_path, monkeypatch):
+    """Vintages 2004 and 2006 write SUMLEV '50' and STATE '1' (no leading zeros): D-064."""
+    import mirror_census_history as mc
+    csv = tmp_path / "co-est2004-alldata.csv"
+    csv.write_text("SUMLEV,STATE,COUNTY,STNAME,CTYNAME,POPESTIMATE2003,POPESTIMATE2004\n"
+                   "40,1,0,Alabama,Alabama,4500000,4530000\n50,1,1,Alabama,Autauga County,46000,46600\n"
+                   "50,41,65,Oregon,Wasco County,23600,23669\n")
+    monkeypatch.setattr(mc, "ensure", lambda *a, **k: csv)
+    d = mc.popest(2004)
+    assert set(d.fips5) == {"01001", "41065"} and len(d) == 4
+    assert int(d[(d.fips5 == "41065") & (d.year == 2004)].population.iloc[0]) == 23669

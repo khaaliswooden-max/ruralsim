@@ -6,8 +6,8 @@ on:
   workflow_dispatch:
     inputs:
       years:
-        description: "Space-separated years (back-test T0-1: Wasco 2004, Grant 2005, Mayes 2006, Jackson 2014)"
-        default: "2004 2005 2006 2014"
+        description: "Space-separated years (back-test T0-1: Wasco 2004, Grant 2005, Mayes 2006, Morrow 2007, Crook and Rutherford 2009, Jackson 2014)"
+        default: "2004 2005 2006 2007 2009 2014"
 
 permissions:
   contents: read
