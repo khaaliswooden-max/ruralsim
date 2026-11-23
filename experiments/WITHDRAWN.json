@@ -1,0 +1,11 @@
+{
+  "_about": "Append-only registry of withdrawn experiment cards. Ledger files stay; the site build, the harness and reports read this file. Change an entry only on a nation's written answer (D-421) or a new D-entry.",
+  "notice": "Two runs withdrawn: they ran on Omaha and Winnebago reservation land without the nations' request.",
+  "decision": "D-421",
+  "withdrawn": [
+    {"card": "EXP-0004", "date": "2026-11-22", "decision": "D-421", "rule": "D-420",
+     "reason": "Ran on Omaha and Winnebago reservation land (Thurston County NE) without either nation's request."},
+    {"card": "EXP-0009", "date": "2026-11-22", "decision": "D-421", "rule": "D-420",
+     "reason": "Ran on Omaha and Winnebago reservation land (Thurston County NE) without either nation's request."}
+  ]
+}

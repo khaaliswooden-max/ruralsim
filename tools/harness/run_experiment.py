@@ -243,6 +243,14 @@ def main():
     else:
         ap.error("give a card id or --county")
 
+    # D-421: withdrawn cards never rerun (they ran on tribal land without the nation's request, D-420)
+    wf = ROOT / "experiments" / "WITHDRAWN.json"
+    gone = {w["card"] for w in json.loads(wf.read_text())["withdrawn"]} if wf.exists() else set()
+    refused = [c["id"] for c in todo if c["id"] in gone]
+    if refused:
+        sys.exit(f"refused: {', '.join(refused)} withdrawn under D-421 (see experiments/WITHDRAWN.json); "
+                 "no experiment runs on tribal land unless that nation's government requests it (D-420)")
+
     for card in todo:
         out = run_card(card, args.seeds, args.seed_offset)
         out["status"] = "ran"
