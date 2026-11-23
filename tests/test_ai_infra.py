@@ -248,3 +248,42 @@ def test_fiber_site_hex_nearest_and_county():
     lat, lon = _h3.cell_to_latlng(ring2)
     assert fiber.run(lat, lon, hx, None, 30)["nearest_fiber_hex_km"] == 0.0
     assert fiber.run(40.0, -100.0, hx, None, 30)["nearest_fiber_hex_km"] is None   # nothing within radius
+
+
+# --- back-test inputs: T0-1 tables and the site mask (D-109) -----------------------------
+def test_gate_refuses_backtest_without_mask_inputs_and_returns_them_when_given(monkeypatch):
+    site = {"id": "BT-01", "fips5": "40097", "T0": 2007}
+    monkeypatch.setattr(gate, "backtest_sites", lambda: {"40097": site})
+    monkeypatch.setattr(gate, "preregistration_commit", lambda: "abc")
+    with pytest.raises(gate.Refused, match="site_point"):
+        gate.check("40097", "BT-01", lambda y: True)          # T0-1 present, but no mask inputs
+    site.update(site_point=[-95.3, 36.25], mask_owner_terms=["Google"], mask_keep_osm_ids=[12])
+    bt = gate.check("40097", "BT-01", lambda y: y == 2006)
+    assert bt["as_of_year"] == 2006 and bt["site_point"] == [-95.3, 36.25]
+    assert bt["mask_owner_terms"] == ["Google"] and bt["mask_keep_osm_ids"] == ["12"]
+
+
+def test_candidates_label_the_year_and_blank_transmission():
+    import pandas as _pd
+    t = {"eia861_service_territory": _pd.DataFrame({"county_fips": ["00001"] * 2, "utility_number": [1, 2],
+                                                   "utility_name": ["A Coop", "B PUD"], "short_form": ["N", "N"]}),
+         "eia861_sales_ult_cust": _pd.DataFrame({"utility_number": [1, 2], "state": ["XX"] * 2, "part": ["A"] * 2,
+                                                "residential_revenue_kusd": [1000.0] * 2, "residential_mwh": [10000.0] * 2,
+                                                "residential_customers": [800.0] * 2, "total_mwh": [20000.0] * 2,
+                                                "industrial_revenue_kusd": [500.0] * 2, "industrial_mwh": [8000.0] * 2,
+                                                "total_revenue_kusd": [1800.0] * 2}),
+         "eia861_utility_data": _pd.DataFrame({"utility_number": [1, 2], "ownership_type": ["Cooperative", "Political Subdivision"],
+                                              "transmission": ["Y", None]}),
+         "eia861_short_form": _pd.DataFrame(columns=["utility_number", "state", "ownership"])}
+    c = {x["utility_number"]: x for x in rate_impact.candidates("00001", "XX", t.__getitem__, 2005)}
+    assert c[1]["transmission_owner"] and c[1]["transmission_owner_provenance"] == "observed (EIA-861 Utility_Data 2005: Y)"
+    assert not c[2]["transmission_owner"] and c[2]["transmission_owner_provenance"].startswith("assumed")
+    assert c[2]["data"] == "observed (EIA-861 Sales_Ult_Cust 2005)"
+
+
+def test_eia_loader_is_bound_to_the_run_year(monkeypatch):
+    from tools.engines.ai_infra import data as _data, run
+    seen = []
+    monkeypatch.setattr(_data, "eia", lambda table, year=2024: seen.append((table, year)))
+    run.eia_for(2006)("eia861_utility_data")
+    assert seen == [("eia861_utility_data", 2006)]
