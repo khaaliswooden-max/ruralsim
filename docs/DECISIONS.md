@@ -331,3 +331,17 @@ Implements D-110. `rate_impact.candidates` sets `transmission_owner` to `None` w
 
 ## D-112 (2026-11-22, rollout step 2) — Back-test county load from the population of T0−1, as published then
 Closes the third engine condition in D-202. The existing county load is households × residential kWh per customer × total-to-residential ratio. Households came from the 2024 population estimate divided by ACS 2020–2024 household size in every run. A back-test now takes the population estimate for July of T0−1 **as published in vintage T0−1**, divided by persons per household from the latest decennial census not after T0−1 (2000 for Wasco, Grant and Mayes; 2010 for Jackson). The repo's `data/county_year.csv` was not used: its 2010–2019 values are Census Vintage 2020, published after every T0, so they carry later revisions, and PREREGISTRATION §4.2.3 requires the vintage nearest to and not after T0. Intercensal 2000–2010 estimates are excluded for the same reason. Neither input is in R2, so this is layer request LR-12 (spec updated): `census/popest/v<vintage>/county.parquet` (fips5, year, population) for vintages 2004, 2005, 2006 and 2014, and `census/decennial/<2000|2010>/households.parquet` (fips5, population, households). Until LR-12 lands, a back-test uses the 2024 values and records `county_households_input.vintage_ok: false` with a note, so step 3 marks G1 NOT SCORED rather than the run failing. A missing table (HTTP 404) is the only error that falls back; any other read error stops the run. Current runs are unchanged (EXP-0011 dev check). *Invalidated by:* LR-12 delivered in another layout (adapt the readers), or step 3 choosing another population rule before the first run.
+
+## D-206 (2026-11-22, rollout step 3) — Back-test run 1: no misses, two passes, ten of twelve not scored; every channel SPECULATIVE
+The first pre-registered back-test ran on the frozen engine (`tools/engines/ai_infra` at `7feff94`, D-205) with 20 seeds: cards `BACKTEST-1-BT03-power`, `BACKTEST-1-BT04-power` and `BACKTEST-1-BT03-water`, ledger records under `experiments/ledger/BACKTEST-1-*/`. It was scored by `validation/backtest/tools/score_run.py`, committed before any output was read; results are in `validation/backtest/RESULTS_2026-11-22.md`. **Misses:** none. **Not scored (10 of 12):**
+- BT-01 Mayes: refused (D-204).
+- BT-02 Jackson: no load input (D-202).
+- G1 at Wasco and Grant: county load still used 2024 households, because LR-12 has not landed (D-112).
+- Wasco R1: site 1.22× NWCPUD's 2004 sales, outside the rate model's validity domain (D-202).
+- Grant W1: no record.
+
+**Passes:**
+- Grant R1, by D-113. Both ownership cases under all three allocations were inside the −20.0 to +7.9 pp interval, with p50 −1.4% to +0.5%. The interval is wide because the observed counterfactuals disagree, and the result tracks the assumed margin share (ρ −0.91 to −0.98).
+- Wasco W1. All ten years 2012–2021 were within a factor of two (ratios 0.81–1.20, low in nine), conditional on the observed load and the evaporative cooling stated in the record.
+
+**Grades:** G1 0 of 4 scored, R1 1 of 4, W1 1 of 4, all SPECULATIVE. A channel needs 3. The pre-registration is now frozen (§8). Further sites, or a change to any rule that left these comparisons unscored, need a v2 pre-registration on held-out sites. The unscored rules: the 25% validity limit, the empty keep lists, and the Part A load rule. *Invalidated by:* an error found in the scorer or the ledger records (recorded as a deviation; it can only lower a grade).

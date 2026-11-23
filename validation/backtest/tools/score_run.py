@@ -145,8 +145,9 @@ def score_w1(site, rec):
         if p is None:
             years.append({"period": w["period"], "status": "NOT SCORED", "reason": "engine gave no withdrawal"})
             continue
-        ratio = p / w["gallons"]
-        years.append({"period": w["period"], "observed_gallons": w["gallons"], "predicted_p50_gallons": round(p),
+        gal = float(w["gallons"])   # PyYAML reads 104.3e6 as a string (YAML 1.1 needs a sign in the exponent)
+        ratio = p / gal
+        years.append({"period": w["period"], "observed_gallons": gal, "predicted_p50_gallons": round(p),
                       "band_gallons": s["summary"].get("annual_withdrawal_gallons"), "ratio": round(ratio, 3),
                       "status": "PASS" if 0.5 <= ratio <= 2.0 else "MISS"})
     scored = [y for y in years if y["status"] in ("PASS", "MISS")]

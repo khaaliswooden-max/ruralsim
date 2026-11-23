@@ -76,8 +76,10 @@ def main(date):
     for c, g in d["grades"].items():
         L.append(f"| {c} {CH[c]} | {g['scored']} of 4 | {g['passes']} | {g['misses']} | {g['grade']} |")
     L += ["", "A channel needs at least 3 of 4 sites scored, at least 3 passes and at most 1 miss.", "",
-          "## 5. Contrast site", "", "BT-C1 Licking OH cannot run (D-202): no load input under the Part A rule.", "",
-          "## 6. Runs", ""]
+          "## 5. What the passes are worth", ""] + [f"- {x}" for x in d.get("notes", [])] + ["",
+          "## 6. Deviations from the pre-registration", ""] + ([f"- {x}" for x in d.get("deviations", [])] or ["None."]) + ["",
+          "## 7. Contrast site", "", "BT-C1 Licking OH cannot run (D-202): no load input under the Part A rule.", "",
+          "## 8. Runs", ""]
     for k, r in d["runs"].items():
         L.append(f"- {k}: `{r['ledger']}` · run `{r['run_id']}` · engine `{r['engine_version']}` · params sha256 "
                  f"`{r['params_sha256'][:12]}…` · EIA year {r.get('eia_year', '—')}")
