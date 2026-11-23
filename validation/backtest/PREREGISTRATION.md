@@ -1,6 +1,6 @@
 # Back-test pre-registration: AI-infrastructure engine against built rural data centers
 
-Rollout step 3 · version 1.0 · registered 2026-11-21 · decisions **D-200**, **D-201**
+Rollout step 3 · version 1.0 · registered 2026-11-21 · decisions **D-200**, **D-201**, **D-202**
 Status: **registered, no runs.** The engine (rollout step 2) does not exist yet.
 
 This document fixes, before any run: which sites, what the engine is allowed to know, which engine outputs are compared with which observed quantities, the pass bar for each comparison, and what passing allows us to say. It must merge before the step-2 engine runs on any site listed here. Once the first back-test run is recorded, nothing in it changes. A later version can only govern new, held-out sites (§8).
@@ -71,7 +71,7 @@ Mapped to step 2's `output_schema` in `specs/ai_infra_engine.yaml` (PR #50, D-10
 | `rate_impact.lowest_quintile_rate_change_pct`, for the rate utility named in `sites.yaml` | p50, in % | R1 |
 | `cooling_water.annual_withdrawal_m3` | p50 × 264.172 = gallons per year | W1 |
 
-A module that returns `indeterminate` or `blocked` makes its comparison **NOT SCORED** for that site. Each record must carry `backtest: {site_id, preregistration_commit}` and the engine commit.
+A module that returns `indeterminate` or `blocked` makes its comparison **NOT SCORED** for that site. So does a rate result the engine labels `outside_validity: true`: the engine reports the value but treats the criterion as indeterminate (D-102), and it is not scored here either (D-202). Each record must carry `backtest: {site_id, preregistration_commit}` and the engine commit.
 
 ## 6. Comparisons and pass bars
 
@@ -121,10 +121,12 @@ As registered today, with PENDING items unfilled, the counts are:
 | Channel | Scorable sites now | Can reach PLAUSIBLE as registered? |
 |---|---|---|
 | G1 grid | Wasco, Grant | No, unless Mayes or Jackson gets a documented substation or line record |
-| R1 rate | Wasco, Grant, Jackson (only if Jackson's retail seller is NAEC, which also gives Jackson its `L_obs`) | Yes. Needs 3 of 3 to pass. |
+| R1 rate | Grant only. Wasco's site is 1.22× NWCPUD's 2004 sales, past the engine's 0.25 validity limit (D-202). Mayes and Jackson are PENDING. | **No** (D-202). At most two sites can be scored. |
 | W1 water | Wasco, Mayes | **No.** Only 2 sites have records. |
 
-Only sites with `L_obs` can run at all: today Mayes, Wasco and Grant.
+Only sites with `L_obs` can run at all: today Mayes, Wasco and Grant. The contrast site cannot run (§13).
+
+**As of D-202, no channel can reach PLAUSIBLE.** The back-test still runs and is still reported, misses first. Every result stays SPECULATIVE.
 
 ## 8. Amendments and freeze
 
@@ -172,3 +174,13 @@ Recorded so the reader can judge. Before fixing the bars, the author had:
 - computed `L_obs` and the observed R1 values in `observed/observed_values.json` (`L_obs` Mayes 47.1 aMW; Wasco 33.8 aMW; Grant 82.5 aMW; Wasco R1 −12.0 pp peer / −33.0 pp state; Grant +2.9 / −15.0; Jackson +2.1 / −7.8 for E=2018 and +2.0 / −9.6 for E=2019). Load for the water years, from the same file: Mayes FY2025 417 aMW (all of GRDA's park load); The Dalles 33–98 aMW over 2012–2021.
 
 The bars are ratios and intervals around observed values, set without any prediction to aim at. No engine output existed. The R1 interval rule (§6.3) was adopted after seeing that the two counterfactuals disagree, in place of choosing one, so that the author's choice of counterfactual cannot decide a pass. For reference only, not as a run: EXP-0007's existing accounting model (Wilcox AL, 20 MW, all inputs assumed) gives −23.8% lowest-quintile rate change grid-only and +16.7% with on-site generation. Compared naively with the R1 intervals, the grid-only value falls inside Wasco's interval and outside Grant's and Jackson's. The on-site value falls outside all three. That model is not the step-2 engine and is not a back-test result.
+
+## 13. Amendment and status log
+
+Entries made before the first run under §8. None changes a bar, a formula, the site list or the grading rule.
+
+**D-202 (2026-11-22).**
+1. **T0−1 tables exist.** EIA-860/861 for 2004, 2005, 2006 and 2014 are in R2 (D-062, PR #77). §4.2.1's gate condition is met for the four scored sites. The engine's `rate_impact.candidates` lists, for each county, every utility EIA-861 places there. That is not evidence of which utility serves the site. Jackson's retail seller therefore stays PENDING, even though NAEC appears among its candidates.
+2. **Rate-model validity domain.** The step-2 engine marks a rate result `outside_validity` when the site's energy exceeds 25% of the utility's annual retail sales (`rates.max_site_share_of_utility_sales`, D-102). §5 already makes an indeterminate criterion NOT SCORED. D-202 states that this flag counts as indeterminate. This can only remove comparisons, never add a pass. From observed load and T0−1 sales alone (`observed/observed_values.json`, `site_share_of_T0m1_sales`): Wasco 1.22 (NOT SCORED), Grant 0.239 (scored, just inside), Mayes's GRDA 0.64 (GRDA has no residential sales; Mayes's rate utility is PENDING). The engine's model treats the site as one customer among many. These rural public-power sites are the case where that fails.
+3. **Contrast site cannot run.** Ohio's retail choice moved AEP Ohio's bundled (Part A) sales from 43.5 TWh (2011) to 7.9 TWh (2024) as customers switched suppliers. So §6.1's Part A load rule cannot isolate a data center there, and BT-C1 has no `L_obs`. Under D-201, a site without `L_obs` cannot run. Its operator and T0 stay unset, and no EIA year needs mirroring for it. Changing §6.1 to count delivery-only (Part B) sales would change a formula, which §8 forbids.
+4. **Conditions the run still needs from the engine** (§4.2, §11). The gate confirms that the T0−1 tables exist, but `run.py` still reads 2024 tables (`data.eia(table)` defaults to 2024; `candidates()` and `county_load()` are called without the year). The site mask is implemented but `masked = []` in `run_county`. The existing county load comes from the 2024 population estimate. Until each is wired, the channel it feeds is NOT SCORED under §4.2: the year affects G1 and R1, the mask G1, the population G1.

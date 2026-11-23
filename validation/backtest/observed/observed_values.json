@@ -22,7 +22,8 @@
      ],
      "pre_mean_mwh": 627156,
      "post_mean_mwh": 1039724,
-     "L_obs_aMW": 47.1
+     "L_obs_aMW": 47.1,
+     "site_share_of_T0m1_sales": 0.635
     }
    ],
    "R1": [
@@ -128,7 +129,8 @@
      ],
      "pre_mean_mwh": 256117,
      "post_mean_mwh": 551826,
-     "L_obs_aMW": 33.8
+     "L_obs_aMW": 33.8,
+     "site_share_of_T0m1_sales": 1.222
     }
    ],
    "R1": [
@@ -251,7 +253,8 @@
      ],
      "pre_mean_mwh": 2900742,
      "post_mean_mwh": 3623408,
-     "L_obs_aMW": 82.5
+     "L_obs_aMW": 82.5,
+     "site_share_of_T0m1_sales": 0.239
     }
    ],
    "R1": [
