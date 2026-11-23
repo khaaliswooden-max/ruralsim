@@ -105,7 +105,7 @@ def validation_summary(world_dir_name: str) -> dict:
 
 def publish(fips: str, s3) -> dict:
     from county_config import get
-    from build_site import SITE_URL, brand_viewer_html, gzip_viewer, slim_viewer_data
+    from build_site import SHARED_VENDOR, SITE_URL, brand_viewer_html, gzip_viewer, slim_viewer_data, upgrade_viewer
     C = get(fips)
     world = C.world
     if not (world / "viewer" / "index.html").exists():
@@ -145,6 +145,7 @@ def publish(fips: str, s3) -> dict:
         slim_viewer_data(d / "viewer_data")
         html, _ = gzip_viewer(brand_viewer_html(idx.read_text(), home=SITE_URL + "/", overture=ovt),
                               d / "viewer_data")  # D-055
+        html, _ = upgrade_viewer(html, three_base=SITE_URL + SHARED_VENDOR)  # D-500: progressive, shared three.js
         idx.write_text(html)
         for p in sorted(d.rglob("*")):
             if p.is_file():

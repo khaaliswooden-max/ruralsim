@@ -12,6 +12,9 @@ viewer's current files from R2 through the S3 API, writes the .gz copies, and th
 patched index.html, last, so a viewer never points at files that are not there yet. The
 plain files stay, for browsers without DecompressionStream. A viewer already patched is
 skipped, so the run resumes. The archived snapshots/ are not touched.
+Since D-500 it also upgrades each viewer to the progressive loader (fix 3) and points it at
+the shared, compressed three.js on ruralsim.io (fix 2). A viewer that already has .gz files
+only has its index.html rewritten: one read and one write, no data moved.
 Needs R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET.
 """
 from __future__ import annotations
@@ -23,27 +26,33 @@ sys.path.insert(0, str(REPO / "tools"))
 
 
 def one(s3, bucket: str, entry: dict, dry: bool) -> tuple[str, str, int, int]:
-    from build_site import gzip_viewer
+    from build_site import GZ_ON, SHARED_VENDOR, SITE_URL, VIEWER_V2, gzip_viewer, upgrade_viewer
     from publish_world import SHORT
     base = f"worlds/{entry['dir']}/current"
+    three = SITE_URL + SHARED_VENDOR
     try:
         html = s3.get_object(Bucket=bucket, Key=f"{base}/viewer/index.html")["Body"].read().decode()
     except Exception as e:
         return entry["fips5"], f"error: read html {str(e)[:100]}", 0, 0
-    if "DecompressionStream" in html:
+    if VIEWER_V2 in html and three in html and GZ_ON in html:
         return entry["fips5"], "current", 0, 0
-    keys = []
-    for page in s3.get_paginator("list_objects_v2").paginate(Bucket=bucket, Prefix=f"{base}/viewer_data/"):
-        keys += [o["Key"] for o in page.get("Contents", []) if not o["Key"].endswith(".gz")]
+    gz, before, after = [], 0, 0
     with tempfile.TemporaryDirectory() as d:
         vd = pathlib.Path(d)
-        for k in keys:
-            (vd / k.rsplit("/", 1)[1]).write_bytes(s3.get_object(Bucket=bucket, Key=k)["Body"].read())
-        before = sum(f.stat().st_size for f in vd.iterdir())
-        new_html, gz = gzip_viewer(html, vd)
-        if not gz:
+        if "DecompressionStream" not in html and GZ_ON not in html:   # never repacked (D-055)
+            keys = []
+            for page in s3.get_paginator("list_objects_v2").paginate(Bucket=bucket, Prefix=f"{base}/viewer_data/"):
+                keys += [o["Key"] for o in page.get("Contents", []) if not o["Key"].endswith(".gz")]
+            for k in keys:
+                (vd / k.rsplit("/", 1)[1]).write_bytes(s3.get_object(Bucket=bucket, Key=k)["Body"].read())
+            before = sum(f.stat().st_size for f in vd.iterdir())
+            html, gz = gzip_viewer(html, vd)
+            if not gz:
+                return entry["fips5"], "unrecognised viewer", before, before
+            after = before - sum(f.with_suffix("").stat().st_size for f in gz) + sum(f.stat().st_size for f in gz)
+        new_html, status = upgrade_viewer(html, three_base=three)
+        if status == "unrecognised":
             return entry["fips5"], "unrecognised viewer", before, before
-        after = before - sum(f.with_suffix("").stat().st_size for f in gz) + sum(f.stat().st_size for f in gz)
         if dry:
             return entry["fips5"], "repacked", before, after
         try:
