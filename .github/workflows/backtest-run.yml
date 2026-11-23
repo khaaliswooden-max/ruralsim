@@ -1,0 +1,77 @@
+# Back-test runs on a GitHub runner, not in a chat sandbox (D-209).
+# Manual only: Actions -> "Back-test run" -> Run workflow. Never runs on push.
+# It runs the engine's tests, then ONE declared back-test (the engine's gate refuses
+# anything not registered in validation/backtest/), and uploads the ledger record
+# as an artifact. It writes nothing to the repo or to R2: the record reaches main
+# through a step-3 PR, together with its scoring.
+name: Back-test run
+
+on:
+  workflow_dispatch:
+    inputs:
+      card:
+        description: "Card id in experiments/ai_infra_cards.yaml"
+        required: true
+      county:
+        description: "County fips5"
+        required: true
+      backtest:
+        description: "Registered back-test site id (e.g. V2-01)"
+        required: true
+      seeds:
+        description: "Seeds (pre-registration: 20)"
+        default: "20"
+      extra_args:
+        description: "Extra run.py arguments, only as the pre-registration's run plan states them (e.g. a mask-bound flag)"
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backtest-${{ inputs.backtest }}
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Engine environment (pinned, D-103)
+        run: |
+          python -m venv .venv-ai-infra
+          .venv-ai-infra/bin/pip install -r tools/engines/ai_infra/requirements.txt
+      - name: Engine tests
+        run: .venv-ai-infra/bin/python -m pytest -q tests/test_ai_infra.py
+      - name: Record the commit and environment
+        run: |
+          echo "commit $(git rev-parse HEAD)" | tee run_context.txt
+          echo "engine $(git log -1 --format=%H -- tools/engines/ai_infra)" | tee -a run_context.txt
+          echo "data_base ${RURALSIM_DATA_BASE:-default (see tools/engines/ai_infra/data.py)}" | tee -a run_context.txt
+      - name: Run ${{ inputs.card }} on ${{ inputs.county }} as ${{ inputs.backtest }}
+        env:
+          PYTHONUNBUFFERED: "1"
+          CARD: ${{ inputs.card }}
+          COUNTY: ${{ inputs.county }}
+          BACKTEST: ${{ inputs.backtest }}
+          SEEDS: ${{ inputs.seeds }}
+          EXTRA: ${{ inputs.extra_args }}
+        run: |
+          set -o pipefail
+          # inputs arrive as environment variables, never spliced into the script
+          .venv-ai-infra/bin/python -m tools.engines.ai_infra.run "$CARD" \
+            --county "$COUNTY" --backtest "$BACKTEST" --seeds "$SEEDS" $EXTRA 2>&1 | tee run.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: backtest-${{ inputs.backtest }}-${{ inputs.card }}-${{ github.run_id }}
+          path: |
+            experiments/ledger/${{ inputs.card }}/
+            run.log
+            run_context.txt
+          if-no-files-found: warn
+          retention-days: 90
