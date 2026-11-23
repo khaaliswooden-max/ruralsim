@@ -88,7 +88,7 @@ def write_and_meta(arr, crs, transform, year, source):
 to5070 = pyproj.Transformer.from_crs(4326, 5070, always_xy=True)
 CDL_YEAR = int(os.environ.get("RURALSIM_CDL_YEAR", "2025"))
 DATA_BASE = (os.environ.get("RURALSIM_DATA_BASE")
-             or "https://pub-b414cd9251804d11871e4bec734e096e.r2.dev").rstrip("/")
+             or "https://data.ruralsim.io").rstrip("/")
 cog_url = f"{DATA_BASE}/cdl/{CDL_YEAR}_30m_cdls_cog.tif"
 _gdal_http = dict(GDAL_DISABLE_READDIR_ON_OPEN="EMPTY_DIR", CPL_VSIL_CURL_ALLOWED_EXTENSIONS=".tif",
                   GDAL_HTTP_USERAGENT=UA["User-Agent"], GDAL_HTTP_MAX_RETRY="5",

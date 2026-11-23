@@ -16,7 +16,7 @@ from pathlib import Path
 import pandas as pd
 import pyproj
 
-BASE = os.environ.get("RURALSIM_DATA_BASE", "https://pub-b414cd9251804d11871e4bec734e096e.r2.dev").rstrip("/")
+BASE = os.environ.get("RURALSIM_DATA_BASE", "https://data.ruralsim.io").rstrip("/")
 CACHE = Path(os.environ.get("RURALSIM_CACHE", Path.home() / ".cache" / "ruralsim")) / "ai_infra"
 ROOT = Path(__file__).resolve().parents[3]
 

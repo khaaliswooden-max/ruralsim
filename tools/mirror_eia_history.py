@@ -41,7 +41,7 @@ import pandas as pd  # noqa: E402
 import mirror_eia as M  # noqa: E402  (shared readers and county matching)
 from eia_files import ensure  # noqa: E402
 
-PUBLIC = "https://pub-b414cd9251804d11871e4bec734e096e.r2.dev"
+PUBLIC = "https://data.ruralsim.io"
 
 
 def urls(year: int) -> tuple[str, str]:
