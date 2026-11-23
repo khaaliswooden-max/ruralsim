@@ -108,6 +108,8 @@ scored_sites:
       announced_jobs: 100                     # "up to 100" [OR-1]
       announced_mw: null                      # the ~30 MW estimate is from 2008 [OR-2]: not allowed
       water_source: City of The Dalles municipal supply (Dog River + groundwater) [OR-6]
+      cooling: evaporative                    # Google: "Steam rises above Google's cooling towers in The Dalles" [OR-9];
+                                              # a design fact, taken from the record at any date (D-201, D-205)
     observed:
       load_utility_eia_id: 13788
       G1_new_substation_or_line: {value: true, scope: "District and BPA built transmission, substations and switchyards for data centers",

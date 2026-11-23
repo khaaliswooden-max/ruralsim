@@ -85,6 +85,7 @@ RUCC codes come from `data/county_master.csv` (USDA ERS Rural-Urban Continuum Co
 | OR-6 | OPB, "As Google's water demands grow, The Dalles aims to pull more from Mount Hood forest," 2026-01-15 — https://opb.org/article/2026/01/15/as-googles-water-demands-grow-the-dalles-aims-to-pull-more-from-mount-hood-forest | secondary |
 | OR-7 | Same records as OR-4. Annual gallons 2012–2021, table in `sites.yaml`. | secondary (reports city records) |
 | OR-8 | 2021 Strategic Investment Program agreement, Wasco County / City of The Dalles / Google Design LLC (PDF hosted by OPB) — https://www.opb.org/pdf/AGR%202021%20Wasco%20County%20City%20of%20The%20Dalles%20SIP%20for%20Google%20Design%20LLC_1769200135514.pdf | primary (agreement) |
+| OR-9 | Google data centers, The Dalles, Oregon location page ("Steam rises above Google's cooling towers in The Dalles data center in Oregon"), read 2026-11-22 — https://datacenters.google/locations/the-dalles-oregon | primary (company) |
 
 ### BT-04 · Grant County, WA (53025) · Microsoft (+ Yahoo), Quincy · RUCC 4 (2003) / 5 (2023), nonmetro · world expected ~2026-11-23
 

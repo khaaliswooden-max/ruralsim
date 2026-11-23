@@ -1,0 +1,453 @@
+{
+ "date": "2026-11-22",
+ "grade_rule": "PREREGISTRATION.md \u00a77",
+ "grades": {
+  "G1": {
+   "scored": 0,
+   "passes": 0,
+   "misses": 0,
+   "grade": "SPECULATIVE"
+  },
+  "R1": {
+   "scored": 1,
+   "passes": 1,
+   "misses": 0,
+   "grade": "SPECULATIVE"
+  },
+  "W1": {
+   "scored": 1,
+   "passes": 1,
+   "misses": 0,
+   "grade": "SPECULATIVE"
+  }
+ },
+ "per_site": {
+  "BT-01": {
+   "G1": {
+    "status": "NOT SCORED",
+    "reason": "refused: D-420 (Mayes County lies entirely inside the Cherokee OTSA (CLASSFP D6), which D-420 treats as reservation; no run without the Cherokee Nation's request, and none is sought)"
+   },
+   "R1": {
+    "status": "NOT SCORED",
+    "reason": "refused: D-420 (Mayes County lies entirely inside the Cherokee OTSA (CLASSFP D6), which D-420 treats as reservation; no run without the Cherokee Nation's request, and none is sought)"
+   },
+   "W1": {
+    "status": "NOT SCORED",
+    "reason": "refused: D-420 (Mayes County lies entirely inside the Cherokee OTSA (CLASSFP D6), which D-420 treats as reservation; no run without the Cherokee Nation's request, and none is sought)"
+   }
+  },
+  "BT-02": {
+   "G1": {
+    "status": "NOT SCORED",
+    "reason": "no L_obs: site cannot run (D-201, D-202): NO LOAD INPUT, site cannot run: load utility 'PENDING'"
+   },
+   "R1": {
+    "status": "NOT SCORED",
+    "reason": "no L_obs: site cannot run (D-201, D-202): NO LOAD INPUT, site cannot run: load utility 'PENDING'"
+   },
+   "W1": {
+    "status": "NOT SCORED",
+    "reason": "no L_obs: site cannot run (D-201, D-202): NO LOAD INPUT, site cannot run: load utility 'PENDING'"
+   }
+  },
+  "BT-03": {
+   "G1": {
+    "status": "NOT SCORED",
+    "reason": "county load used 2024 households, not T0-1 (LR-12 not landed; D-112, \u00a74.2.3)",
+    "predicted_share_of_seeds": {
+     "new_substation": 1.0,
+     "new_line_ge_69kv": 1.0
+    },
+    "status_counts": {
+     "computed": 20
+    },
+    "masked_substations": 8,
+    "observed": {
+     "value": true,
+     "scope": "District and BPA built transmission, substations and switchyards for data centers",
+     "caveat": "campus-wide statement; not dated to the first building",
+     "source": "OR-5"
+    }
+   },
+   "R1": {
+    "status": "NOT SCORED",
+    "utility_eia_id": 13788,
+    "by_E": [
+     {
+      "E": 2006,
+      "interval_pp": [
+       -37.98,
+       -7.04
+      ],
+      "sign_required": -1,
+      "observed_peer_pp": -12.04,
+      "observed_state_pp": -32.98,
+      "verdict": "NOT SCORED",
+      "per_allocation": {
+       "direct_assignment": {
+        "status": "indeterminate",
+        "reason": "outside the rate model's validity domain in 100% of seeds (D-102, D-202)",
+        "site_share_of_utility_sales": {
+         "p10": 1.2235648048663568,
+         "p50": 1.223564804866357,
+         "p90": 1.2235648048663572,
+         "n": 20
+        },
+        "p50_unscored": -7.506703967424871
+       },
+       "large_load_tariff": {
+        "status": "indeterminate",
+        "reason": "outside the rate model's validity domain in 100% of seeds (D-102, D-202)",
+        "site_share_of_utility_sales": {
+         "p10": 1.2235648048663568,
+         "p50": 1.223564804866357,
+         "p90": 1.2235648048663572,
+         "n": 20
+        },
+        "p50_unscored": -5.524800056204242
+       },
+       "socialized": {
+        "status": "indeterminate",
+        "reason": "outside the rate model's validity domain in 100% of seeds (D-102, D-202)",
+        "site_share_of_utility_sales": {
+         "p10": 1.2235648048663568,
+         "p50": 1.223564804866357,
+         "p90": 1.2235648048663572,
+         "n": 20
+        },
+        "p50_unscored": 2.5354410612081026
+       }
+      }
+     }
+    ],
+    "reason": "outside the rate model's validity domain in 100% of seeds (D-102, D-202)"
+   },
+   "W1": {
+    "status": "PASS",
+    "share_years_pass": 1.0,
+    "years": [
+     {
+      "period": "2012",
+      "observed_gallons": 104300000.0,
+      "predicted_p50_gallons": 100753984,
+      "band_gallons": {
+       "p10": 91880128.39106272,
+       "p50": 100753984.41467185,
+       "p90": 109853876.1980223,
+       "n": 20
+      },
+      "ratio": 0.966,
+      "status": "PASS"
+     },
+     {
+      "period": "2013",
+      "observed_gallons": 108900000.0,
+      "predicted_p50_gallons": 99854395,
+      "band_gallons": {
+       "p10": 91059770.10185683,
+       "p50": 99854395.26811227,
+       "p90": 108873038.01768282,
+       "n": 20
+      },
+      "ratio": 0.917,
+      "status": "PASS"
+     },
+     {
+      "period": "2014",
+      "observed_gallons": 132300000.0,
+      "predicted_p50_gallons": 117246452,
+      "band_gallons": {
+       "p10": 106920030.3598379,
+       "p50": 117246452.10159728,
+       "p90": 127835909.5042462,
+       "n": 20
+      },
+      "ratio": 0.886,
+      "status": "PASS"
+     },
+     {
+      "period": "2015",
+      "observed_gallons": 148300000.0,
+      "predicted_p50_gallons": 119345493,
+      "band_gallons": {
+       "p10": 108834199.70131838,
+       "p50": 119345493.44356962,
+       "p90": 130124531.92503834,
+       "n": 20
+      },
+      "ratio": 0.805,
+      "status": "PASS"
+     },
+     {
+      "period": "2016",
+      "observed_gallons": 113100000.0,
+      "predicted_p50_gallons": 101053847,
+      "band_gallons": {
+       "p10": 92153581.1541314,
+       "p50": 101053847.463525,
+       "p90": 110180822.25813547,
+       "n": 20
+      },
+      "ratio": 0.893,
+      "status": "PASS"
+     },
+     {
+      "period": "2017",
+      "observed_gallons": 124200000.0,
+      "predicted_p50_gallons": 122344124,
+      "band_gallons": {
+       "p10": 111568727.33200476,
+       "p50": 122344123.93210149,
+       "p90": 133393992.52616994,
+       "n": 20
+      },
+      "ratio": 0.985,
+      "status": "PASS"
+     },
+     {
+      "period": "2018",
+      "observed_gallons": 150700000.0,
+      "predicted_p50_gallons": 180817418,
+      "band_gallons": {
+       "p10": 164892016.13038936,
+       "p50": 180817418.45847356,
+       "p90": 197148474.24823648,
+       "n": 20
+      },
+      "ratio": 1.2,
+      "status": "PASS"
+     },
+     {
+      "period": "2019",
+      "observed_gallons": 233300000.0,
+      "predicted_p50_gallons": 224597424,
+      "band_gallons": {
+       "p10": 204816119.53841072,
+       "p50": 224597423.59103924,
+       "p90": 244882599.02475807,
+       "n": 20
+      },
+      "ratio": 0.963,
+      "status": "PASS"
+     },
+     {
+      "period": "2020",
+      "observed_gallons": 279800000.0,
+      "predicted_p50_gallons": 248286604,
+      "band_gallons": {
+       "p10": 226418887.82083318,
+       "p50": 248286604.4504413,
+       "p90": 270711337.77369785,
+       "n": 20
+      },
+      "ratio": 0.887,
+      "status": "PASS"
+     },
+     {
+      "period": "2021",
+      "observed_gallons": 355100000.0,
+      "predicted_p50_gallons": 292666336,
+      "band_gallons": {
+       "p10": 266889896.7549918,
+       "p50": 292666335.6807134,
+       "p90": 319099354.6704458,
+       "n": 20
+      },
+      "ratio": 0.824,
+      "status": "PASS"
+     }
+    ]
+   }
+  },
+  "BT-04": {
+   "G1": {
+    "status": "NOT SCORED",
+    "reason": "county load used 2024 households, not T0-1 (LR-12 not landed; D-112, \u00a74.2.3)",
+    "predicted_share_of_seeds": {
+     "new_substation": 1.0,
+     "new_line_ge_69kv": 1.0
+    },
+    "status_counts": {
+     "computed": 20
+    },
+    "masked_substations": 4,
+    "observed": {
+     "value": true,
+     "scope": "substation for Microsoft's 48 MW capacity, requested 2007",
+     "source": "WA-1"
+    }
+   },
+   "R1": {
+    "status": "PASS",
+    "utility_eia_id": 14624,
+    "by_E": [
+     {
+      "E": 2007,
+      "interval_pp": [
+       -20.02,
+       7.91
+      ],
+      "sign_required": null,
+      "observed_peer_pp": 2.91,
+      "observed_state_pp": -15.02,
+      "verdict": "PASS",
+      "per_allocation": {
+       "direct_assignment": {
+        "status": "pass",
+        "p50_by_case": {
+         "transmission_owner": -1.4077139384819952,
+         "distribution_only": -1.4077139384819952
+        },
+        "case_passes": {
+         "transmission_owner": true,
+         "distribution_only": true
+        },
+        "bands": {
+         "transmission_owner": {
+          "p10": -2.74016407953085,
+          "p50": -1.4077139384819952,
+          "p90": 1.1889101643030755,
+          "n": 20
+         },
+         "distribution_only": {
+          "p10": -2.74016407953085,
+          "p50": -1.4077139384819952,
+          "p90": 1.1889101643030755,
+          "n": 20
+         }
+        },
+        "transmission_owner_provenance": "assumed (EIA-861 Utility_Data 2005: transmission blank: unknown; both cases carried)"
+       },
+       "large_load_tariff": {
+        "status": "pass",
+        "p50_by_case": {
+         "transmission_owner": -0.9725916417606562,
+         "distribution_only": -1.304037107817369
+        },
+        "case_passes": {
+         "transmission_owner": true,
+         "distribution_only": true
+        },
+        "bands": {
+         "transmission_owner": {
+          "p10": -2.3685365131954144,
+          "p50": -0.9725916417606562,
+          "p90": 1.3775381552853494,
+          "n": 20
+         },
+         "distribution_only": {
+          "p10": -2.502459941453054,
+          "p50": -1.304037107817369,
+          "p90": 1.2297093499589822,
+          "n": 20
+         }
+        },
+        "transmission_owner_provenance": "assumed (EIA-861 Utility_Data 2005: transmission blank: unknown; both cases carried)"
+       },
+       "socialized": {
+        "status": "pass",
+        "p50_by_case": {
+         "transmission_owner": 0.4599137803653379,
+         "distribution_only": -0.9188304251701336
+        },
+        "case_passes": {
+         "transmission_owner": true,
+         "distribution_only": true
+        },
+        "bands": {
+         "transmission_owner": {
+          "p10": -0.8378193367964772,
+          "p50": 0.4599137803653379,
+          "p90": 3.342875766299639,
+          "n": 20
+         },
+         "distribution_only": {
+          "p10": -1.810584350816736,
+          "p50": -0.9188304251701336,
+          "p90": 1.6503084404924995,
+          "n": 20
+         }
+        },
+        "transmission_owner_provenance": "assumed (EIA-861 Utility_Data 2005: transmission blank: unknown; both cases carried)"
+       }
+      }
+     }
+    ]
+   },
+   "W1": {
+    "status": "NOT SCORED",
+    "reason": "no public water-use record"
+   }
+  }
+ },
+ "runs": {
+  "BT-03 power": {
+   "ledger": "experiments/ledger/BACKTEST-1-BT03-power/20261123T021359_20seeds.json",
+   "run_id": "BACKTEST-1-BT03-power/20261123T021359Z",
+   "engine_version": "ebccd0e36e1046ad1ac63eeee607d0ca6f303306",
+   "params_sha256": "d0e5a64afaa127f7c6a2a6dc857c6adc6490eb040c5e830e81118bdb7608d3b6",
+   "refused": [],
+   "eia_year": 2004,
+   "backtest": {
+    "site_id": "BT-03",
+    "preregistration_commit": "ebccd0e36e1046ad1ac63eeee607d0ca6f303306",
+    "as_of_year": 2004,
+    "site_point": [
+     -121.201406,
+     45.63243
+    ],
+    "mask_owner_terms": [
+     "Google",
+     "Design LLC"
+    ],
+    "mask_radius_m": 2000.0,
+    "mask_keep_osm_ids": []
+   }
+  },
+  "BT-03 water": {
+   "ledger": "experiments/ledger/BACKTEST-1-BT03-water/20261123T021450_20seeds.json",
+   "run_id": "BACKTEST-1-BT03-water/20261123T021450Z",
+   "engine_version": "d66be402842b625470997db5aa38af92dadaf8d2",
+   "params_sha256": "d0e5a64afaa127f7c6a2a6dc857c6adc6490eb040c5e830e81118bdb7608d3b6",
+   "refused": []
+  },
+  "BT-04 power": {
+   "ledger": "experiments/ledger/BACKTEST-1-BT04-power/20261123T021421_20seeds.json",
+   "run_id": "BACKTEST-1-BT04-power/20261123T021421Z",
+   "engine_version": "d66be402842b625470997db5aa38af92dadaf8d2",
+   "params_sha256": "d0e5a64afaa127f7c6a2a6dc857c6adc6490eb040c5e830e81118bdb7608d3b6",
+   "refused": [],
+   "eia_year": 2005,
+   "backtest": {
+    "site_id": "BT-04",
+    "preregistration_commit": "ebccd0e36e1046ad1ac63eeee607d0ca6f303306",
+    "as_of_year": 2005,
+    "site_point": [
+     -119.863077,
+     47.23925
+    ],
+    "mask_owner_terms": [
+     "Microsoft",
+     "Yahoo"
+    ],
+    "mask_radius_m": 2000.0,
+    "mask_keep_osm_ids": []
+   }
+  }
+ },
+ "disclosure": [
+  "RuralSim is a free, open-source project by Aldrich K. Wooden, Sr., founder of Get Rural America Done.",
+  "Simulated, screening-grade results with assumed parameters. Decision support, not a finding."
+ ],
+ "notes": [
+  "**Two comparisons were scored out of twelve.** Under \u00a77 a channel needs three scored sites, so no grade could change whatever the results were. No misses is not evidence that the engine is right: ten of twelve comparisons were never tested.",
+  "**Grant's rate pass is weak.** The pass interval is 28 points wide (\u221220.0 to +7.9 pp), because the two observed counterfactuals disagree by 18 points (\u00a76.3). Every allocation and both ownership cases landed between \u22121.4% and +0.5% (p50). Across seeds the result tracks one assumed input, the margin kept on the site's sales (Spearman \u22120.91 to \u22120.98), as in D-101.",
+  "**Wasco's water pass is conditional on two inputs taken from the record:** the load (NWCPUD's whole sales increment over 2002\u201304, which includes any non-Google growth) and evaporative cooling (Google's own page). The engine's water intensity, about 1.7 L per IT kWh at p50 in 2021, is what was tested. A pass means water per unit of load was right in scale (ratios 0.81\u20131.20, all ten years within 0.5\u20132.0), not that the engine predicted The Dalles' water demand. Predictions run low in 9 of 10 years (2018 is the exception).",
+  "**The grid check was not scored at either site,** and its recorded values would carry little even if it had been. The mask removed 8 substations at Wasco, BPA's Chenoweth among them, and 4 at Grant, because none was dated before T0 (D-203). With them gone, the engine called for a new substation and a new \u226569 kV line in 100% of seeds at both sites. That is what the mask would produce regardless of what was built."
+ ],
+ "deviations": [
+  "**Scorer bug, fixed before any result was read.** The first `score_run.py` invocation stopped with a TypeError before printing or writing anything. PyYAML reads `104.3e6` in `sites.yaml` as a string, because YAML 1.1 needs a sign in the exponent. The fix converts the value to a number (`float()`), and no rule changed. It is in the same commit as these results.",
+  "**Two engine_version values.** The BT-03 power run records `ebccd0e` and the next two runs record `d66be40`, because the results renderer was committed while the runs were going. `git diff ebccd0e d66be40 -- tools/engines experiments/ai_infra_cards.yaml validation/backtest/sites.yaml` is empty, so every run used the frozen engine of D-205 (`tools/engines/ai_infra` at `7feff94`) and the same params sha256.",
+  "**Masked-substation counts differ from D-203's estimates** (Wasco 8, not 9; Grant 4, not 5). D-203 counted from a bounding-box extract. The engine counts the published world's `power.geojson`. The rule is unchanged."
+ ]
+}
