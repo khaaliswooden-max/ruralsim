@@ -155,6 +155,13 @@ class NotMirrored(RuntimeError):
     pass
 
 
+# D-063: NHD High Resolution carries a vertex every few metres. Lane OR (41039) returned
+# 330,561 flowlines with 39.4 M vertices, a 1.7 GB GeoJSON, and its runner died building the
+# stage (build #47; Douglas OR the same). Simplified at 0.00005 deg (~5 m) it is 1.5 M
+# vertices and 73 MB; the stage mesh is ~160 m and the viewer draws at county scale.
+SIMPLIFY_DEG = 0.00005
+
+
 def read(layer: str, bbox, region_ids: list[str]) -> dict:
     """GeoJSON FeatureCollection of NHD `layer` features meeting bbox (w, s, e, n)."""
     w, s, e, n = bbox
@@ -168,7 +175,7 @@ def read(layer: str, bbox, region_ids: list[str]) -> dict:
     files = ", ".join(f"'{u}'" for u in urls)
     con = _duck()
     rows = con.sql(f"""
-        SELECT {cols}, ST_AsGeoJSON(ST_GeomFromWKB(geom)) AS g
+        SELECT {cols}, ST_AsGeoJSON(ST_SimplifyPreserveTopology(ST_GeomFromWKB(geom), {SIMPLIFY_DEG})) AS g
         FROM (SELECT *, row_number() OVER (PARTITION BY permanent_identifier) AS k
               FROM read_parquet([{files}])
               WHERE xmin <= {e} AND xmax >= {w} AND ymin <= {n} AND ymax >= {s})
