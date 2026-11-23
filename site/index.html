@@ -103,8 +103,9 @@
 
   <section>
     <h2>What the experiments found</h2>
-    <p class="intro">Ten ideas, each run 20 times on simulated households, each judged against a success line written down before it ran. Misses come first. Every result is graded SPECULATIVE.</p>
+    <p class="intro">Eight ideas, each run 20 times on simulated households, each judged against a success line written down before it ran. Misses come first. Every result is graded SPECULATIVE.</p>
     <div class="findings" id="findings"></div>
+    <p class="intro" id="withdrawn" hidden style="margin-top:18px"></p>
     <p style="margin-top:22px"><a href="/experiments.html">Read every result, with the spread across all 20 runs</a></p>
   </section>
 
@@ -200,6 +201,14 @@ document.getElementById('findings').innerHTML = `
   <div class="not"><b>Fell short (${groups.not_met.length})</b><ul>${groups.not_met.map(li).join('')}</ul></div>
   <div class="met"><b>Cleared the bar (${groups.met.length})</b><ul>${groups.met.map(li).join('')}</ul></div>
   <div><b>Conditional only (${groups.conditional.length})</b><ul>${groups.conditional.map(li).join('')}</ul></div>`;
+try {
+  const w = await (await fetch('/data/withdrawn.json')).json();
+  if (w.notice) {
+    const el = document.getElementById('withdrawn');
+    el.innerHTML = `${w.notice.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))} <a href="${w.url}">${w.decision}</a>`;
+    el.hidden = false;
+  }
+} catch (e) {}
 </script>
 </body>
 </html>

@@ -324,12 +324,22 @@ def build_pilots(dirs):
     return pilots
 
 
+def withdrawn():
+    """Withdrawn cards (experiments/WITHDRAWN.json, D-421). Their ledger files stay; the site shows
+    only the tombstone notice, never their results."""
+    f = ROOT / "experiments" / "WITHDRAWN.json"
+    return json.loads(f.read_text()) if f.exists() else {"notice": "", "withdrawn": []}
+
+
 def build_experiments(pilots):
     # stdlib-only: card text fields are read from the YAML with a small regex reader
+    gone = {w["card"] for w in withdrawn()["withdrawn"]}
     import_yaml_free = (ROOT / "experiments" / "seed_experiments.yaml").read_text()
     names = {p["fips"]: f'{p["name"]}, {p["state"]}' for p in pilots}
     cards = []
     for cid, spec in CARDS.items():
+        if cid in gone:
+            continue
         files = sorted(glob.glob(str(ROOT / "experiments" / "ledger" / cid / "*_20seeds.json")))
         if not files:
             continue
@@ -441,6 +451,10 @@ def main():
     (data / "validation.json").write_text(json.dumps({"universe": 3144, "counties": val}, separators=(",", ":")))
     print(f"  validation dashboard: {len(val)} counties")
     (data / "experiments.json").write_text(json.dumps(build_experiments(pilots)))
+    w = withdrawn()
+    (data / "withdrawn.json").write_text(json.dumps({
+        "notice": w["notice"], "cards": [x["card"] for x in w["withdrawn"]], "decision": w.get("decision", ""),
+        "url": "https://github.com/khaaliswooden-max/ruralsim/blob/main/docs/DECISIONS.md"}))
     (data / "national.json").write_text(json.dumps(build_national(), separators=(",", ":")))
     shutil.copy2(ROOT / "national" / "tier_a_county_stats.csv", data / "tier_a_county_stats.csv")
 

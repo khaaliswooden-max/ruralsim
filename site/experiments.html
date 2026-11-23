@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Experiments: RuralSim</title>
-<meta name="description" content="Ten interventions tested on five simulated rural counties, 20 runs each, judged against success lines written before they ran.">
+<meta name="description" content="Eight interventions tested on four simulated rural counties, 20 runs each, judged against success lines written before they ran.">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -72,9 +72,10 @@
   </header>
 
   <div class="head">
-    <h1>Ten ideas, tested before anyone pays for them.</h1>
+    <h1>Eight ideas, tested before anyone pays for them.</h1>
     <p>Each idea ran 20 times on a different set of 2,000 simulated households in one pilot county. The success line for each was written down before it ran. An idea clears the bar only if the middle 90% of its runs lands past that line and none of the six protections for residents is broken.</p>
     <p class="small">Every result here is graded SPECULATIVE: simplified engines, assumed equipment numbers. Nothing here is a finding. Ideas that fell short are listed first.</p>
+    <p class="small" id="withdrawn" hidden></p>
     <div class="key">
       <span><i style="background:var(--water)"></i>One run (20 per idea)</span>
       <span><i style="background:rgba(37,93,140,.30);border-radius:2px;width:22px"></i>Middle 90% of runs</span>
@@ -170,6 +171,14 @@ document.getElementById('list').innerHTML = exps.map(e => `
       </details>
     </div>
   </article>`).join('');
+try {
+  const w = await (await fetch('/data/withdrawn.json')).json();
+  if (w.notice) {
+    const el = document.getElementById('withdrawn');
+    el.innerHTML = `<b>${esc(w.notice)}</b> ${w.cards.map(esc).join(' and ')}, withdrawn under <a href="${esc(w.url)}">${esc(w.decision)}</a>.`;
+    el.hidden = false;
+  }
+} catch (e) {}
 if (location.hash) document.querySelector(location.hash)?.scrollIntoView();
 </script>
 </body>

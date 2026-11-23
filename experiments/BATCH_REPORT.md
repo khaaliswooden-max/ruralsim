@@ -1,5 +1,7 @@
 # RuralSim experiment batch report — ten seed cards, 20 seeds each
 
+> **Withdrawn in part (2026-11-22, D-421):** the EXP-0004 and EXP-0009 sections are removed. Two runs withdrawn: they ran on Omaha and Winnebago reservation land without the nations' request.
+>
 > **Superseded in part (2026-11-21, D-104):** the RQLI tables below and EXP-0002's quintile shares came from the earlier SAIPE lognormal income model. See `RERUN_ACS_INCOMES_2026-11-21.md`. Verdicts, primary metrics and constraint results are unchanged.
 
 Run 2026-11-12, mode promotion-eligible (20 seeds) — BUT promotion additionally requires
@@ -59,21 +61,9 @@ RQLI distribution (mean of per-seed statistics):
 Constraints: no_loss_of_essential_service PASS; protect_lowest_income_quintile PASS; water_within_recharge PASS; no_displacement PASS; worst_off_decile_must_gain PASS; political_variables_excluded PASS
 - feeder-level metric; household RQLI outage channel unchanged (battery serves the hospital)
 
-## EXP-0004 — Fixed wireless versus fiber for the last unserved households
+## EXP-0004 — withdrawn (D-421)
 
-County: Thurston County NE (31173) · Fidelity B_pilot_3d · provenance floor **assumed**
-Pre-stated criterion: wireless reaches >=95% of unserved at <=50% of fiber capital cost
-Effect (90% interval across 20 seeds): **[50.4, 60.1]** · hard constraints all seeds: **PASS**
-Primary metric (seed means): share_unserved_covered = 0.55, n_unserved = 185.60, wireless_cost_usd = 831,560.00, fiber_cost_usd = 12,249,600.00, wireless_cost_share_of_fiber = 0.07
-
-RQLI distribution (mean of per-seed statistics):
-
-| | p10 | p50 | p90 | mean | worst-off decile |
-|---|---|---|---|---|---|
-| baseline | 0.0851 | 0.7667 | 0.8827 | 0.5608 | 0.0582 |
-| intervention | 0.0851 | 0.7667 | 0.8827 | 0.5608 | 0.0582 |
-
-Constraints: no_loss_of_essential_service PASS; protect_lowest_income_quintile PASS; water_within_recharge PASS; no_displacement PASS; worst_off_decile_must_gain PASS; political_variables_excluded PASS
+Two runs withdrawn: they ran on Omaha and Winnebago reservation land without the nations' request. This section is removed; the run files stay in `experiments/ledger/EXP-0004/`, marked withdrawn.
 
 ## EXP-0005 — Autonomous field robot under connectivity loss
 
@@ -140,21 +130,9 @@ RQLI distribution (mean of per-seed statistics):
 Constraints: no_loss_of_essential_service PASS; protect_lowest_income_quintile PASS; water_within_recharge PASS; no_displacement PASS; worst_off_decile_must_gain PASS; political_variables_excluded PASS
 - derived from observed Open-Meteo precip/snow; clear-day yield assumed
 
-## EXP-0009 — Edge compute at the clinic for offline AI triage
+## EXP-0009 — withdrawn (D-421)
 
-County: Thurston County NE (31173) · Fidelity B_pilot_3d · provenance floor **assumed**
-Pre-stated criterion: availability >=99% during backhaul outages
-Effect (90% interval across 20 seeds): **[74.8, 94.7]** · hard constraints all seeds: **PASS**
-Primary metric (seed means): availability_during_outages_pct = 84.82, battery_autonomy_hours = 4.00, outages_simulated = 17.50
-
-RQLI distribution (mean of per-seed statistics):
-
-| | p10 | p50 | p90 | mean | worst-off decile |
-|---|---|---|---|---|---|
-| baseline | 0.0851 | 0.7667 | 0.8827 | 0.5608 | 0.0582 |
-| intervention | 0.0851 | 0.7667 | 0.8827 | 0.5608 | 0.0582 |
-
-Constraints: no_loss_of_essential_service PASS; protect_lowest_income_quintile PASS; water_within_recharge PASS; no_displacement PASS; worst_off_decile_must_gain PASS; political_variables_excluded PASS
+Two runs withdrawn: they ran on Omaha and Winnebago reservation land without the nations' request. This section is removed; the run files stay in `experiments/ledger/EXP-0009/`, marked withdrawn.
 
 ## EXP-0010 — Hypothetical storage chemistry
 
