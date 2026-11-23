@@ -72,10 +72,10 @@
     <a class="mark" href="/"><img src="/brand/ruralsim-wordmark.svg" alt="RuralSim" width="108" height="22"></a>
     <nav aria-label="Site">
       <a href="/#counties">Counties</a>
-      <a href="/experiments.html">Experiments</a>
-      <a href="/national.html">Every county</a>
-      <a href="/validation.html">Validation</a>
-      <a href="/company.html">Company</a>
+      <a href="/experiments">Experiments</a>
+      <a href="/national">Every county</a>
+      <a href="/validation">Validation</a>
+      <a href="/company">Company</a>
       <a href="https://github.com/khaaliswooden-max/ruralsim">Source</a>
     </nav>
   </header>
@@ -90,7 +90,7 @@
       <p class="lede">Each one is a 3D model built from public records: roads, buildings, terrain, power lines, water systems, hospitals and bridges. We use them to try ideas before anyone spends money on them.</p>
       <div class="actions">
         <a class="btn" href="#counties">Explore a county in 3D</a>
-        <a class="btn quiet" href="/experiments.html">See what the experiments found</a>
+        <a class="btn quiet" href="/experiments">See what the experiments found</a>
       </div>
     </div>
   </div>
@@ -106,13 +106,13 @@
     <p class="intro">Eight ideas, each run 20 times on simulated households, each judged against a success line written down before it ran. Misses come first. Every result is graded SPECULATIVE.</p>
     <div class="findings" id="findings"></div>
     <p class="intro" id="withdrawn" hidden style="margin-top:18px"></p>
-    <p style="margin-top:22px"><a href="/experiments.html">Read every result, with the spread across all 20 runs</a></p>
+    <p style="margin-top:22px"><a href="/experiments">Read every result, with the spread across all 20 runs</a></p>
   </section>
 
   <section>
     <h2>Every county in the country</h2>
     <p class="intro">A companion table covers 3,144 U.S. counties with population history, income, poverty and hospital counts, built from Census, USDA and CMS data. 719 counties have no hospital at all; 477 of those are rural.</p>
-    <p><a href="/national.html">Search and sort the national table</a></p>
+    <p><a href="/national">Search and sort the national table</a></p>
   </section>
 
   <section>
@@ -196,7 +196,7 @@ document.getElementById('cards').innerHTML = pilots.map(p => `
 // findings summary
 const groups = { met: [], not_met: [], conditional: [] };
 exps.forEach(e => groups[e.verdict].push(e));
-const li = e => `<li><a href="/experiments.html#${e.id}">${e.title}</a> <span class="dim">(${e.county.split(',')[0].replace(' County','')})</span></li>`;
+const li = e => `<li><a href="/experiments#${e.id}">${e.title}</a> <span class="dim">(${e.county.split(',')[0].replace(' County','')})</span></li>`;
 document.getElementById('findings').innerHTML = `
   <div class="not"><b>Fell short (${groups.not_met.length})</b><ul>${groups.not_met.map(li).join('')}</ul></div>
   <div class="met"><b>Cleared the bar (${groups.met.length})</b><ul>${groups.met.map(li).join('')}</ul></div>
