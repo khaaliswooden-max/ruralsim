@@ -1,5 +1,5 @@
-# Give already-published county viewers gzipped data (D-055). Manual: Actions ->
-# "Repack published viewers" -> Run workflow; dry run first, then for real. Resumable.
+# Give already-published county viewers gzipped data (D-055) and the progressive loader with the shared,
+# compressed three.js (D-500). Manual: Actions -> "Repack published viewers" -> Run workflow; dry run first. Resumable.
 name: Repack published viewers
 
 on:

@@ -1,0 +1,80 @@
+# Viewer load-time budget (D-500), checked in CI by tools/perf/viewer_budget.py.
+#
+# Every line is a D-500 bar. `enforce: true` fails the check on a miss; `enforce: false` is
+# reported (misses first) but does not fail, because the viewer does not meet it yet and fixes
+# 4-5 (2D view first, thinner hydrology) are what close it. A reported line is never dropped.
+# Each county also carries regression ceilings: measured values on this harness plus a margin.
+# Those are always enforced, so a change cannot make a county slower or heavier unnoticed.
+# Re-baseline the ceilings from a CI run (the job summary prints the numbers) when the runner
+# or the harness changes, never to make a slower change pass.
+decision: D-500
+data_base: https://pub-b414cd9251804d11871e4bec734e096e.r2.dev   # RURALSIM_DATA_BASE overrides
+runs: 2                     # median of this many cold-cache loads per county and profile
+
+profiles:
+  rural3:  {down_mbps: 3,  up_mbps: 1, rtt_ms: 150}
+  rural10: {down_mbps: 10, up_mbps: 2, rtt_ms: 150}
+
+counties:
+  - {fips5: "20049", dir: 20049_elk_ks,      class: median, name: "Elk KS"}
+  - {fips5: "01131", dir: 01131_wilcox_al,   class: median, name: "Wilcox AL"}
+  - {fips5: "30001", dir: 30001_beaverhead_mt, class: p90,  name: "Beaverhead MT"}
+
+lines:
+  - id: first_paint
+    text: "Never blank: first map paint ≤ 2 s at 3 Mbps"
+    classes: [median, p90]
+    profile: rural3
+    metric: first_paint_s
+    max: 2.0
+    enforce: false
+  - id: shared_three
+    text: "three.js and controls arrive compressed: ≤ 300 KB at 3 Mbps (fix 2)"
+    classes: [median, p90]
+    profile: rural3
+    metric: vendor_bytes
+    max: 300000
+    enforce: true
+  - id: tier2_usable_3
+    text: "Tier 2, median county: usable ≤ 20 s at 3 Mbps"
+    classes: [median]
+    profile: rural3
+    metric: usable_s
+    max: 20.0
+    enforce: false
+  - id: tier2_usable_10
+    text: "Tier 2, median county: usable ≤ 10 s at 10 Mbps"
+    classes: [median]
+    profile: rural10
+    metric: usable_s
+    max: 10.0
+    enforce: false
+  - id: tier2_bytes
+    text: "Tier 2, median county: ≤ 2.5 MB transferred"
+    classes: [median]
+    profile: rural3
+    metric: bytes
+    max: 2500000
+    enforce: false
+  - id: p90_usable_10
+    text: "p90 and above: usable ≤ 30 s at 10 Mbps"
+    classes: [p90]
+    profile: rural10
+    metric: usable_s
+    max: 30.0
+    enforce: false
+
+# Regression ceilings from the harness run recorded in docs/DECISIONS.md D-501.
+# Enforced: bytes (baseline x 1.05) and first paint (x 1.3 + 0.2 s), which depend on the network
+# and this branch, not on the runner's CPU. Reported only: usable time (x 1.3), which includes
+# software WebGL on whatever CPU the runner has. Move those into `ceilings` with numbers from a
+# CI run on main (the job summary prints them) once two runs agree. The byte ceilings follow the
+# county's published data: when a county is rebuilt and republished, re-baseline it in the same PR.
+ceilings:
+  "01131": {rural10.bytes: 3604169, rural10.first_paint_s: 1.4, rural3.bytes: 3604169, rural3.first_paint_s: 2.1}
+  "20049": {rural10.bytes: 2221647, rural10.first_paint_s: 1.4, rural3.bytes: 2221647, rural3.first_paint_s: 2.1}
+  "30001": {rural10.bytes: 19099629, rural10.first_paint_s: 2.0, rural3.bytes: 19099629, rural3.first_paint_s: 4.1}
+ceilings_reported:
+  "01131": {rural10.usable_s: 7.2, rural3.usable_s: 15.1}
+  "20049": {rural10.usable_s: 4.9, rural3.usable_s: 9.7}
+  "30001": {rural10.usable_s: 42.0, rural3.usable_s: 75.1}

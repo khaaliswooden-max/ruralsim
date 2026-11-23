@@ -403,3 +403,36 @@ Checked: 45 tests (4 new); with PR #90's site file in place, Morrow, Rutherford 
 
 ## D-065 (2026-11-22) — Substations and generators as one instanced prim each
 Build #47 lost Kern CA (06029): its OSM power layer has 509,400 features, nearly all individually mapped solar panels, and `build_stage.py` made one USD prim per generator. It ran 5 h 45 min in that loop until the six-hour limit cancelled it. D-039 had already moved buildings to a single PointInstancer for the same reason. Substations and generators now go the same way (`/Grid/Substations`, `/Grid/Generators`, one prototype each). A plain-USD timing: 509,400 instanced points take 1 s; 20,000 separate prims took 20 s and grow faster than linearly. The viewer's `power_points.json` is unchanged, and nothing reads the per-point prims. Counties already published keep their stages. Los Angeles (06037) also failed in build #47 after 4 h 45 min; GitHub kept no log for it and none reached R2, so its cause is unconfirmed. It reruns with D-063 and D-065 in place and is watched. *Invalidated by:* a consumer that needs one prim per substation or generator.
+
+## D-501 (2026-11-22, product) — D-500 fixes 2 and 3: shared compressed three.js, progressive viewer, and the CI budget check
+Implements the second and third D-500 fixes and its CI regression gate.
+- **Fix 2, shared three.js.** `three.module.js` (r160) and `OrbitControls.js` now load from one versioned copy on this site, `site/vendor/three-r160/`, instead of a 1.27 MB uncompressed copy beside every county viewer on R2. Vercel serves it compressed (≈ 264 KB), and `vercel.json` gives `/vendor/` CORS and a one-year immutable cache, so it is fetched once across counties. R2 viewers import it cross-origin from `https://www.ruralsim.io/vendor/three-r160/`, which makes them depend on the site being up. A new three.js release gets a new folder; nothing overwrites `three-r160`.
+- **Fix 3, progressive viewer (`tools/viewer_template.html`, "RURALSIM_VIEWER v2").** Every file is requested at the start, in three waves:
+  1. the outline, terrain metadata, layer sources and population, which frame the county;
+  2. terrain and the small layers, once the outline is in;
+  3. roads, buildings and hydrology, once terrain is in.
+
+  The outline is drawn flat on arrival and draped on the terrain when that arrives, and each layer appears as it lands. A status line says what is still loading and names any layer that failed; one failed layer no longer stops the viewer. Rendering is on demand (camera moves, a layer landing, a toggle) instead of a continuous loop. `window.__RURALSIM_READY` keeps its meaning (every layer in), and `?capture` still renders one frame at the end. New: `window.__RURALSIM_FIRST_DRAW`.
+- **Upgrade path.** `build_site.upgrade_viewer()` swaps the importmap and module script of an older viewer for the template's, keeping its gzip state (D-055), and points it at the shared three.js. Both `build_site.py` (pilots) and `publish_world.py` (R2) apply it. `repack_viewers.py` now also upgrades viewers already published; for a viewer that already has .gz files, that is one read and one write of `index.html`. **The live R2 viewers change only when "Repack published viewers" is run** after this merges and Vercel has deployed `/vendor/`: dry run first.
+- **CI gate.** `tools/perf/viewer_budget.py`, run by `.github/workflows/viewer-budget.yml`, builds this branch's viewer as `publish_world.py` does. It serves the viewer with the published .gz data of Elk KS, Wilcox AL and Beaverhead MT (an R2-like server, and a Vercel-like server for `/vendor/` with compression and CORS) and loads each one cold in headless Chromium at 3 and 10 Mbps with 150 ms latency, median of 2. `specs/perf_budget.yaml` holds every D-500 bar.
+  - **Enforced:** the shared three.js (≤ 300 KB), plus regression ceilings on bytes (baseline × 1.05) and first paint (× 1.3 + 0.2 s).
+  - **Reported, not failing:** the D-500 bars the viewer does not yet meet, and the usable-time ceilings. Usable time includes software WebGL on the runner's CPU, so those ceilings move to enforced once two CI runs on main agree.
+  - **When it runs:** on viewer-related PRs, on pushes to main, and weekly, so a county republished heavier is caught.
+- **Measured on the same harness, before → after, median of 2 (sandbox runner, software WebGL):**
+
+  | County | First paint, 3 Mbps | Usable, 3 Mbps | Usable, 10 Mbps | Transfer |
+  |---|---|---|---|---|
+  | Elk KS | 14.4 → 1.5 s | 14.4 → 7.7 s | 8.7 → 3.8 s | 3.19 → 2.12 MB |
+  | Wilcox AL | 19.8 → 1.4 s | 19.8 → 11.7 s | 11.7 → 5.7 s | 4.48 → 3.43 MB |
+  | Beaverhead MT | 86.0 → 3.0 s | 86.0 → 58.0 s | 49.7 → 31.6 s | 19.80 → 18.19 MB |
+
+  "Before" is the published viewer: it draws nothing until it is usable, so its first paint equals usable. In a first version of fix 3 the render loop ran continuously while loading; on software WebGL that made Beaverhead *slower* at 10 Mbps (49.7 → 70.2 s), which is why rendering is on demand.
+- **D-500 bars still missed (reported, misses first):**
+  - Beaverhead's first paint is 3.0 s against 2 s. Its `boundaries.json` carries a 15,597-point outline twice (`county` and `county_parts`), 573 KB gzipped.
+  - Beaverhead is usable in 31.6 s at 10 Mbps against 30 s.
+  - Wilcox transfers 3.43 MB against 2.5 MB; hydrology is half of it.
+
+  Fixes 4 (2D view first) and 5 (thinner hydrology), plus a simplified outline file, are what close these. They are not in this change.
+- **Limits.** The harness runs on localhost, so it skips the DNS and TLS setup a real visit makes to R2 and to ruralsim.io (two origins now, one before). Real first paint will be a few hundred milliseconds later than measured. The runner has no GPU. D-500's real-device test is still open.
+
+*Invalidated by:* a three.js upgrade (new `three-r<rev>` folder and `THREE_REV`); moving the shared copy off ruralsim.io; a republish of the three CI counties (re-baseline their byte ceilings in the same PR).
