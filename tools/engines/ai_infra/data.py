@@ -199,6 +199,32 @@ def water_meta() -> dict:
     return out
 
 
+def _optional(rel: str, dest: Path) -> pd.DataFrame | None:
+    """A table that may not be published yet: None on HTTP 404 only; any other error raises."""
+    import urllib.error
+    try:
+        return pd.read_parquet(_get(f"{BASE}/{rel}", dest))
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            return None
+        raise
+
+
+@lru_cache(maxsize=8)
+def popest_vintage(vintage: int) -> pd.DataFrame | None:
+    """Census county population estimates as published in one vintage (LR-12): fips5, year,
+    population. A back-test reads the vintage of year T0-1, so no later revision leaks in.
+    None until the table is in R2."""
+    return _optional(f"census/popest/v{vintage}/county.parquet", CACHE / "census" / "popest" / f"v{vintage}.parquet")
+
+
+@lru_cache(maxsize=4)
+def decennial_households(year: int) -> pd.DataFrame | None:
+    """Census decennial count per county (LR-12): fips5, population, households (occupied units).
+    None until the table is in R2."""
+    return _optional(f"census/decennial/{year}/households.parquet", CACHE / "census" / "decennial" / f"{year}_households.parquet")
+
+
 @lru_cache(maxsize=1)
 def tier_a() -> pd.DataFrame:
     return pd.read_csv(ROOT / "national" / "tier_a_county_stats.csv", dtype={"fips5": str})
