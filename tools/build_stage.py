@@ -360,16 +360,25 @@ def build_power(stage):
             subs.append((x, y, c0))
         elif p.get("power") == "generator":
             gens.append((x, y, c0, p.get("generator:source", "unknown")))
-    for i, (x, y, ll) in enumerate(subs):
-        cube = UsdGeom.Cube.Define(stage, f"/Grid/Substations/s{i}")
+    # D-065: one PointInstancer per kind, as for buildings (D-039). One prim per point stalled
+    # Kern CA (06029): 509,400 OSM power features, nearly all individually mapped solar panels,
+    # ran 5 h 45 min in this loop until the 6-hour limit (build #47).
+    if subs:
+        inst = UsdGeom.PointInstancer.Define(stage, "/Grid/Substations")
+        cube = UsdGeom.Cube.Define(stage, "/Grid/Substations/prototypes/box")
         cube.CreateSizeAttr(25.0)
-        UsdGeom.XformCommonAPI(cube).SetTranslate((float(x), demz(*ll) + 12.5, float(y)))
-        UsdGeom.Mesh(cube.GetPrim()).CreateDisplayColorAttr([(0.9, 0.2, 0.7)])
-    for i, (x, y, ll, src) in enumerate(gens):
-        cyl = UsdGeom.Cylinder.Define(stage, f"/Grid/Generators/g{i}")
+        cube.CreateDisplayColorAttr([(0.9, 0.2, 0.7)])
+        inst.CreatePrototypesRel().SetTargets([cube.GetPath()])
+        inst.CreateProtoIndicesAttr([0] * len(subs))
+        inst.CreatePositionsAttr([Gf.Vec3f(float(x), demz(*ll) + 12.5, float(y)) for x, y, ll in subs])
+    if gens:
+        inst = UsdGeom.PointInstancer.Define(stage, "/Grid/Generators")
+        cyl = UsdGeom.Cylinder.Define(stage, "/Grid/Generators/prototypes/mast")
         cyl.CreateRadiusAttr(3.0); cyl.CreateHeightAttr(80.0)
-        UsdGeom.XformCommonAPI(cyl).SetTranslate((float(x), demz(*ll) + 40.0, float(y)))
-        UsdGeom.Mesh(cyl.GetPrim()).CreateDisplayColorAttr([(0.95, 0.95, 0.95)])
+        cyl.CreateDisplayColorAttr([(0.95, 0.95, 0.95)])
+        inst.CreatePrototypesRel().SetTargets([cyl.GetPath()])
+        inst.CreateProtoIndicesAttr([0] * len(gens))
+        inst.CreatePositionsAttr([Gf.Vec3f(float(x), demz(*ll) + 40.0, float(y)) for x, y, ll, _ in gens])
     (VIEWER_DATA / "power_points.json").write_text(json.dumps(
         {"substations": [[round(x, 1), round(y, 1)] for x, y, _ in subs],
          "generators": [[round(x, 1), round(y, 1), s] for x, y, _, s in gens]}))
