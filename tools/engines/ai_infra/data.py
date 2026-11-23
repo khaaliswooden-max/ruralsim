@@ -226,5 +226,25 @@ def decennial_households(year: int) -> pd.DataFrame | None:
 
 
 @lru_cache(maxsize=1)
+def aiannh_county_parts() -> pd.DataFrame | None:
+    """LR-13 (a): 2020 Census population and households by county x AIANNH area, summed from blocks:
+    fips5, aiannh_geoid, namelsad, classfp, population, households. None until in R2."""
+    return _optional("census/aiannh/2020/county_parts.parquet", CACHE / "census" / "aiannh_2020_county_parts.parquet")
+
+
+@lru_cache(maxsize=1)
+def acs_income_nontribal() -> pd.DataFrame | None:
+    """LR-13 (b): ACS 2020-2024 lowest-quintile mean household income for the county outside
+    tribal land: fips5, mean_q1, mean_q1_moe, households, method. None until in R2."""
+    return _optional("acs/2024/income_quintiles_nontribal.parquet", CACHE / "acs" / "2024" / "income_quintiles_nontribal.parquet")
+
+
+@lru_cache(maxsize=8)
+def fiscal_table(state: str, table: str) -> pd.DataFrame | None:
+    """LR-14: fiscal/<ST>/taxing_units.parquet or local_agreements.parquet (D-430). None until in R2."""
+    return _optional(f"fiscal/{state}/{table}.parquet", CACHE / "fiscal" / state / f"{table}.parquet")
+
+
+@lru_cache(maxsize=1)
 def tier_a() -> pd.DataFrame:
     return pd.read_csv(ROOT / "national" / "tier_a_county_stats.csv", dtype={"fips5": str})

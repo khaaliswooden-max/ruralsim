@@ -48,7 +48,8 @@ def get_baseline(fips: str, seed: int, n: int = 2000):
     key = (fips, seed, n)
     if key in _BASE:
         return _BASE[key]
-    p = CACHE / f"{fips}_s{seed}_n{n}_{households.MODEL}.pkl"  # model in the key (D-104)
+    tm = "_d420" if households.tribal_mask(fips)[0] is not None else ""
+    p = CACHE / f"{fips}_s{seed}_n{n}_{households.MODEL}{tm}.pkl"  # model and tribal mask in the key (D-104, D-114)
     if p.exists():
         try:
             with open(p, "rb") as f:
@@ -195,8 +196,15 @@ def run_card(card: dict, seeds: int, seed_offset: int = 0) -> dict:
     deltas = np.array([r["rqli_intervention"]["worst_off_decile_mean"]
                        - r["rqli_baseline"]["worst_off_decile_mean"] for r in rows])
     wod_ok = bool(np.percentile(deltas, 5) >= -1e-9) if len(deltas) >= 2 else bool(deltas[0] >= 0)
+    tland, nations = households.tribal_mask(fips)
     for r in rows:
-        if not wod_ok:
+        if tland is not None:   # D-420: incomes cannot yet exclude tribal-land households (LR-13)
+            r["constraints"]["worst_off_decile_not_worse_off"] = {
+                "passed": None, "status": "indeterminate",
+                "note": f"tribal land masked (D-420): {', '.join(nations)}; county ACS incomes still include "
+                        "tribal-land households until LR-13 lands"}
+            r["constraints_passed"] = False
+        elif not wod_ok:
             r["constraints"]["worst_off_decile_not_worse_off"] = {
                 "passed": False, "note": "90% lower bound across seeds falls below baseline"}
             r["constraints_passed"] = False

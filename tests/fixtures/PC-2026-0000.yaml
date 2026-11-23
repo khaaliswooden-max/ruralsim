@@ -1,0 +1,57 @@
+# ILLUSTRATIVE. No such proposal exists. Copied from specs/proposal_card.md's machine form, with a
+# real H3 cell at the county centroid so the engine can run it in tests. Never published.
+card_id: PC-2026-0000
+card_version: 1
+supersedes: null
+run_kind: proposal_card
+grade: SPECULATIVE
+decision:
+  county_fips5: "20019"
+  public_body: "Board of County Commissioners"
+  kind: moratorium_study
+  date: null
+  public_documents: []
+  stage: under_moratorium
+submitter:
+  role: county_staff
+  financial_interest: false
+  contact_ref: "private:illustrative"
+site_default:
+  resolution: h3_r8
+  geography_id: "8826eed62bfffff"
+  location_basis: approximate
+options:
+  - {option_id: no_build, label: "No build", is_no_build: true}
+  - option_id: as_filed
+    label: "As described, 100 MW"
+    it_load_mw: 100
+    phases: [{phase: 1, year_offset: 0, it_load_mw_cumulative: 40}, {phase: 2, year_offset: 3, it_load_mw_cumulative: 100}]
+    cooling: unknown
+    water_source: {kind: public_system, pwsid_or_name: null}
+    onsite: {solar_mw: 0, storage_mwh: 0, firm_mw: 0, firm_fuel: null}
+    backup_generation: {mw: null, fuel: null}
+    cost_allocation: unknown
+  - option_id: phase1_dry
+    label: "First phase only, dry cooling"
+    suggested_by: ruralsim
+    ticked_by_submitter: true
+    it_load_mw: 40
+    cooling: dry
+    water_source: {kind: none_dry}
+    cost_allocation: unknown
+criteria:
+  set_by: ruralsim_defaults
+  grid_clean_seed_share: 0.9
+  rate_change_pct_max: 2.0
+  peak_day_share_of_low_flow_max: 0.10
+  annual_share_of_public_supply_max: 0.10
+  footprint_share_sfha_max: 0.10
+  nearest_fiber_hex_km_max: 5.0
+  county_fiber_providers_min: 2
+  worst_off_not_worse_off: true
+county_rules: {setback_m: null, noise_dba_day: null, noise_dba_night: null, height_m: null}
+stated_not_checked:
+  announced_investment_usd: null
+  announced_jobs: null
+  tax_terms: null
+seeds: 20

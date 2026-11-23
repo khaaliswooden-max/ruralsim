@@ -1,4 +1,5 @@
-"""Run the AI-infrastructure screening engine (power_flow + rate_impact) on a card.
+"""Run the AI-infrastructure screening engine on an experiment card or a back-test (spec v0.2).
+Proposal cards run through run_proposal.py.
 
     python3 -m tools.engines.ai_infra.run EXP-0011 --seeds 20
     python3 -m tools.engines.ai_infra.run EXP-0011 --county 01131 --seeds 5
@@ -24,7 +25,10 @@ from shapely.geometry import Point, Polygon
 from shapely.ops import nearest_points, unary_union
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-from tools.engines.ai_infra import cooling_water, data, fiber, flood, gate, network, power_flow, rate_impact  # noqa: E402
+from tools.engines.ai_infra import (cooling_water, data, fiber, fiscal, flood, gate, network, not_modelled,  # noqa: E402
+                                    power_flow, rate_impact, tribal)
+DISCLOSURE_PROJECT = "RuralSim is a free, open-source project by Aldrich K. Wooden, Sr., founder of Get Rural America Done."
+SPEC_VERSION = "0.2"
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
@@ -146,23 +150,34 @@ def run_county(card, fips5, seeds, cfg, activsg, backtest_id=None):
     f_enu, f_wgs = county.enu
     b = county.json("viewer_data/boundaries.json")
     poly = unary_union([Polygon(p).buffer(0) for p in b["county_parts"]])
-    tribal = []
+    tribal_polys = []
     for t in b.get("tribal") or []:
         rings = t.get("rings") if isinstance(t, dict) else t
         for r in (rings if rings and isinstance(rings[0][0], (list, tuple)) else [rings]):
             try:
-                tribal.append(Polygon(r).buffer(0))
+                tribal_polys.append(Polygon(r).buffer(0))
             except Exception:
                 pass
+    tstat = tribal.county_status(poly, tribal.parts(county))
     site_spec = card.get("site", {})
     if bt:   # back-test: the registered site, not the card's rule (PREREGISTRATION §4.2)
         site_spec = {"rule": "point", "lon": bt["site_point"][0], "lat": bt["site_point"][1]}
+        bx, by = f_enu(*bt["site_point"])
+        hit = tribal.touches(Point(bx, by), tstat)
+        if hit:
+            raise gate.Refused(f"refused under D-420: back-test site {bt['site_id']} lies on tribal land "
+                               f"({', '.join(t['name'] for t in hit)}); no run places a site there without the "
+                               "nation's government's request (spec v0.2 rules.tribal_land)")
     eia_year = bt["as_of_year"] if bt else 2024      # §4.2.1: T0-1 tables, never 2024, in a back-test
-    sx, sy, site_note = site_point(county, poly, tribal, site_spec)
+    sx, sy, site_note = site_point(county, poly, tribal_polys, site_spec)
     modules = card.get("modules", ["power_flow", "rate_impact"])
     power = "power_flow" in modules
+    pmask = tribal.population_mask(fips5, tstat)
+    ff, ff_entries = fiscal.build(fips5, state)
     rec = {"county": {**county.record(), "state": state, "rucc_2023": int(trow.rucc_2023)},
-           "modules": modules, "backtest": bt, "eia_year": eia_year}
+           "modules": modules, "backtest": bt, "eia_year": eia_year,
+           "tribal_mask": pmask["tribal_mask"], "fiscal_facts": ff,
+           "not_modelled_entries": pmask["entries"] + ff_entries}
     if power:
         feats = county.json("layers_raw/osm/power.geojson")["features"]
         masked = []
@@ -176,6 +191,11 @@ def run_county(card, fips5, seeds, cfg, activsg, backtest_id=None):
         acs = data.acs_income_quintiles()
         arow = acs[acs.fips5 == fips5]
         arow = arow.iloc[0].to_dict() if len(arow) else None
+        # D-420: lowest-quintile income without tribal-land households. With no separable figure the
+        # county row still feeds the draws (so no other draw moves) and the income outputs are masked.
+        income_masked = pmask["income_row"] is None
+        if isinstance(pmask["income_row"], dict):
+            arow = {**(arow or {}), **pmask["income_row"]}
         hh_in = households_input(fips5, tier, bt["as_of_year"] if bt else None)
         rec.update(network=net.summary, candidate_utilities=cands, county_households_input=hh_in)
         if bt:
@@ -185,7 +205,8 @@ def run_county(card, fips5, seeds, cfg, activsg, backtest_id=None):
         rec["scenarios"] = {}
         return rec
     lon, lat = f_wgs(sx, sy)
-    rec["site"] = {"lon": lon, "lat": lat, "enu_m": [sx, sy], "note": site_note, "provenance": "hypothetical"}
+    rec["site"] = {"lon": lon, "lat": lat, "enu_m": [sx, sy], "note": site_note, "provenance": "hypothetical",
+                   "resolution": "point", "geography_id": None}
     if "cooling_water" in modules:
         wctx = water_context(county, fips5, lat, lon, cfg)
         rec["water_context"] = {k: v for k, v in wctx.items() if k != "weather"}
@@ -263,12 +284,22 @@ def run_county(card, fips5, seeds, cfg, activsg, backtest_id=None):
                                                       "grid_mwh": grid_mwh, "county_peak_mw": cpeak,
                                                       "county_load_info": cinfo, "onsite_capex_usd": onsite_capex},
                              "power_flow": pfo, "rate_impact": rates})
+        if power and income_masked:
+            for r in (x for s_ in per_seed for x in s_["rate_impact"].values()):
+                for u_ in r.get("per_utility", []):
+                    if "lowest_quintile_energy_cost_share_change_pp" in u_:
+                        u_["lowest_quintile_energy_cost_share_change_pp"] = MASKED_INCOME
+                    for c_ in (u_.get("cases") or {}).values():
+                        c_["lowest_quintile_energy_cost_share_change_pp"] = MASKED_INCOME
         summ = (summarise(per_seed, cands) if power else
                 {"fiber": True, **per_seed[0]["fiber"]} if "fiber" in modules else
                 summarise_flood(per_seed) if "flood" in modules else summarise_water(per_seed))
         scen_out[sc["name"]] = {"scenario": sc, "summary": summ, "seeds": per_seed}
     rec["scenarios"] = scen_out
     return rec
+
+
+MASKED_INCOME = "masked (D-420): tribal-land households cannot yet be separated (LR-13)"
 
 
 def water_context(county, fips5, lat, lon, cfg):
@@ -403,7 +434,8 @@ def summarise(per_seed, cands):
                 "site_share_of_utility_sales": band([x["site_share_of_utility_sales"] for x in comp_u]),
                 "share_seeds_outside_validity": (sum(x["outside_validity"] for x in comp_u) / len(comp_u)) if comp_u else None,
                 "lowest_quintile_energy_cost_share_change_pp": (
-                    band([x["lowest_quintile_energy_cost_share_change_pp"] for x in comp_u])
+                    MASKED_INCOME if comp_u and comp_u[0]["lowest_quintile_energy_cost_share_change_pp"] == MASKED_INCOME
+                    else band([x["lowest_quintile_energy_cost_share_change_pp"] for x in comp_u])
                     or (rate_impact.INCOME_MISSING if comp_u else None)),
                 "transmission_owner_provenance": c.get("transmission_owner_provenance"),
             }
@@ -601,6 +633,42 @@ def judge(card, rec):
     return misses, passes
 
 
+def not_modelled_block(recs, modules) -> list[dict]:
+    """Core list plus every entry this run adds (D-111). Replaces the flat list of v0.1: its six
+    strings map onto core topics, except drainage-area scaling, which is a run entry."""
+    extra = []
+    for r in recs:
+        extra += r.get("not_modelled_entries", [])
+    if "cooling_water" in modules:
+        extra.append(not_modelled.entry(
+            "drainage-area scaling between the gauge and the site (scale factor 1.0)", "not_modelled",
+            why="needs NHDPlus catchments, not a layer", who_can_answer="USGS StreamStats; state water agency"))
+    lim = None
+    for r in recs:
+        for sc in (r.get("scenarios") or {}).values():
+            for alloc in ((sc.get("summary") or {}).get("rate_impact") or {}).values():
+                for un, x in (alloc.get("per_utility") or {}).items():
+                    if (x.get("share_seeds_outside_validity") or 0) > 0.5:
+                        lim = lim or yaml.safe_load((HERE / "params" / "assumed.yaml").read_text())["rates"]["max_site_share_of_utility_sales"]
+                        extra.append(not_modelled.entry(
+                            f"rate outcome above the model's validity limit: {x['utility_name']} ({r['county']['fips5']})",
+                            "blocked_this_run",
+                            why=f"site would exceed {lim} of the utility's annual sales; the outcome turns on the "
+                                "large-load contract (D-102)",
+                            who_can_answer="the utility or its G&T; state commission filings"))
+    return not_modelled.block(extra)
+
+
+def finish(out, recs, modules):
+    """Record fields every run carries (spec v0.2) and the validation before any write."""
+    out["not_modelled"] = not_modelled_block(recs, modules)
+    for r in recs:
+        r.pop("not_modelled_entries", None)
+    out["disclosure_project"] = DISCLOSURE_PROJECT
+    not_modelled.validate(out)
+    return out
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("card")
@@ -631,7 +699,12 @@ def main(argv=None):
     out = {
         "run_id": f"{card['id']}/{t0.strftime('%Y%m%dT%H%M%SZ')}",
         "card_id": card["id"], "supersedes": card.get("supersedes"),
-        "engine": "tools/engines/ai_infra", "engine_version": git_commit(), "spec_version": "0.1",
+        "run_kind": "backtest" if a.backtest else card.get("run_kind", "experiment_card"),
+        "proposal_card": None, "publication": "default", "options": None, "comparison": None,
+        "stated_not_checked": None,
+        "tribal_mask": {r["county"]["fips5"]: r.get("tribal_mask") for r in recs},
+        "fiscal_facts": {r["county"]["fips5"]: r.get("fiscal_facts") for r in recs},
+        "engine": "tools/engines/ai_infra", "engine_version": git_commit(), "spec_version": SPEC_VERSION,
         "params_sha256": sha(HERE / "params" / "assumed.yaml"),
         "activsg_sha256": sha(HERE / "params" / "activsg_distributions.json"),
         "eia_tables": {y: data.eia_meta(y) for y in sorted({r.get("eia_year", 2024) for r in recs})},
@@ -647,11 +720,8 @@ def main(argv=None):
         "criterion": card["criterion"],
         "misses": misses, "refused": refused, "passes": passes,
         "counties": recs,
-        "not_modelled": ["N-1 contingency", "regional through-flow (background_utilisation stands in)",
-                         "local tax effects and abatements", "middle-mile and long-haul fiber",
-                         "drainage-area scaling between gauge and site (needs NHDPlus)",
-                         "which utility actually serves the site (all candidates run)"],
     }
+    finish(out, recs, card.get("modules", ["power_flow", "rate_impact"]))
     if not a.no_write:
         d = LEDGER / card["id"]
         d.mkdir(parents=True, exist_ok=True)

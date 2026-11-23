@@ -1,0 +1,48 @@
+# State-level fiscal facts for fiscal_facts (D-430, option F1; spec v0.2; D-114).
+# Observed public law, no grade, no dollar figure. Each fact names its source and the date it was
+# read. Statutes change: re-read every entry before the first published proposal-card result in
+# the state, and whenever a legislature meets. Not in params/: changing this file does not change
+# params_sha256, and no module reads it as a model input.
+#
+# Per-county taxing units (rates, levies) and local agreements are data, not facts: they come from
+# LR-14 (fiscal/<ST>/taxing_units.parquet, fiscal/<ST>/local_agreements.parquet).
+
+retrieved: "2026-11-22"
+
+questions_to_demand:   # fixed checklist from specs/proposal_card.md (NACo, 2026-10-20); never edited per card
+  - "What share of the investment is real property (land, building), and what share is equipment? Which parts are taxable in this state, and how is each assessed?"
+  - "What depreciation schedule applies to the equipment, and what taxable value is expected in years 1, 5 and 10? Ask for the figures in writing from the applicant and the appraisal district."
+  - "Which exemptions or abatements are requested or available (state sales and use tax, local property tax abatements, value limitations, PILOTs)? For each, which taxing unit gives up revenue, how much, and for how long?"
+  - "What performance terms (jobs, investment, clawback) come with each incentive? Are they enforceable, and who checks them?"
+  - "What does each other taxing unit gain or lose, especially school districts after any state school-finance offset?"
+  - "What new public costs follow: roads, water and wastewater, EMS and fire, permitting and inspection staff? Who pays for them?"
+  - "Is a PILOT, development agreement or community benefit agreement available under state law, and what would it secure?"
+  - "How does long-term revenue compare with long-term service and infrastructure costs, using the applicant's own figures where RuralSim has none?"
+
+states:
+  TX:
+    state_taxes_business_personal_property:
+      value: "yes: income-producing tangible personal property (equipment, including servers) is taxable unless an exemption applies"
+      source: "Texas Tax Code §11.01 (all real and tangible personal property taxable unless exempt) and §22.01 (rendition of business personal property); https://texas.public.law/statutes/tex._tax_code_section_11.01 ; https://statutes.capitol.texas.gov/Docs/TX/htm/TX.22.htm"
+    state_sales_tax_exemptions_for_data_centers:
+      - statute: "Texas Tax Code §151.359 (qualifying data center)"
+        summary: "Sales and use tax exemption on items necessary and essential to operating a certified data center (including electricity, cooling, generators, servers, network equipment, software). Thresholds: at least 100,000 sq ft in a single building; at least 20 qualifying jobs in the county at 120% or more of the county average weekly wage; at least $200 million capital investment over 5 years. Runs 10 years ($200M-$250M) or 15 years ($250M or more) from certification. Local sales taxes (Chapters 321-323) are not exempt."
+        source: "https://codes.findlaw.com/tx/tax-code/tax-sect-151-359/ (FindLaw warns it may not be current; confirm against statutes.capitol.texas.gov)"
+      - statute: "Texas Tax Code §151.3595 (large data center project)"
+        summary: "Same exemption for 20 years from certification. Thresholds: buildings of at least 250,000 sq ft; at least 40 qualifying jobs in the county at 120% or more of the county average weekly wage; at least $500 million capital investment over 5 years; a contract for at least 20 MW of transmission capacity."
+        source: "https://law.justia.com/codes/texas/tax-code/title-2/subtitle-e/chapter-151/subchapter-h/section-151-3595 (Justia warns it may not be current)"
+    local_agreement_registries:
+      - {type: "Chapter 312 tax abatement", where: "Texas Comptroller Chapter 312 abatement search", source: "https://comptroller.texas.gov/economy/development/search-tools/ch312/abatements-simple.php"}
+      - {type: "Chapter 403 JETI agreement (school district value limitation successor to Chapter 313)", where: "Texas Comptroller JETI applications and current agreements", source: "https://comptroller.texas.gov/economy/development/prop-tax/jeti/current-agreements.php"}
+      - {type: "Chapter 380/381 economic development agreement", where: "Texas Comptroller Chapter 380/381 reporting search", source: "https://comptroller.texas.gov/economy/local/ch380-381/reporting-search.php"}
+  KS:
+    state_taxes_business_personal_property:
+      value: "mostly no for new equipment: commercial and industrial machinery and equipment acquired by purchase or lease after June 30, 2006 is exempt from property tax"
+      source: "K.S.A. 79-223; https://www.ksrevisor.gov/statutes/chapters/ch79/079_002_0023.html"
+    state_sales_tax_exemptions_for_data_centers:
+      - statute: "Kansas SB 98 (2025), qualified data center sales tax exemption"
+        summary: "Sales and use tax exemption for 20 years on purchases to develop, construct and operate a qualified data center (land and site improvements, buildings, data center equipment, lease payments, installation and maintenance labor); electricity is not exempt. Requires at least $250 million investment within 5 years of beginning operations and at least 20 new jobs within 2 years, approval including review by the Kansas Fusion Center Oversight Board, electricity bought for 10 years from the retail public utility, and water conservation practices. Administered by the Kansas Department of Commerce."
+        source: "https://www.kslegislature.gov/li/b2025_26/measures/documents/summary_sb_98_2025 ; https://www.kansascommerce.gov/wp-content/uploads/2025/11/Data-Center-Sales-Tax-Exemption-Program-Guidelines_20251124_FINAL.pdf"
+    local_agreement_registries:
+      - {type: "Industrial revenue bond (IRB) property tax exemption", where: "Kansas Board of Tax Appeals exemption orders; county appraiser", source: "https://www.ksrevenue.gov/prtaxincentives-proptaxabate.html"}
+      - {type: "Constitutional economic development exemption (Kan. Const. art. 11 §13), up to 10 years", where: "Kansas Board of Tax Appeals exemption orders; county or city resolution or ordinance after a public hearing", source: "https://www.ksrevenue.gov/prtaxincentives-proptaxabate.html"}
