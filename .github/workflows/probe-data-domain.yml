@@ -1,0 +1,19 @@
+name: Probe data.ruralsim.io
+on:
+  push:
+    branches: [probe/data-domain]
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - run: |
+          R2=https://pub-b414cd9251804d11871e4bec734e096e.r2.dev
+          D=https://data.ruralsim.io
+          for p in worlds/index.json worlds/17031_cook_il/current/viewer/index.html worlds/17031_cook_il/current/viewer_data/terrain_grid.f32.gz eia/2024/_meta.json flood/nfhl/_meta.json census/decennial/2000/_meta.json; do
+            a=$(curl -s -A RuralSim "$R2/$p" | sha256sum | cut -c1-16)
+            b=$(curl -s -A RuralSim -o /tmp/b -w "%{http_code} %{content_type}" "$D/$p"); bs=$(sha256sum /tmp/b | cut -c1-16)
+            echo "PROBE $p r2=$a data=$bs [$b] $([ "$a" = "$bs" ] && echo SAME || echo DIFF)"
+          done
+          curl -sI -A RuralSim "$D/worlds/17031_cook_il/current/viewer/index.html" | grep -iE "^(HTTP|content-type|cache-control|cf-cache-status|access-control)" | sed 's/^/HDR /'
+          curl -sI -A RuralSim -H "Origin: https://www.ruralsim.io" "$D/worlds/index.json" | grep -iE "^(HTTP|access-control)" | sed 's/^/CORS /'
