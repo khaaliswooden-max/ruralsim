@@ -140,7 +140,9 @@ def test_gate_refuses_backtest_sites_and_candidates():
     with pytest.raises(gate.Refused):
         gate.check("19155", None, lambda y: True)          # Pottawattamie, brief candidate
     with pytest.raises(gate.Refused, match="T0-1"):
-        gate.check("40097", "BT-01", lambda y: False)       # registered, but no 2006 EIA tables
+        gate.check("01071", "BT-02", lambda y: False)       # registered, but no 2014 EIA tables
+    with pytest.raises(gate.Refused, match="D-420"):
+        gate.check("40097", "BT-01", lambda y: True)        # Mayes: refused under D-420 (D-204)
     assert gate.check("01131", None, lambda y: True) is None
 
 
