@@ -1,4 +1,4 @@
-"""Read published county layers and the national EIA tables from RuralSim's public R2.
+"""Read published county layers and the national tables from RuralSim's public data host (R2).
 
 Everything is read from immutable snapshots: a county run names its snapshot and the
 manifest's sha256 for each file, so a record can be reproduced byte for byte. Files are
@@ -7,8 +7,12 @@ cached under $RURALSIM_CACHE/ai_infra (default ~/.cache/ruralsim/ai_infra).
 from __future__ import annotations
 
 import hashlib
+import http.client
 import json
 import os
+import socket
+import time
+import urllib.error
 import urllib.request
 from functools import lru_cache
 from pathlib import Path
@@ -24,20 +28,72 @@ EIA_TABLES = ("eia860_generators", "eia860_plants", "eia861_utility_data",
               "eia861_sales_ult_cust", "eia861_service_territory", "eia861_short_form")
 
 
-def _get(url: str, dest: Path, sha256: str | None = None) -> Path:
-    if dest.exists() and (sha256 is None or _sha(dest) == sha256):
+RETRIES = 3                                                   # tries per file (D-116)
+BACKOFF_S = float(os.environ.get("RURALSIM_RETRY_BACKOFF_S", "2"))  # wait before try 2 and 3: 2 s, 4 s
+RETRY_HTTP = {408, 425, 429, 500, 502, 503, 504}
+DOWNLOADS: list[dict] = []    # every fetch this process made, for the run record
+
+
+class DownloadFailed(RuntimeError):
+    """A file could not be fetched after every try. Never read as "missing": only HTTP 404 is."""
+
+
+def is_missing(e: BaseException) -> bool:
+    return isinstance(e, urllib.error.HTTPError) and e.code == 404
+
+
+def _fetch_once(url: str, tmp: Path) -> None:
+    req = urllib.request.Request(url, headers={"User-Agent": "RuralSim-engine/0.2"})
+    with urllib.request.urlopen(req, timeout=120) as r, open(tmp, "wb") as f:
+        want = r.headers.get("Content-Length")
+        n = 0
+        while chunk := r.read(1 << 20):
+            f.write(chunk)
+            n += len(chunk)
+    if want is not None and n != int(want):
+        raise http.client.IncompleteRead(b"", int(want) - n)     # dropped mid-file
+
+
+def _get(url: str, dest: Path, sha256: str | None = None, refresh: bool = False) -> Path:
+    """Fetch url to dest (cached). Up to RETRIES tries with backoff on a dropped or refused
+    connection, a timeout, a truncated body, a sha256 mismatch or HTTP 408/425/429/5xx. HTTP 404
+    is raised at once (the file is missing); any other HTTP 4xx too. After the last try:
+    DownloadFailed."""
+    if not refresh and dest.exists() and (sha256 is None or _sha(dest) == sha256):
         return dest
     dest.parent.mkdir(parents=True, exist_ok=True)
     tmp = dest.with_suffix(dest.suffix + ".part")
-    req = urllib.request.Request(url, headers={"User-Agent": "RuralSim-engine/0.1"})
-    with urllib.request.urlopen(req, timeout=120) as r, open(tmp, "wb") as f:
-        while chunk := r.read(1 << 20):
-            f.write(chunk)
-    if sha256 is not None and _sha(tmp) != sha256:
-        tmp.unlink()
-        raise RuntimeError(f"sha256 mismatch for {url}")
-    tmp.rename(dest)
-    return dest
+    last = None
+    for attempt in range(1, RETRIES + 1):
+        try:
+            _fetch_once(url, tmp)
+            if sha256 is not None and _sha(tmp) != sha256:
+                raise ValueError(f"sha256 mismatch for {url}")
+            tmp.replace(dest)
+            DOWNLOADS.append({"url": url, "tries": attempt, "outcome": "ok"})
+            return dest
+        except urllib.error.HTTPError as e:
+            if e.code not in RETRY_HTTP:
+                DOWNLOADS.append({"url": url, "tries": attempt, "outcome": f"HTTP {e.code}"})
+                tmp.unlink(missing_ok=True)
+                raise
+            last = e
+        except (urllib.error.URLError, TimeoutError, ConnectionError, http.client.HTTPException,
+                socket.timeout, ValueError) as e:
+            last = e
+        tmp.unlink(missing_ok=True)
+        if attempt < RETRIES:
+            time.sleep(BACKOFF_S * 2 ** (attempt - 1))
+    DOWNLOADS.append({"url": url, "tries": RETRIES, "outcome": f"failed: {type(last).__name__}: {last}"})
+    raise DownloadFailed(f"{url}: {RETRIES} tries failed; last error {type(last).__name__}: {last}") from last
+
+
+def download_report() -> dict:
+    """For the run record: where the data came from and how the fetches went."""
+    return {"host": BASE, "fetches": len(DOWNLOADS),
+            "retried": [d for d in DOWNLOADS if d["tries"] > 1 and d["outcome"] == "ok"],
+            "missing_404": [d["url"] for d in DOWNLOADS if d["outcome"] == "HTTP 404"],
+            "failed": [d for d in DOWNLOADS if d["outcome"] not in ("ok", "HTTP 404")]}
 
 
 def _sha(p: Path) -> str:
@@ -50,7 +106,8 @@ def _sha(p: Path) -> str:
 
 @lru_cache(maxsize=1)
 def index() -> dict:
-    p = _get(f"{BASE}/worlds/index.json", CACHE / "index.json")
+    # the one mutable file: fetched fresh once per process, so a newly published county is seen (D-116)
+    p = _get(f"{BASE}/worlds/index.json", CACHE / "index.json", refresh=True)
     return {e["fips5"]: e for e in json.loads(p.read_text())["counties"]}
 
 
@@ -117,11 +174,15 @@ def eia_meta(year: int = 2024) -> dict:
 
 
 def eia_available(year: int) -> bool:
+    """False only when the year's tables are really absent (HTTP 404). A failed download raises
+    DownloadFailed, so the gate never reports a network error as "not in R2" (D-116)."""
     try:
         eia_meta(year)
         return True
-    except Exception:
-        return False
+    except urllib.error.HTTPError as e:
+        if is_missing(e):
+            return False
+        raise
 
 
 @lru_cache(maxsize=2)
@@ -201,11 +262,10 @@ def water_meta() -> dict:
 
 def _optional(rel: str, dest: Path) -> pd.DataFrame | None:
     """A table that may not be published yet: None on HTTP 404 only; any other error raises."""
-    import urllib.error
     try:
         return pd.read_parquet(_get(f"{BASE}/{rel}", dest))
     except urllib.error.HTTPError as e:
-        if e.code == 404:
+        if is_missing(e):
             return None
         raise
 

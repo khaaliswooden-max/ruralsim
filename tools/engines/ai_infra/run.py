@@ -703,6 +703,8 @@ def finish(out, recs, modules):
     for r in recs:
         r.pop("not_modelled_entries", None)
     out["disclosure_project"] = DISCLOSURE_PROJECT
+    out["data_host"] = data.BASE                     # D-116: every record names where its data came from
+    out["data_downloads"] = data.download_report()
     not_modelled.validate(out)
     return out
 

@@ -442,3 +442,23 @@ Decided by Khaalis. D-064 put LR-12 in R2, and with it v1's G1 at Wasco and Gran
 
 ## D-066 (2026-11-22) — Public data served from data.ruralsim.io
 Khaalis moved ruralsim.io's DNS from Vercel to Cloudflare and connected `data.ruralsim.io` to the `ruralsim-data` bucket, following the project doc `ruralsim/operations/DNS_MOVE_TO_CLOUDFLARE.md`. A GitHub runner fetched the same six objects from both hosts (the worlds index, Cook IL's viewer page and a gzipped viewer file, and the EIA, flood and census metadata): identical bytes, HTTP 200, the same content types. Published viewers contain no r2.dev URL (their links are relative, plus www.ruralsim.io and openstreetmap.org), so no world is republished. The repo's defaults now name `https://data.ruralsim.io`: the engine's data reader, the NHD, NASA POWER, CDL and EIA-history readers, the viewer load budget and the setup notes. The site builds its county links from the Vercel environment variable `RURALSIM_DATA_BASE`, which must be set to the same address for the published links to change; that is a Vercel setting, changed by Khaalis. Data records already written keep the URL they were copied from (`data/acs_income_quintiles_2024_meta.json`). Cloudflare reports viewer pages as `cf-cache-status: DYNAMIC`; a cache rule for `/worlds/*` can follow. The r2.dev URL is turned off only after the site and the engine chats have switched. *Invalidated by:* a change of hostname (every link Google has indexed would break; avoid).
+
+## D-116 (2026-11-22, rollout step 2) — Downloader: retries with backoff, missing only on a real 404, data host in every record
+Required before any v2 back-test run.
+- **Retries.** `data._get` tries each file up to 3 times, waiting 2 s and then 4 s. It retries on:
+  - a dropped, reset or refused connection, or a timeout;
+  - a truncated body (bytes received ≠ Content-Length);
+  - a sha256 mismatch;
+  - HTTP 408, 425, 429 or 5xx.
+
+  After the last try it raises `DownloadFailed`.
+- **Missing means 404.** HTTP 404 raises at once and is the only error read as "missing". Any other 4xx raises at once and is never read as missing. Before this, `eia_available` turned every exception into `False`, so a network failure reached the gate as "T0−1 tables are not in R2". It now returns `False` only on a 404 and otherwise raises.
+- **Fresh index.** `worlds/index.json`, the one mutable file, is fetched fresh once per process. A cached copy had hidden a newly published county ("41065 is not published").
+- **Data host in every record.** `run.finish` writes `data_host` (the base URL actually used, D-066's `https://data.ruralsim.io` unless `RURALSIM_DATA_BASE` overrides it) and `data_downloads` (fetch count, retried files, missing-404 URLs, failures) into every record, including proposal-card refusals and holds.
+- **Checks.**
+  - 7 new tests against a local server that drops connections, truncates bodies, answers 503 and 404, and serves a wrong hash.
+  - 52 tests pass.
+  - EXP-0014 is unchanged.
+- **Seen while testing.** From this session's workspace, half of all requests to data.ruralsim.io failed: the agent proxy reported `ws_closed_mid_exchange`, the tunnel to its egress proxy closing mid-exchange. r2.dev answered 20 of 20. That is this environment's network path, not shown to be the domain. But at that rate a file fails all three tries one time in eight, so a run here can still stop with `DownloadFailed`, loudly and never as "missing". Pointing `RURALSIM_DATA_BASE` at r2.dev (same bytes, same hashes) works, and the record then names r2.dev.
+
+*Invalidated by:* a host that needs other retry rules; a decision to fall back automatically to a second host.
