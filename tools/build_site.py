@@ -10,7 +10,7 @@ in pilots/ are never read into the site (D-007).
 """
 from __future__ import annotations
 
-import csv, glob, json, math, os, re, shutil, urllib.request
+import csv, glob, json, math, os, re, shutil, urllib.parse, urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -258,11 +258,31 @@ def head_tags(html, path):
     return html.replace("</head>", "\n".join(tags) + "\n" + ANALYTICS + "</head>", 1)
 
 
-def write_robots_and_sitemap(paths):
-    """robots.txt (allow all, name the sitemap) and sitemap.xml of the clean URLs served from this site.
-    County worlds on R2 are another host, so a sitemap here cannot list them."""
+def _on_our_domain(url):
+    """True for https URLs on ruralsim.io or a subdomain (www, data). The Search Console Domain property
+    for ruralsim.io covers every subdomain, which is what lets this sitemap list data.ruralsim.io URLs.
+    r2.dev and any other host are never listed: nothing verifies them as ours."""
+    host = urllib.parse.urlsplit(url).hostname or ""
+    return url.startswith("https://") and (host == "ruralsim.io" or host.endswith(".ruralsim.io"))
+
+
+def county_sitemap_entries(counties, base, skip):
+    """(viewer URL, lastmod) for every published county whose viewer is on our domain; `skip` holds the
+    pilots' FIPS, which are listed from this site instead. lastmod is the snapshot's publish date."""
+    out = []
+    for c in sorted(counties, key=lambda c: c["fips5"]):
+        url = _viewer_url(base, c)
+        if c["fips5"] in skip or not _on_our_domain(url):
+            continue
+        out.append((url, (c.get("published_utc") or "")[:10] or None))
+    return out
+
+
+def write_robots_and_sitemap(entries):
+    """robots.txt (allow all, name the sitemap) and sitemap.xml. `entries` are (absolute URL, lastmod or None)."""
     (OUT / "robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {SITE_URL}/sitemap.xml\n")
-    urls = "".join(f"  <url><loc>{SITE_URL}{p}</loc></url>\n" for p in paths)
+    urls = "".join(f"  <url><loc>{_attr(u)}</loc>" + (f"<lastmod>{d}</lastmod>" if d else "") + "</url>\n"
+                   for u, d in entries)
     (OUT / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n'
                                      '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
                                      f"{urls}</urlset>\n")
@@ -567,8 +587,13 @@ def main():
     (data / "national.json").write_text(json.dumps(build_national(), separators=(",", ":")))
     shutil.copy2(ROOT / "national" / "tier_a_county_stats.csv", data / "tier_a_county_stats.csv")
 
-    write_robots_and_sitemap(sorted(pages, key=lambda p: (p != "/", p))
-                             + [f"/worlds/{name}/viewer/" for name in dirs.values()])
+    base, counties = remote_index()
+    remote = county_sitemap_entries(counties, base, set(dirs))
+    write_robots_and_sitemap([(SITE_URL + p, None) for p in sorted(pages, key=lambda p: (p != "/", p))]
+                             + [(f"{SITE_URL}/worlds/{name}/viewer/", None) for name in dirs.values()]
+                             + remote)
+    print(f"  sitemap: {len(pages) + len(dirs) + len(remote)} URLs ({len(remote)} county worlds"
+          f"{'' if remote or not counties else '; none listed: RURALSIM_DATA_BASE is not on ruralsim.io'})")
 
     n = sum(1 for _ in OUT.rglob("*") if _.is_file())
     size = sum(f.stat().st_size for f in OUT.rglob("*") if f.is_file()) / 1e6
