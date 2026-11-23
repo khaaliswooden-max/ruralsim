@@ -35,6 +35,8 @@ import urllib.request
 REPO = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO / "tools"))
 
+import geojson_lines  # noqa: E402
+
 GEOFABRIK_INDEX = "https://download.geofabrik.de/index-v1.json"
 CACHE = pathlib.Path(os.environ.get("RURALSIM_CACHE", "/tmp/ruralsim_cache")) / "osm"
 _US_STATE_PBF = re.compile(r"https://download\.geofabrik\.de/north-america/us/[a-z-]+-latest\.osm\.pbf")
@@ -185,19 +187,22 @@ class Sink:
         parts = t.out / ".osm_parts"
         for theme in sorted(t.themes):
             pf = parts / f"{theme}.part"
-            seen, feats = set(), []
-            if pf.exists():
-                for line in pf.read_text().splitlines():
-                    if not line:
-                        continue
-                    key, js = line.split("\t", 1)
-                    if key not in seen:
-                        seen.add(key); feats.append(js)
+            def unique(pf=pf):  # streamed: the part file is never held whole (D-067)
+                if not pf.exists():
+                    return
+                seen = set()
+                with open(pf) as fh:
+                    for line in fh:
+                        line = line.rstrip("\n")
+                        if not line:
+                            continue
+                        key, js = line.split("\t", 1)
+                        if key not in seen:
+                            seen.add(key); yield js
             dst = t.out / f"{theme}.geojson"
             tmp = dst.with_suffix(".geojson.tmp")
-            tmp.write_text('{"type":"FeatureCollection","features":[' + ",".join(feats) + "]}")
+            counts[theme] = geojson_lines.write(tmp, unique())
             os.replace(tmp, dst)
-            counts[theme] = len(feats)
         if parts.exists():
             for p in parts.iterdir():
                 p.unlink()

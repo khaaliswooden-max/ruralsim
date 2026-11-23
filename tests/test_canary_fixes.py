@@ -8,7 +8,7 @@
   mirror lacks it; a Geofabrik refusal is retried before the county fails.
 No network: downloads are replaced with local stand-ins.
 """
-import hashlib, pathlib, sys, tempfile
+import hashlib, json, pathlib, sys, tempfile
 
 REPO = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO / "tools"))
@@ -645,3 +645,18 @@ def test_popest_vintage_reads_unpadded_codes(tmp_path, monkeypatch):
     d = mc.popest(2004)
     assert set(d.fips5) == {"01001", "41065"} and len(d) == 4
     assert int(d[(d.fips5 == "41065") & (d.year == 2004)].population.iloc[0]) == 23669
+
+
+def test_geojson_lines_streams_and_reads_old_layout(tmp_path):
+    """Theme files are one feature per line and still one valid GeoJSON (D-067)."""
+    import geojson_lines as gl
+    feats = [{"type": "Feature", "geometry": None, "properties": {"name": "a,\nb]}", "i": i}} for i in range(3)]
+    p = tmp_path / "x.geojson"
+    assert gl.write(p, (json.dumps(f, separators=(",", ":")) for f in feats)) == 3
+    assert json.loads(p.read_text())["features"] == feats                  # whole-document readers still work
+    assert p.read_text().count("\n") == 5                                   # head, 3 features, tail
+    assert list(gl.iter_features(p)) == feats
+    gl.write(p, iter(()))
+    assert json.loads(p.read_text())["features"] == [] and list(gl.iter_features(p)) == []
+    p.write_text(json.dumps({"type": "FeatureCollection", "features": feats}))  # pre-D-067 single line
+    assert list(gl.iter_features(p)) == feats
