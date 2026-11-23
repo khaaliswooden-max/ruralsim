@@ -279,7 +279,8 @@ def test_candidates_label_the_year_and_blank_transmission():
          "eia861_short_form": _pd.DataFrame(columns=["utility_number", "state", "ownership"])}
     c = {x["utility_number"]: x for x in rate_impact.candidates("00001", "XX", t.__getitem__, 2005)}
     assert c[1]["transmission_owner"] and c[1]["transmission_owner_provenance"] == "observed (EIA-861 Utility_Data 2005: Y)"
-    assert not c[2]["transmission_owner"] and c[2]["transmission_owner_provenance"].startswith("assumed")
+    assert c[2]["transmission_owner"] is None and c[2]["transmission_owner_provenance"].startswith("assumed")
+    assert "both cases carried" in c[2]["transmission_owner_provenance"]
     assert c[2]["data"] == "observed (EIA-861 Sales_Ult_Cust 2005)"
 
 
@@ -289,3 +290,38 @@ def test_eia_loader_is_bound_to_the_run_year(monkeypatch):
     monkeypatch.setattr(_data, "eia", lambda table, year=2024: seen.append((table, year)))
     run.eia_for(2006)("eia861_utility_data")
     assert seen == [("eia861_utility_data", 2006)]
+
+
+def test_unknown_transmission_carries_both_cases_with_common_draws():
+    row = {"mean_q1": 8000.0, "mean_q1_moe": 1500.0}
+    ups = [{"type": "line_new", "kv": 115, "km": 10}]
+    site = {"peak_mw_net": 25, "grid_mwh": 150000}
+    run = lambda own: rate_impact.run(_cand(own)[:1], ups, site, {}, "socialized", row, CFG,
+                                      np.random.default_rng(7))["per_utility"][0]
+    u, yes, no = run(None), run(True), run(False)
+    assert u["transmission_case"] == "unknown; both cases carried"
+    assert u["cases"]["transmission_owner"]["lowest_quintile_rate_change_pct"] == pytest.approx(yes["lowest_quintile_rate_change_pct"])
+    assert u["cases"]["distribution_only"]["lowest_quintile_rate_change_pct"] == pytest.approx(no["lowest_quintile_rate_change_pct"])
+    assert u["lowest_quintile_rate_change_pct"] == pytest.approx(max(yes["lowest_quintile_rate_change_pct"],
+                                                                     no["lowest_quintile_rate_change_pct"]))
+    assert "cases" not in yes and yes["transmission_case"] == "transmission_owner"
+
+
+def test_judge_applies_bar_to_both_ends_of_unknown_ownership_range():
+    from tools.engines.ai_infra import run
+    pf = {"status_counts": {"computed": 20}, "share_seeds_any_voltage_violation": 0.0,
+          "share_seeds_voltage_indeterminate": 0.0, "share_seeds_any_thermal_overload": 0.0}
+    card = {"criterion": {"grid_clean_seed_share": 0.9, "rate_change_pct_max": 2.0}}
+
+    def judge(lo, hi):
+        x = {"utility_name": "U", "rate_basis": "residential", "share_seeds_outside_validity": 0.0,
+             "lowest_quintile_rate_change_pct": {"p50": hi}, "transmission_owner_provenance": "assumed (blank)",
+             "lowest_quintile_rate_change_pct_by_case": {"distribution_only": {"p50": lo}, "transmission_owner": {"p50": hi}}}
+        rec = {"county": {"fips5": "00000"}, "site": {"note": "x"},
+               "scenarios": {"s": {"summary": {"power_flow": pf, "rate_impact": {"socialized": {"per_utility": {"1": x}}}}}}}
+        m, p = run.judge(card, rec)
+        r = [i for i in m + p if i.get("allocation")]
+        return r[0]["status"]
+    assert judge(0.5, 1.9) == "pass"
+    assert judge(2.5, 3.0) == "miss"
+    assert judge(0.5, 3.0) == "indeterminate"
