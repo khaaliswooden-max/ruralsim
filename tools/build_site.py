@@ -164,6 +164,52 @@ def gzip_viewer(html: str, vd) -> tuple[str, list]:
 
 SITE_URL = "https://www.ruralsim.io"
 
+# Vercel Web Analytics for plain HTML (vercel.com/docs/analytics/quickstart). The script is served by
+# Vercel at this same-origin path, so it goes only on pages served from ruralsim.io, never on R2 viewers.
+ANALYTICS = ('<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>\n'
+             '<script defer src="/_vercel/insights/script.js"></script>\n')
+OG_IMAGE = f"{SITE_URL}/img/og-card.png"  # 1200x630: the blueprint wordmark on blueprint blue, no claims
+
+
+def _attr(s):
+    return s.replace("&", "&amp;").replace('"', "&quot;").replace("<", "&lt;")
+
+
+def head_tags(html, path):
+    """Canonical, Open Graph and Twitter card tags plus the analytics script, built from the page's own
+    <title> and meta description so the copy lives in one place. `path` is the clean URL path ("/", "/national")."""
+    title = re.search(r"<title>(.*?)</title>", html, re.S)
+    desc = re.search(r'<meta name="description" content="([^"]*)"', html)
+    title = title.group(1).strip() if title else "RuralSim"
+    url = SITE_URL + path
+    tags = [f'<link rel="canonical" href="{url}">',
+            '<meta property="og:site_name" content="RuralSim">',
+            '<meta property="og:type" content="website">',
+            f'<meta property="og:url" content="{url}">',
+            f'<meta property="og:title" content="{_attr(title)}">',
+            f'<meta property="og:image" content="{OG_IMAGE}">',
+            '<meta property="og:image:width" content="1200">',
+            '<meta property="og:image:height" content="630">',
+            '<meta property="og:image:alt" content="ruralsim wordmark">',
+            '<meta name="twitter:card" content="summary_large_image">',
+            '<meta name="twitter:site" content="@ruralsimio">',
+            f'<meta name="twitter:title" content="{_attr(title)}">',
+            f'<meta name="twitter:image" content="{OG_IMAGE}">']
+    if desc:
+        tags[5:5] = [f'<meta property="og:description" content="{desc.group(1)}">']
+        tags.append(f'<meta name="twitter:description" content="{desc.group(1)}">')
+    return html.replace("</head>", "\n".join(tags) + "\n" + ANALYTICS + "</head>", 1)
+
+
+def write_robots_and_sitemap(paths):
+    """robots.txt (allow all, name the sitemap) and sitemap.xml of the clean URLs served from this site.
+    County worlds on R2 are another host, so a sitemap here cannot list them."""
+    (OUT / "robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {SITE_URL}/sitemap.xml\n")
+    urls = "".join(f"  <url><loc>{SITE_URL}{p}</loc></url>\n" for p in paths)
+    (OUT / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n'
+                                     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+                                     f"{urls}</urlset>\n")
+
 
 def brand_viewer_html(html, home="/", overture=False):
     """Site chrome for a county viewer: link home, favicons, OSM credit, disclosure lines. `home` is "/" for
@@ -429,6 +475,11 @@ def main():
     # static pages + assets
     for p in SITE.iterdir():
         (shutil.copytree if p.is_dir() else shutil.copy2)(p, OUT / p.name)
+    pages = []
+    for page in sorted(OUT.glob("*.html")):
+        path = "/" if page.stem == "index" else f"/{page.stem}"  # cleanUrls: /national.html -> /national
+        page.write_text(head_tags(page.read_text(), path))
+        pages.append(path)
 
     # 3D worlds: viewer + data + renders; add a link back to the site
     for fips, name in dirs.items():
@@ -437,7 +488,7 @@ def main():
             if (src / sub).exists():
                 shutil.copytree(src / sub, dst / sub)
         idx = dst / "viewer" / "index.html"
-        idx.write_text(brand_viewer_html(idx.read_text()))
+        idx.write_text(head_tags(brand_viewer_html(idx.read_text()), f"/worlds/{name}/viewer/"))
         b0, b1 = slim_viewer_data(dst / "viewer_data")
         print(f"  {name}: viewer data {b0/1e6:.1f} -> {b1/1e6:.1f} MB")
 
@@ -457,6 +508,9 @@ def main():
         "url": "https://github.com/khaaliswooden-max/ruralsim/blob/main/docs/DECISIONS.md"}))
     (data / "national.json").write_text(json.dumps(build_national(), separators=(",", ":")))
     shutil.copy2(ROOT / "national" / "tier_a_county_stats.csv", data / "tier_a_county_stats.csv")
+
+    write_robots_and_sitemap(sorted(pages, key=lambda p: (p != "/", p))
+                             + [f"/worlds/{name}/viewer/" for name in dirs.values()])
 
     n = sum(1 for _ in OUT.rglob("*") if _.is_file())
     size = sum(f.stat().st_size for f in OUT.rglob("*") if f.is_file()) / 1e6
