@@ -325,3 +325,21 @@ def test_judge_applies_bar_to_both_ends_of_unknown_ownership_range():
     assert judge(0.5, 1.9) == "pass"
     assert judge(2.5, 3.0) == "miss"
     assert judge(0.5, 3.0) == "indeterminate"
+# --- county load population in a back-test (LR-12, D-112) ---------------------------------
+def test_households_input_uses_vintage_t0m1_and_falls_back_flagged(monkeypatch):
+    import pandas as _pd
+    from tools.engines.ai_infra import data as _data, run
+    tier = _pd.DataFrame({"fips5": ["53025"], "pop_2024_estimate": [104717], "avg_hh_size": [2.9]})
+    assert run.households_input("53025", tier)["vintage_ok"]                       # current run: 2024
+    monkeypatch.setattr(_data, "popest_vintage", lambda v: None)
+    monkeypatch.setattr(_data, "decennial_households", lambda y: None)
+    fb = run.households_input("53025", tier, 2005)
+    assert not fb["vintage_ok"] and fb["population"] == 104717 and "NOT SCORED" in fb["note"]
+    monkeypatch.setattr(_data, "popest_vintage", lambda v: _pd.DataFrame(
+        {"fips5": ["53025"] * 2, "year": [2004, 2005], "population": [79000, 80000]}))
+    monkeypatch.setattr(_data, "decennial_households", lambda y: _pd.DataFrame(
+        {"fips5": ["53025"], "population": [74698], "households": [25042]}) if y == 2000 else None)
+    h = run.households_input("53025", tier, 2005)
+    assert h["vintage_ok"] and h["population"] == 80000
+    assert h["households"] == pytest.approx(80000 / (74698 / 25042))
+    assert "vintage 2005" in h["population_source"] and "2000" in h["persons_per_household_source"]

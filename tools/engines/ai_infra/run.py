@@ -89,9 +89,38 @@ def site_point(county, poly, tribal_polys, spec):
     return x, y, note
 
 
-def county_load(fips5, cands, tier, cfg, rng):
+def households_input(fips5, tier, as_of_year=None):
+    """Households for the existing county load. Current runs: 2024 population estimate / ACS
+    2020-2024 household size. Back-test (as_of_year = T0-1, PREREGISTRATION §4.2.3): the
+    population estimate for July of T0-1 as published in vintage T0-1, divided by persons per
+    household from the latest decennial census not after T0-1 (LR-12). If those tables are not
+    in R2, the 2024 values are used and the input is marked after T0, so the channel it feeds
+    is NOT SCORED (D-202)."""
     row = tier[tier.fips5 == fips5].iloc[0]
-    hh = row.pop_2024_estimate / row.avg_hh_size
+    now = {"households": float(row.pop_2024_estimate / row.avg_hh_size),
+           "population": float(row.pop_2024_estimate), "population_source": "Census PEP 2024 estimate (tier_a)",
+           "persons_per_household": float(row.avg_hh_size), "persons_per_household_source": "ACS 2020-2024 (tier_a)"}
+    if as_of_year is None:
+        return {**now, "vintage_ok": True}
+    census = 2000 if as_of_year < 2010 else 2010
+    pe, dh = data.popest_vintage(as_of_year), data.decennial_households(census)
+    p = pe[(pe.fips5 == fips5) & (pe.year == as_of_year)] if pe is not None else []
+    d = dh[dh.fips5 == fips5] if dh is not None else []
+    if len(p) and len(d) and float(d.households.iloc[0]) > 0:
+        pph = float(d.population.iloc[0]) / float(d.households.iloc[0])
+        pop = float(p.population.iloc[0])
+        return {"households": pop / pph, "population": pop,
+                "population_source": f"Census PEP vintage {as_of_year}, July {as_of_year} (LR-12)",
+                "persons_per_household": pph, "persons_per_household_source": f"Census {census} decennial (LR-12)",
+                "vintage_ok": True}
+    return {**now, "vintage_ok": False,
+            "note": f"LR-12 tables for vintage {as_of_year} / Census {census} not in R2: 2024 values used, "
+                    "which are after T0 (PREREGISTRATION §4.2.3); the grid channel is NOT SCORED"}
+
+
+def county_load(fips5, cands, tier, cfg, rng, hh_input=None):
+    hh_input = hh_input or households_input(fips5, tier)
+    hh = hh_input["households"]
     have = [c for c in cands if "residential_mwh" in c]
     if not have:
         return None, {"status": "indeterminate", "reason": "no candidate utility has EIA-861 sales"}
@@ -99,7 +128,7 @@ def county_load(fips5, cands, tier, cfg, rng):
     ratio = sum(c["total_mwh"] for c in have) / sum(c["residential_mwh"] for c in have)
     avg_mw = hh * kwh * ratio / 8760 / 1000
     lf = power_flow.u(rng, cfg["load"]["county_load_factor"])
-    return avg_mw / lf, {"households_derived": hh, "residential_kwh_per_customer": kwh,
+    return avg_mw / lf, {"households_derived": hh, "households_input": hh_input, "residential_kwh_per_customer": kwh,
                          "total_to_residential_ratio": ratio, "county_avg_mw": avg_mw}
 
 
@@ -147,7 +176,8 @@ def run_county(card, fips5, seeds, cfg, activsg, backtest_id=None):
         acs = data.acs_income_quintiles()
         arow = acs[acs.fips5 == fips5]
         arow = arow.iloc[0].to_dict() if len(arow) else None
-        rec.update(network=net.summary, candidate_utilities=cands)
+        hh_in = households_input(fips5, tier, bt["as_of_year"] if bt else None)
+        rec.update(network=net.summary, candidate_utilities=cands, county_households_input=hh_in)
         if bt:
             rec["masked_features"] = masked
     if sx is None:
@@ -213,7 +243,7 @@ def run_county(card, fips5, seeds, cfg, activsg, backtest_id=None):
                 per_seed.append({"seed": seed, "inputs": {"it_load_mw": it, "pue": pue, "facility_load_factor": lf,
                                                           "it_avg_mw": avg / pue}, "cooling_water": cw})
                 continue
-            cpeak, cinfo = county_load(fips5, cands, tier, cfg, r_cty)
+            cpeak, cinfo = county_load(fips5, cands, tier, cfg, r_cty, hh_in)
             cpf = power_flow.u(r_cty, L["county_power_factor"])
             if cpeak is None:
                 pfo = {"status": "blocked", "reason": cinfo["reason"]}
