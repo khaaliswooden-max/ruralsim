@@ -351,3 +351,32 @@ The first pre-registered back-test ran on the frozen engine (`tools/engines/ai_i
 - Wasco W1. All ten years 2012–2021 were within a factor of two (ratios 0.81–1.20, low in nine), conditional on the observed load and the evaporative cooling stated in the record.
 
 **Grades:** G1 0 of 4 scored, R1 1 of 4, W1 1 of 4, all SPECULATIVE. A channel needs 3. The pre-registration is now frozen (§8). Further sites, or a change to any rule that left these comparisons unscored, need a v2 pre-registration on held-out sites. The unscored rules: the 25% validity limit, the empty keep lists, and the Part A load rule. *Invalidated by:* an error found in the scorer or the ledger records (recorded as a deviation; it can only lower a grade).
+
+## D-207 (2026-11-22, rollout step 3) — Back-test v2 pre-registered: three held-out rural sites; the three v1 blockers fixed
+`validation/backtest/v2/PREREGISTRATION.md` fixes the method before any v2 run. v1 (D-200–D-206) stays frozen.
+
+**Sites, none used in v1:**
+- V2-01 Crook OR: Meta Prineville, PacifiCorp, T0 2010.
+- V2-02 Rutherford NC: Meta Forest City, Duke Energy Carolinas, T0 2010.
+- V2-03 Morrow OR: AWS Boardman, Umatilla Electric Coop, T0 2008.
+
+Each is nonmetro in the RUCC vintage in force at T0. v1 required every vintage; Crook turned metro only in 2023, and this rule change is disclosed. None has tribal land. Mecklenburg VA (Microsoft, Dominion) and Umatilla OR (same UEC load as Morrow) failed the load test.
+
+**Fix 3 (load):** the operator's own per-site electricity disclosure for the year a comparison needs. Meta published Prineville and Forest City for 2011–2020. Otherwise, the serving utility's EIA-861 delivered energy (Parts A+B), used only if the increment is at least 3× the utility's year-on-year noise. Each comparison takes the load of its own year: G1 at E+2, R1 at E+5, W1 at year Y.
+
+**Fix 2 (mask):** OSM history (ohsome) shows no substation mapped in any of the three counties before 2016, so a pre-T0 keep list cannot be built from OSM. Each site runs on two networks instead: v1's 2 km plus owner mask (less than existed at T0) and an owner-only mask (more). G1 is scored only when both give the same call, as in D-113.
+
+**Fix 1 (rate validity):**
+- (a) R1 is scored only where the site is at least 5% of the rate utility's T0−1 sales. Below that, the observed difference measures the utility's own rate cases. This removes V2-01 and V2-02, whose observed peer-differenced changes are +17.6 and +20.4 pp. The floor was set after those values were computed, and both will still be published, labelled.
+- (b) Above the engine's 25% limit, R1 is scored only against a large-load rate output that step 2 does not have yet.
+
+**Errors v1 did not catch:** `derive_observed.py` did not filter by state. That is harmless for v1's single-state utilities (checked) but wrong for PacifiCorp, and v2's tool filters by state. v1 also compared an E+5 price with an E+2 load.
+
+**As registered, only G1 can reach PLAUSIBLE**, and only if all three sites pass on both mask bounds. R1 has one scorable site, and W1 has two.
+
+**Requests:**
+- To step 1: EIA tables for 2007 and 2009, and LR-12 for vintages 2007 and 2009 plus Census 2000.
+- To step 2, urgent: the gate must read `v2/sites.yaml`, so no-tuning covers Morrow and Rutherford.
+- To step 2: per-run `mask_radius_m`, the large-load rate output, and the per-site cooling design.
+
+*Invalidated by:* a dated record contradicting a site's T0, E, utility or grid build (amend before the run); a per-site operator disclosure for Microsoft or AWS (it would add sites only through v3).
