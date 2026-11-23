@@ -46,6 +46,19 @@ def preregistration_commit() -> str | None:
         return None
 
 
+def backtest_run_recorded() -> bool:
+    """True once any ledger record carries a back-test run (PREREGISTRATION §8 freezes it then)."""
+    import json
+    for p in (ROOT / "experiments" / "ledger").glob("*/*.json"):
+        try:
+            r = json.loads(p.read_text())
+        except Exception:
+            continue
+        if r.get("run_kind") == "backtest" or any((c or {}).get("backtest") for c in r.get("counties", [])):
+            return True
+    return False
+
+
 class Refused(Exception):
     pass
 

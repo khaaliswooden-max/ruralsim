@@ -125,6 +125,13 @@ def make_households(fips: str, n: int = 2000, seed: int = 0) -> pd.DataFrame:
     if not b:
         raise RuntimeError(f"no buildings for fips {fips}")
     cent = np.array([[bb["c"][0], bb["c"][1]] for bb in b])
+    tland, nations = tribal_mask(fips)
+    if tland is not None:   # D-420: no modelled population on tribal land without the nation's request
+        from shapely import contains_xy
+        keep = ~contains_xy(tland, cent[:, 0], cent[:, 1])
+        cent = cent[keep]
+        if not len(cent):
+            raise RuntimeError(f"{fips}: every building lies on tribal land; no synthetic population (D-420)")
     idx = rng.choice(len(cent), size=min(n, len(cent)), replace=len(cent) < n)
     # jitter within a 25 m radius so households are not exactly on shared centroids
     ang = rng.uniform(0, 2 * math.pi, len(idx))
@@ -155,5 +162,48 @@ def make_households(fips: str, n: int = 2000, seed: int = 0) -> pd.DataFrame:
         "income": income_tag,
         "income_model": MODEL if ar is not None else "saipe-lognormal-v1 (fallback)",
         "identity": "synthetic — no real persons, no address-level records",
+        "tribal_mask": ({"nations": nations, "buildings_removed": "all on tribal land",
+                         "income": "county ACS still includes tribal-land households (LR-13 pending): "
+                                   "worst-off and lowest-quintile outputs are indeterminate"}
+                        if tland is not None else None),
     }
     return hh
+
+
+# --- D-420: tribal land masked from the synthetic population (D-114) -----------------------
+TRIBAL_EDGE_M = 250.0   # same edge rule as tools/engines/ai_infra/tribal.py: shared-line slivers are not tribal land
+
+
+def _polys(rings):
+    from shapely.geometry import Polygon
+    out = []
+    if rings and isinstance(rings[0][0], (int, float)):
+        rings = [rings]
+    for r in rings:
+        try:
+            out.append(Polygon(r).buffer(0))
+        except Exception:
+            continue
+    return out
+
+
+def tribal_mask(fips: str):
+    """(union of tribal land inside the county, nations) in the world's ENU frame, or (None, [])."""
+    from shapely.ops import unary_union
+    cdir = next((ROOT / "worlds").glob(f"{fips}_*/viewer_data"), None)
+    if cdir is None or not (cdir / "boundaries.json").exists():
+        return None, []
+    b = json.load(open(cdir / "boundaries.json"))
+    county = unary_union(_polys(b.get("county_parts") or b.get("county") or []))
+    if county.is_empty:
+        return None, []
+    core = county.buffer(-TRIBAL_EDGE_M)
+    inside, nations = [], []
+    for t in b.get("tribal") or []:
+        u = unary_union(_polys(t.get("rings") if isinstance(t, dict) else t))
+        if u.intersection(core).area >= 10_000.0:
+            inside.append(u)
+            nations.append(t.get("name") if isinstance(t, dict) else "tribal land")
+    if not inside:
+        return None, []
+    return unary_union(inside).intersection(county), nations

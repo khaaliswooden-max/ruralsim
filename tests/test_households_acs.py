@@ -1,4 +1,5 @@
 """Household incomes calibrated to ACS quintiles (D-104). Offline: uses the committed ACS copy."""
+import pytest
 import numpy as np
 import pandas as pd
 
@@ -34,3 +35,13 @@ def test_pilot_uses_acs_and_missing_county_falls_back():
     hh = H.make_households("01131", n=500, seed=0)
     assert hh.attrs["provenance"]["income_model"] == H.MODEL
     assert H.acs_row("99999") is None
+
+
+def test_d420_tribal_land_masked_from_synthetic_population():
+    from tools.harness import households as h
+    t, nations = h.tribal_mask("31173")
+    if t is None:
+        pytest.skip("Thurston world not present locally")
+    assert "Winnebago Reservation" in nations
+    assert h.tribal_mask("01131") == (None, [])
+    assert h.tribal_mask("20019") == (None, [])        # Osage sliver at the state line is not tribal land

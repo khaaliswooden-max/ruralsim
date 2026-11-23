@@ -258,7 +258,7 @@ def run(network, site_xy, site_peak_mw, site_pf, county_peak_mw, county_pf, cfg,
         mx = max([0.0] + [float(x) for x in ll] + [float(x) for x in tl]) / max(lim, 1e-6)
         return over_l, over_t, bad_v, mx, (float(vm.min()) if vm is not None and len(vm) else None)
 
-    b_ol, b_ot, b_v, _, b_vmin = snapshot(net)
+    b_ol, b_ot, b_v, b_mx, b_vmin = snapshot(net)
     # Calibrate existing regulation to an observed operating fact: today's grid serves today's
     # load inside ANSI Range A. Scale the reactive limits until the base case is in band.
     scale = 1.0
@@ -271,10 +271,11 @@ def run(network, site_xy, site_peak_mw, site_pf, county_peak_mw, county_pf, cfg,
         base_mode = _solve(net)
         if base_mode is None:
             break
-        b_ol, b_ot, b_v, _, b_vmin = snapshot(net)
+        b_ol, b_ot, b_v, b_mx, b_vmin = snapshot(net)
     base_ok = base_mode == "ac" and not b_v
     out["base_case"] = {"solve": base_mode, "voltage_violations": len(b_v), "thermal_overloads": len(b_ol) + len(b_ot),
-                        "min_voltage_pu": b_vmin, "regulation_scale": scale, "in_band": base_ok}
+                        "min_voltage_pu": b_vmin, "max_loading_pct": 100 * b_mx,   # D-114: no-build difference per seed
+                        "regulation_scale": scale, "in_band": base_ok}
     if base_mode is None:
         out.update(status="indeterminate", reason="base case did not solve after regulation calibration")
         return out
@@ -359,3 +360,60 @@ def run(network, site_xy, site_peak_mw, site_pf, county_peak_mw, county_pf, cfg,
                required_upgrades=upgrades)
     return out
 
+
+
+def base_only(network, county_peak_mw, county_pf, cfg, activsg, state, rng):
+    """No build (D-111): today's county load on today's network, no site. Draws the same network
+    parameters, in the same order, as run() does before it places a site, so no_build and every
+    build option share them (common random numbers). Violations are those of the county as it
+    stands after regulation calibration, reported like any option's, never assumed to be zero."""
+    P = Params(cfg, activsg, state, rng)
+    # run() draws the interconnection class and a routing factor before it builds the network,
+    # whose line ratings are drawn lazily from the same stream: consume both here too.
+    interconnection_class(0.0, cfg, rng)
+    u(rng, cfg["interconnection"]["routing_factor"])
+    out = {"no_build": True, "activsg_case": P.case, "background_utilisation": P.bg,
+           "draws": {"background_utilisation": P.bg, "ext_grid_vm_pu": P.vm_ext, "regulation_vm_pu": P.reg_vm,
+                     "regulation_q_share_of_load": P.reg_q_share, "transformer_vk_percent": P.vk},
+           "required_upgrades": [], "new_line_km": 0.0, "n1_contingency": "indeterminate"}
+    if not any(b.get("supplied") for b in network.buses):
+        out.update(status="blocked", reason="no OSM transmission connected to a source in or around the county")
+        return out
+    net = _build_pp(network, P, county_peak_mw, county_pf, load_buses_for(network))
+    mode = _solve(net)
+    if mode is None:
+        out.update(status="indeterminate", reason="base case did not solve")
+        return out
+    lim = 1.0 - P.bg
+    lo_v, hi_v = cfg["network"]["voltage_band_pu"]
+    inc = [b["id"] for b in network.buses if b["in_county"] and b.get("supplied")]
+
+    def snap():
+        ll = net.res_line.loading_percent / 100.0 if len(net.res_line) else []
+        tl = net.res_trafo.loading_percent / 100.0 if len(net.res_trafo) else []
+        ol = sum(1 for v in ll if v > lim) + sum(1 for v in tl if v > lim)
+        vm = net.res_bus.vm_pu.reindex(inc).dropna() if mode == "ac" else None
+        bad = None if vm is None else int(sum(1 for v in vm if v < lo_v or v > hi_v))
+        mx = max([0.0] + [float(x) for x in ll] + [float(x) for x in tl]) / max(lim, 1e-6)
+        return ol, bad, mx, (float(vm.min()) if vm is not None and len(vm) else None)
+
+    ol, bad, mx, vmin = snap()
+    scale = 1.0
+    for _ in range(cfg["network"]["regulation_calibration_steps"]):
+        if not bad or mode != "ac" or not len(net.gen):
+            break
+        scale *= 1.5
+        net.gen["min_q_mvar"] *= 1.5
+        net.gen["max_q_mvar"] *= 1.5
+        mode = _solve(net)
+        if mode is None:
+            out.update(status="indeterminate", reason="base case did not solve after regulation calibration")
+            return out
+        ol, bad, mx, vmin = snap()
+    out.update(status="computed", solve=mode, regulation_scale=scale,
+               thermal_overloads_n0=ol, max_loading_pct=100 * mx,
+               voltage_violations_n0=bad if mode == "ac" else "indeterminate",
+               voltage_note=None if (mode == "ac" and not bad) else
+               "county as it stands is out of band after calibration: voltage indeterminate",
+               min_voltage_pu=vmin)
+    return out
