@@ -107,10 +107,9 @@ rules:
     counties, and D-420 refuses runs on tribal land. Affected EXP cards are rerun as new
     ledger records; old records stay as written.
   backtest_and_d420: >
-    Open, for Khaalis and step 3, not decided here: back-test site BT-01 (Mayes OK) lies
-    entirely inside the Cherokee OTSA (CLASSFP D6), which D-420 treats as reservation.
-    Under the tribal_land rule the gate refuses BT-01 unless the Cherokee Nation requests
-    it. This spec does not carve out back-tests.
+    No carve-out for back-tests. Back-test site BT-01 (Mayes OK) lies entirely inside the
+    Cherokee OTSA (CLASSFP D6); it is dropped by D-204 (sites.yaml refused, gate refuses,
+    every BT-01 comparison NOT SCORED).
 
 # ---------------------------------------------------------------------------
 # Scenario: what a run screens
