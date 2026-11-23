@@ -116,7 +116,7 @@ def validate(card) -> list[str]:
 
 def holds(fips5) -> list[str]:
     """held_backtest_gate until step 3's first back-test run is recorded (PREREGISTRATION §8)."""
-    if (fips5 in gate.backtest_sites() or fips5 in gate.BRIEF_CANDIDATES) and not gate.backtest_run_recorded():
+    if (fips5 in gate.backtest_counties() or fips5 in gate.BRIEF_CANDIDATES) and not gate.backtest_run_recorded(fips5):
         return ["held_backtest_gate"]
     return []
 

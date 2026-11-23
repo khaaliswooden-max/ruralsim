@@ -136,13 +136,38 @@ def county_load(fips5, cands, tier, cfg, rng, hh_input=None):
                          "total_to_residential_ratio": ratio, "county_avg_mw": avg_mw}
 
 
+def backtest_scenarios(scenarios, bt, modules):
+    """v2 §5.4 (D-115): in a back-test the cooling design is the site's, from sites.yaml; one design is
+    run, not three. A site without one is refused for the water module; a card naming another design
+    is refused rather than overridden."""
+    if not bt or "cooling_water" not in modules:
+        return scenarios
+    site_cool = bt.get("cooling")
+    if not site_cool:
+        raise gate.Refused(f"{bt['site_id']}: sites.yaml gives no cooling design, so the water module is not "
+                           "run there (its comparison is NOT SCORED)")
+    clash = [sc["name"] for sc in scenarios if sc.get("cooling") and sc["cooling"] != site_cool]
+    if clash:
+        raise gate.Refused(f"{bt['site_id']}: card scenarios {clash} name a cooling design other than the "
+                           f"site's ({site_cool}, sites.yaml); refused rather than overridden")
+    bt["cooling_source"] = "validation/backtest sites.yaml"
+    return [{**sc, "cooling": site_cool} for sc in scenarios]
+
+
 def eia_for(year):
     """EIA table loader bound to one year (2024, or T0-1 in a back-test)."""
     return lambda table: data.eia(table, year)
 
 
-def run_county(card, fips5, seeds, cfg, activsg, backtest_id=None):
+def run_county(card, fips5, seeds, cfg, activsg, backtest_id=None, mask_radius_m=None):
     bt = gate.check(fips5, backtest_id, data.eia_available)
+    if bt and mask_radius_m is not None:   # v2 §4.2: each site runs at 2000 m and at 0 m
+        if mask_radius_m < 0:
+            raise gate.Refused("mask_radius_m must be >= 0")
+        bt["mask_radius_m"] = float(mask_radius_m)
+    if bt:
+        bt["mask_bound"] = ("upper bound (owner-tagged substations only)" if bt["mask_radius_m"] == 0
+                            else f"lower bound ({bt['mask_radius_m']:.0f} m radius and owner-tagged)")
     county = data.County(fips5)
     tier = data.tier_a()
     trow = tier[tier.fips5 == fips5].iloc[0]
@@ -223,8 +248,9 @@ def run_county(card, fips5, seeds, cfg, activsg, backtest_id=None):
             if fstat and fstat["status"] != "none" else []
         rec["flood_context"] = {"county_status": fstat, "zones_within_search": len(fzones)}
 
+    scenarios = backtest_scenarios(card["scenarios"], bt, modules)
     scen_out = {}
-    for si, sc in enumerate(card["scenarios"]):
+    for si, sc in enumerate(scenarios):
         per_seed = []
         for seed in range(seeds):
             # Common random numbers: one stream per component, keyed on (county, seed) only, so
@@ -439,6 +465,16 @@ def summarise(per_seed, cands):
                     or (rate_impact.INCOME_MISSING if comp_u else None)),
                 "transmission_owner_provenance": c.get("transmission_owner_provenance"),
             }
+            ll = [x["large_load"] for x in comp_u if "large_load" in x]
+            if ll:   # site above the validity limit: the large-load class output (v2 §5.5(b), D-115)
+                out_u[str(c["utility_number"])]["large_load"] = {
+                    "lowest_quintile_rate_change_pct": band([x["lowest_quintile_rate_change_pct"] for x in ll]),
+                    "lowest_quintile_bill_change_usd_per_yr": band([x["lowest_quintile_bill_change_usd_per_yr"] for x in ll]),
+                    "lowest_quintile_rate_change_pct_by_case": ({k: band([x["cases"][k]["lowest_quintile_rate_change_pct"] for x in ll])
+                                                                 for k in ll[0]["cases"]} if "cases" in ll[0] else None),
+                    "valid_for_site_share": len(ll) / len(comp_u) > 0.5,
+                    "share_seeds_above_limit": len(ll) / len(comp_u),
+                    "method": rate_impact.LARGE_LOAD_METHOD}
             if comp_u and "cases" in comp_u[0]:   # ownership unknown: one band per case (D-110)
                 out_u[str(c["utility_number"])]["lowest_quintile_rate_change_pct_by_case"] = {
                     k: band([x["cases"][k]["lowest_quintile_rate_change_pct"] for x in comp_u])
@@ -608,9 +644,11 @@ def judge(card, rec):
                     sh = x["site_share_of_utility_sales"]["p50"]
                     lim = yaml.safe_load((HERE / "params" / "assumed.yaml").read_text())["rates"]["max_site_share_of_utility_sales"]
                     misses.append({**item, "status": "indeterminate", "value": b,
+                                   "large_load": x.get("large_load"),
                                    "note": f"site would be {sh:.2f}x this utility's annual sales, above the rate "
-                                           f"model's validity limit of {lim}; the outcome depends on the large-load "
-                                           "contract, which is not modelled"})
+                                           f"model's validity limit of {lim}; the main model is not scored there. "
+                                           "The large-load class output (site pays its own incremental cost) is "
+                                           "reported alongside, unscored for experiment cards (D-115)"})
                 elif "lowest_quintile_rate_change_pct_by_case" in x:
                     # D-110: ownership unknown; the bar is applied to both ends of the range.
                     bc = x["lowest_quintile_rate_change_pct_by_case"]
@@ -675,8 +713,12 @@ def main(argv=None):
     ap.add_argument("--county", action="append")
     ap.add_argument("--seeds", type=int, default=20)
     ap.add_argument("--backtest")
+    ap.add_argument("--mask-radius-m", type=float,
+                    help="back-test site-mask radius for this run (default 2000; 0 = owner-tagged only, v2 §4.2)")
     ap.add_argument("--no-write", action="store_true")
     a = ap.parse_args(argv)
+    if a.mask_radius_m is not None and not a.backtest:
+        ap.error("--mask-radius-m applies only to a declared back-test (--backtest)")
     cards = {c["id"]: c for c in yaml.safe_load(CARDS.read_text())}
     card = cards[a.card]
     cfg = yaml.safe_load((HERE / "params" / "assumed.yaml").read_text())
@@ -686,7 +728,7 @@ def main(argv=None):
     recs, misses, passes, refused = [], [], [], []
     for fips5 in counties:
         try:
-            r = run_county(card, fips5, a.seeds, cfg, activsg, a.backtest)
+            r = run_county(card, fips5, a.seeds, cfg, activsg, a.backtest, a.mask_radius_m)
         except gate.Refused as e:
             refused.append({"county": fips5, "reason": str(e)})
             continue
