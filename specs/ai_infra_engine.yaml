@@ -230,7 +230,7 @@ modules:
       - {name: wholesale_energy_and_capacity_cost, provenance: assumed, note: "co-ops buy power from a G&T; a large load can raise the G&T's capacity cost — modelled as a sampled pass-through"}
     outputs:
       - {name: lowest_quintile_rate_change_pct, unit: percent, fields: [p10, p50, p90], per: candidate_utility, note: "hard constraint protect_lowest_income_quintile: <= 2"}
-      - {name: lowest_quintile_rate_change_pct_by_case, unit: percent, fields: [p10, p50, p90], per: candidate_utility, note: "only where EIA-861 transmission is blank (D-110): one band each for transmission_owner and distribution_only; the headline field is the upper end; the bar applies to both ends (D-111)"}
+      - {name: lowest_quintile_rate_change_pct_by_case, unit: percent, fields: [p10, p50, p90], per: candidate_utility, note: "only where EIA-861 transmission is blank (D-110): one band each for transmission_owner and distribution_only; the headline field is the upper end; the bar applies to both ends (D-113)"}
       - {name: lowest_quintile_energy_cost_share_change, unit: "percentage points of income"}
       - {name: worst_candidate_utility, note: "the utility with the highest p50 rate change"}
       - {name: local_tax_effect, value: not_modelled, note: "EXP-0007's metric includes local taxes; abatements are site-specific. Reported not_modelled, never 0"}
