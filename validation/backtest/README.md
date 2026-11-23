@@ -20,3 +20,5 @@ Rebuild the observed values (EIA zips from https://www.eia.gov/electricity/data/
     python3 tools/derive_observed.py --zips DIR
 
 No runs yet. Every RuralSim result is SPECULATIVE unless it passes this pre-registered method, and public screening runs stay SPECULATIVE.
+
+v1 is frozen after run 1 (D-206). **Back-test v2** (held-out sites, fixed rules) is in `v2/` (D-207).
