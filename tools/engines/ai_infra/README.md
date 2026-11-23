@@ -3,6 +3,12 @@
 Spec: `specs/ai_infra_engine.yaml` (D-100). Implementation notes and deviations: D-101.
 Modules here: `power_flow`, `rate_impact`, `cooling_water`, `flood`, `fiber`. All five spec modules exist (D-108).
 
+Spec v0.2 (D-111, implemented in D-114):
+- `run_proposal.py` runs a proposal card (`specs/proposal_card.md`): `python3 -m tools.engines.ai_infra.run_proposal <PC-yyyy-nnnn.yaml> --seeds 20`. `proposal.py` checks refusals and holds and compiles the card; every option, no build included, runs all five modules.
+- Every record carries the structured `not_modelled` block (`not_modelled.py`, core list read from the spec); a record without it is not written.
+- `fiscal.py` builds `fiscal_facts` (D-430) for TX and KS from `reference/fiscal_state_facts.yaml` and LR-14.
+- `tribal.py` applies D-420: no site on tribal land without the nation's request; tribal-land households masked from lowest-quintile outputs (LR-13).
+
 ```
 python3 -m venv .venv-ai-infra && . .venv-ai-infra/bin/activate   # its own env (D-103)
 pip install -r tools/engines/ai_infra/requirements.txt
