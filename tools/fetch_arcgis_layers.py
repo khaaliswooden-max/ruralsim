@@ -153,7 +153,7 @@ for dirname, fname, url, extra, paginate, source, lic in JOBS:
             t0 = time.time()
             gj = nhd_mirror.read(layer, C.buf_bbox, rids)
             src_note = (f"USGS NHD state GeoPackages ({', '.join(nhd_mirror.nhd_name(r) for r in rids)}), "
-                        "RuralSim's R2 copy (tools/nhd_mirror.py, D-045)")
+                        "RuralSim's R2 copy (tools/nhd_mirror.py, D-045), simplified to ~5 m (D-063)")
             print(f"  NHD {layer} from the R2 copy: {len(gj['features'])} features in {time.time() - t0:.0f} s",
                   flush=True)
             write_via_stage(out, json.dumps(gj))
