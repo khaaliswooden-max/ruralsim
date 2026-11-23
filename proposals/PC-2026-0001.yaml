@@ -1,0 +1,67 @@
+# DRY RUN (D-410 launch gate e). Not a request from anyone. RuralSim acted as the submitter to time
+# the request path on a past decision, using only facts public on or before 2026-05-12.
+# Every value below is either sourced (see decision.public_documents) or labelled as a dry-run assumption.
+card_id: PC-2026-0001
+card_version: 1
+supersedes: null
+run_kind: proposal_card
+grade: SPECULATIVE
+dry_run: true
+information_cutoff: "2026-05-12"
+decision:
+  county_fips5: "48217"                 # Hill County, TX (RUCC 2023: 6)
+  public_body: "Hill County Commissioners Court"
+  kind: moratorium_study                # the 2026-05-12 vote on a one-year pause on new data centers in unincorporated areas
+  date: "2026-05-12"
+  stage: hearing_scheduled
+  public_documents:
+    - https://www.texastribune.org/2026/05/12/texas-hill-county-approves-data-center-construction-pause-ai/
+  notes: >
+    The one project named in the public record by the cutoff is Provident Data Centers' proposed
+    ~300-acre development in north Hillsboro (Texas Tribune, 2026-05-12). The county judge said at
+    least eight data centers were in the works, by word of mouth; none had a public site, size or
+    developer. The Provident land is reported inside Hillsboro city limits, so the county's pause on
+    unincorporated areas would not govern it; its grid, rate and water effects fall on the county either way.
+submitter:
+  role: other                           # RuralSim itself, dry run; no real submitter
+  financial_interest: false
+  contact_ref: "none:dry-run"
+site_default:
+  resolution: h3_r8
+  geography_id: "8826cb7233fffff"       # representative cell in north Hillsboro chosen by RuralSim; not the parcel
+  location_basis: approximate
+options:
+  - {option_id: no_build, label: "No build", is_no_build: true}
+  - option_id: low_100mw
+    label: "300-acre campus, 100 MW IT (dry-run assumption; no MW was public)"
+    it_load_mw: 100
+    cooling: unknown                    # not public by the cutoff; runs dry, adiabatic_hybrid, evaporative
+    water_source: {kind: unknown}
+    onsite: {solar_mw: 0, storage_mwh: 0, firm_mw: 0, firm_fuel: null}
+    backup_generation: {mw: null, fuel: null}
+    cost_allocation: unknown            # runs all three
+  - option_id: high_300mw
+    label: "300-acre campus, 300 MW IT (dry-run assumption: about 1 MW per acre)"
+    it_load_mw: 300
+    cooling: unknown
+    water_source: {kind: unknown}
+    onsite: {solar_mw: 0, storage_mwh: 0, firm_mw: 0, firm_fuel: null}
+    backup_generation: {mw: null, fuel: null}
+    cost_allocation: unknown
+criteria:
+  set_by: ruralsim_defaults
+  grid_clean_seed_share: 0.9
+  rate_change_pct_max: 2.0
+  peak_day_share_of_low_flow_max: 0.10
+  annual_share_of_public_supply_max: 0.10
+  footprint_share_sfha_max: 0.10
+  nearest_fiber_hex_km_max: 5.0
+  county_fiber_providers_min: 2
+  worst_off_not_worse_off: true
+county_rules: {setback_m: null, noise_dba_day: null, noise_dba_night: null, height_m: null}
+stated_not_checked:
+  announced_investment_usd: null
+  announced_jobs: null
+  tax_terms: null
+  other: "Developer representatives said projects would bring money for schools and roads (Texas Tribune, 2026-05-12)."
+seeds: 20
