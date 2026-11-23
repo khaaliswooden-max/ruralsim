@@ -1,0 +1,36 @@
+# Census population inputs for the back-test, as published at the time (D-064, LR-12).
+# Manual: Actions -> "Mirror census history" -> Run workflow.
+name: Mirror census history
+
+on:
+  workflow_dispatch:
+    inputs:
+      vintages:
+        description: "Population-estimate vintages (back-test T0-1 years)"
+        default: "2004 2005 2006 2007 2009 2014"
+      decennial:
+        description: "Decennial censuses for persons per household"
+        default: "2000"
+
+permissions:
+  contents: read
+
+jobs:
+  census:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Population estimates ${{ inputs.vintages }}; Census ${{ inputs.decennial }}
+        env:
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET: ruralsim-data
+          PYTHONUNBUFFERED: "1"
+        run: python tools/mirror_census_history.py --vintage ${{ inputs.vintages }} --decennial ${{ inputs.decennial }}

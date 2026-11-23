@@ -19,7 +19,8 @@ How the years differ, and what this does about it:
   (Sales_Ult_Cust, Utility_Data, Service_Territories), read as for 2024. There was no
   short form before 2012, so eia861_short_form is empty, with the 2024 columns.
 - EIA-861 2014 and EIA-860 2014: the 2012+ layouts, under that year's file names.
-- EIA-860 2004-2006: the old flat files (PlantY04.xls, GenY04.xls, PRGenY04.xls). Columns
+- EIA-860 2004-2010: the old flat files (PlantY04.xls, GenY04.xls, PRGenY04.xls; GeneratorY09.xls
+  with Exist/Prop/Ret_IP sheets), whose column names change in 2007 and 2009. Columns
   are renamed to the 2024 names (PLNTCODE -> plant_code, NAMEPLATE -> nameplate_capacity_mw,
   ...) and the original columns are kept too. These years have no plant coordinates, so
   a plant takes its county from the 2024 table's point-in-polygon county for the same plant
@@ -93,24 +94,40 @@ def short_form(z: Renamed) -> pd.DataFrame:
 
 
 # EIA-860 before 2011: flat files, upper-case names -> the 2024 snake_case names
-OLD_PLANT = {"UTILCODE": "utility_id", "PLNTCODE": "plant_code", "PLNTNAME": "plant_name", "CNTYNAME": "county",
-             "STATE": "state", "PLNTZIP": "zip", "NERC": "nerc_region", "SERVAREA": "balancing_authority_name"}
+# (2004-2006 spell it PLNTCODE/CNTYNAME; 2007 COUNTY; 2009-2010 PLANT_CODE/UTILITY_ID)
+OLD_PLANT = {"UTILCODE": "utility_id", "UTILITY_ID": "utility_id", "PLNTCODE": "plant_code", "PLANT_CODE": "plant_code",
+             "PLNTNAME": "plant_name", "PLANT_NAME": "plant_name", "CNTYNAME": "county", "COUNTY": "county",
+             "STATE": "state", "PLNTZIP": "zip", "ZIP5": "zip", "NERC": "nerc_region",
+             "SERVAREA": "balancing_authority_name"}
 OLD_GEN = {"UTILCODE": "utility_id", "UTILNAME": "utility_name", "PLNTCODE": "plant_code", "PLNTNAME": "plant_name",
            "STATE": "state", "GENCODE": "generator_id", "PRIMEMOVER": "prime_mover", "UNIT_CODE": "unit_code",
            "NAMEPLATE": "nameplate_capacity_mw", "SUMMCAP": "summer_capacity_mw", "WINTCAP": "winter_capacity_mw",
            "STATUS": "status", "INSVMONTH": "operating_month", "INSVYEAR": "operating_year",
            "RETIREMONTH": "planned_retirement_month", "RETIREYEAR": "planned_retirement_year",
-           "ENERGY_SOURCE_1": "energy_source_1", "ENERGY_SOURCE1": "energy_source_1"}
+           "ENERGY_SOURCE_1": "energy_source_1", "ENERGY_SOURCE1": "energy_source_1",
+           # 2007-2010 spellings
+           "UTILITY_ID": "utility_id", "UTILITY_NAME": "utility_name", "PLANT_CODE": "plant_code",
+           "PLANT_NAME": "plant_name", "GENERATOR_ID": "generator_id", "PRIME_MOVER": "prime_mover",
+           "SUMMER_CAPACITY": "summer_capacity_mw", "WINTER_CAPACITY": "winter_capacity_mw",
+           "SUMMER_CAPABILITY": "summer_capacity_mw", "WINTER_CAPABILITY": "winter_capacity_mw",
+           "OPERATING_MONTH": "operating_month", "OPERATING_YEAR": "operating_year",
+           "RETIREMENT_MONTH": "retirement_month", "RETIREMENT_YEAR": "retirement_year", "COUNTY": "county"}
+# 2009-2010 put existing, proposed and retired generators in one workbook
+OLD_SHEETS = {"exist": "Operable", "prop": "Proposed", "ret_ip": "Retired and Canceled"}
 
 
-def _old(z: zipfile.ZipFile, pattern: str, mapping: dict) -> pd.DataFrame:
-    df = pd.read_excel(io.BytesIO(z.read(member(z, pattern))), header=0)
+def _norm(df: pd.DataFrame, mapping: dict) -> pd.DataFrame:
     df.columns = [str(c).strip() for c in df.columns]
     df = df.rename(columns={c: mapping[c.upper()] for c in df.columns if c.upper() in mapping})
+    df = df.loc[:, ~df.columns.duplicated()]
     df.columns = [M.snake(c) if c not in mapping.values() else c for c in df.columns]
     df = df[pd.to_numeric(df["plant_code"], errors="coerce").notna()].copy()
     df["plant_code"] = df["plant_code"].astype(int)
     return df
+
+
+def _old(z: zipfile.ZipFile, pattern: str, mapping: dict) -> pd.DataFrame:
+    return _norm(pd.read_excel(io.BytesIO(z.read(member(z, pattern))), header=0), mapping)
 
 
 def generators(path, year: int) -> pd.DataFrame:
@@ -118,7 +135,8 @@ def generators(path, year: int) -> pd.DataFrame:
     if year >= 2011:
         return M.read_generators(Renamed(path, {"3_1_Generator_Y2024.xlsx": member(z, rf"^3_1_Generator_Y{year}\.xlsx?$")}))
     yy = f"{year % 100:02d}"
-    parts = [_old(z, rf"^GenY?{yy}\.xls$", OLD_GEN).assign(sheet="Operable")]
+    book = pd.read_excel(io.BytesIO(z.read(member(z, rf"^(Gen|Generator)Y?{yy}\.xls$"))), sheet_name=None, header=0)
+    parts = [_norm(df, OLD_GEN).assign(sheet=OLD_SHEETS.get(name.lower(), "Operable")) for name, df in book.items()]
     try:
         parts.append(_old(z, rf"^PRGenY?{yy}\.xls$", OLD_GEN).assign(sheet="Proposed"))
     except KeyError:
