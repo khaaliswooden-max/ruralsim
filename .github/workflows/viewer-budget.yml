@@ -1,0 +1,65 @@
+# Load-time budget for the county viewer (D-500, D-501). Builds this branch's viewer the way
+# publish_world.py does, serves it with three counties' published data, and loads each cold in
+# headless Chromium at 3 and 10 Mbps with 150 ms latency. Fails on an enforced miss; every line,
+# enforced or not, is in the job summary with misses first.
+name: Viewer load-time budget
+
+on:
+  pull_request:
+    paths:
+      - "tools/viewer_template.html"
+      - "tools/build_site.py"
+      - "tools/publish_world.py"
+      - "tools/repack_viewers.py"
+      - "tools/perf/**"
+      - "specs/perf_budget.yaml"
+      - "site/vendor/**"
+      - "vercel.json"
+      - ".github/workflows/viewer-budget.yml"
+  push:
+    branches: [main]
+    paths:
+      - "tools/viewer_template.html"
+      - "tools/build_site.py"
+      - "tools/perf/**"
+      - "specs/perf_budget.yaml"
+      - "site/vendor/**"
+  schedule:
+    - cron: "17 9 * * 1"   # Mondays: catches a county republished heavier, with no code change
+  workflow_dispatch:
+    inputs:
+      legacy:
+        description: "Measure the pre-D-500 viewer instead (before/after comparison)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: viewer-budget-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  budget:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # --legacy reads the old template from history
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install playwright==1.63.0 PyYAML==6.0.3
+      - run: python -m playwright install --with-deps chromium
+      - name: Check the budget
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: python tools/perf/viewer_budget.py ${{ inputs.legacy && '--legacy' || '' }}
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: perf-results
+          path: perf_results.json
+          if-no-files-found: ignore

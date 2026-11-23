@@ -432,8 +432,9 @@ def test_sdwis_table_never_keeps_contact_fields():
 
 def _viewer_html():
     import build_site as bs
-    return ("<script type='module'>\nconst DATA = '../viewer_data/';\n" + bs.FETCH_PLAIN + "\n"
-            "const buf = " + bs.TERRAIN_PLAIN + ";\n</script>")
+    return ('<script type="importmap">{"imports": {"three": "./vendor/three.module.js"}}</script>\n'
+            "<script type='module'>\nconst DATA = '../viewer_data/';\n" + bs.FETCH_PLAIN + "\n"
+            "const buf = " + bs.TERRAIN_PLAIN + ";\nwindow.__RURALSIM_READY = true;\n</script>")
 
 
 def test_gzip_viewer_writes_gz_and_points_viewer_at_it(tmp_path):

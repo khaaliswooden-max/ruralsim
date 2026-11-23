@@ -8,6 +8,8 @@ committed outputs of the simulation pipeline: worlds/*/viewer + viewer_data + re
 experiments/ledger (latest 20-seed run per card), national/, pilots/. Political columns
 in pilots/ are never read into the site (D-007).
 """
+from __future__ import annotations
+
 import csv, glob, json, math, os, re, shutil, urllib.request
 from pathlib import Path
 
@@ -144,22 +146,77 @@ TERRAIN_GZ = "await (await getData('terrain_grid.f32')).arrayBuffer()"
 GZ_SUFFIXES = (".json", ".f32")
 
 
-def gzip_viewer(html: str, vd) -> tuple[str, list]:
-    """Write <file>.gz beside each viewer_data file and point the viewer at them.
-    Returns (html, [gz paths]); html unchanged and no files written when the viewer
-    is not the expected template (an older viewer keeps loading plain files)."""
+def _write_gz(vd) -> list:
     import gzip
-    if "DecompressionStream" in html:
-        return html, []
-    if FETCH_PLAIN not in html or TERRAIN_PLAIN not in html:
-        return html, []
     out = []
     for f in sorted(vd.iterdir()):
         if f.suffix in GZ_SUFFIXES:
             g = f.with_name(f.name + ".gz")
             g.write_bytes(gzip.compress(f.read_bytes(), compresslevel=9, mtime=0))
             out.append(g)
-    return html.replace(FETCH_PLAIN, FETCH_GZ, 1).replace(TERRAIN_PLAIN, TERRAIN_GZ, 1), out
+    return out
+
+
+def gzip_viewer(html: str, vd) -> tuple[str, list]:
+    """Write <file>.gz beside each viewer_data file and point the viewer at them.
+    Returns (html, [gz paths]); html unchanged and no files written when the viewer
+    already reads .gz files or is not a template RuralSim knows."""
+    if GZ_OFF in html:                          # v2 template (D-500): one flag
+        return html.replace(GZ_OFF, GZ_ON, 1), _write_gz(vd)
+    if GZ_ON in html or "DecompressionStream" in html:
+        return html, []
+    if FETCH_PLAIN not in html or TERRAIN_PLAIN not in html:
+        return html, []
+    return html.replace(FETCH_PLAIN, FETCH_GZ, 1).replace(TERRAIN_PLAIN, TERRAIN_GZ, 1), _write_gz(vd)
+
+
+# Progressive viewer and shared three.js (D-500 fixes 2 and 3). Every county viewer carries the
+# same importmap + module script; only the head and HUD differ by county. A viewer built from an
+# older template is upgraded by swapping that block for the current template's, keeping its
+# gzip state. three.js and OrbitControls then load from one versioned copy on ruralsim.io
+# (site/vendor/three-r<rev>/), served compressed and cached across counties, instead of a
+# 1.27 MB uncompressed copy per county on R2.
+VIEWER_V2 = "RURALSIM_VIEWER v2"
+GZ_OFF, GZ_ON = "const USE_GZ = false;", "const USE_GZ = true;"
+THREE_REV = "160"
+SHARED_VENDOR = f"/vendor/three-r{THREE_REV}/"
+_BLOCK_START = '<script type="importmap">'
+
+
+def _script_block(html: str) -> tuple[int, int] | None:
+    """(start, end) of the importmap + module script block, or None if not a RuralSim viewer."""
+    i = html.find(_BLOCK_START)
+    j = html.rfind("</script>")
+    if i < 0 or j < i:
+        return None
+    return i, j + len("</script>")
+
+
+def upgrade_viewer(html: str, three_base: str | None = None) -> tuple[str, str]:
+    """(html, status). Status: 'upgraded' (old script swapped for v2), 'current' (already v2,
+    vendor base applied if asked) or 'unrecognised' (left as is). `three_base` is where
+    three.module.js and OrbitControls.js load from: SHARED_VENDOR on this site, or
+    SITE_URL + SHARED_VENDOR for viewers served from R2. None keeps ./vendor/."""
+    span = _script_block(html)
+    if span is None:
+        return html, "unrecognised"
+    block = html[span[0]:span[1]]
+    status = "current"
+    if VIEWER_V2 not in block:
+        # v1 viewers: generic script that reads ../viewer_data/ and sets __RURALSIM_READY
+        if "const DATA = '../viewer_data/';" not in block or "__RURALSIM_READY" not in block:
+            return html, "unrecognised"
+        tpl = (ROOT / "tools" / "viewer_template.html").read_text()
+        t0, t1 = _script_block(tpl)
+        new = tpl[t0:t1]
+        if "DecompressionStream" in block:      # it was repacked for .gz files (D-055)
+            new = new.replace(GZ_OFF, GZ_ON, 1)
+        block, status = new, "upgraded"
+    if three_base:
+        base = three_base if three_base.endswith("/") else three_base + "/"
+        block = (block.replace('"./vendor/three.module.js"', f'"{base}three.module.js"')
+                      .replace("'./vendor/OrbitControls.js'", f"'{base}OrbitControls.js'"))
+    return html[:span[0]] + block + html[span[1]:], status
 
 
 SITE_URL = "https://www.ruralsim.io"
@@ -488,7 +545,8 @@ def main():
             if (src / sub).exists():
                 shutil.copytree(src / sub, dst / sub)
         idx = dst / "viewer" / "index.html"
-        idx.write_text(head_tags(brand_viewer_html(idx.read_text()), f"/worlds/{name}/viewer/"))
+        html, _ = upgrade_viewer(brand_viewer_html(idx.read_text()), three_base=SHARED_VENDOR)  # D-500
+        idx.write_text(head_tags(html, f"/worlds/{name}/viewer/"))
         b0, b1 = slim_viewer_data(dst / "viewer_data")
         print(f"  {name}: viewer data {b0/1e6:.1f} -> {b1/1e6:.1f} MB")
 
