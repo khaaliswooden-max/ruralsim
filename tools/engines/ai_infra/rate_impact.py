@@ -149,6 +149,32 @@ def upgrade_cost_usd(upgrades, cfg, rng):
     return total, items
 
 
+LARGE_LOAD_METHOD = (
+    "back-test v2 §5.5(b), D-115: the site is its own rate class and pays its incremental supply cost in "
+    "full (no unrecovered capacity, no margin on its sales); the cost left to other customers is the grid "
+    "upgrade cost under the allocation (direct assignment: none; large-load tariff: the drawn ratepayer "
+    "share; socialized: all), times the share landing on this utility's retail customers; residential "
+    "share by energy, as in the main model")
+
+
+def large_load(cases, cap, crf, alloc, share, rev, bill, inc, site_share):
+    """Rate effect for a site above the validity limit (D-102), from the same draws as the main model.
+    Valid at any site share: nothing in it scales with the site's sales."""
+    by_case = {}
+    for name, retail in cases.items():
+        net = cap * crf * alloc * retail
+        d_rate = 100 * net * share / rev
+        d_bill = bill * d_rate / 100
+        by_case[name] = {"lowest_quintile_rate_change_pct": d_rate, "lowest_quintile_bill_change_usd_per_yr": d_bill,
+                         "lowest_quintile_energy_cost_share_change_pp": (100 * d_bill / inc) if inc else INCOME_MISSING,
+                         "net_annual_cost_to_other_customers_usd": net}
+    top = max(by_case.values(), key=lambda v: v["lowest_quintile_rate_change_pct"])
+    out = {**top, "valid_for_site_share": True, "site_share_of_utility_sales": site_share, "method": LARGE_LOAD_METHOD}
+    if len(by_case) > 1:
+        out["cases"] = by_case
+    return out
+
+
 def run(cands, upgrades, site, onsite, allocation, acs_row, cfg, rng):
     """site: {peak_mw_net, grid_mwh}. Returns one result per candidate utility."""
     r = cfg["rates"]
@@ -206,6 +232,8 @@ def run(cands, upgrades, site, onsite, allocation, acs_row, cfg, rng):
              **{k: v for k, v in top.items() if k != "retail_share_of_upgrades"}}
         if owner is None:
             x["cases"] = by_case
+        if x["outside_validity"]:
+            x["large_load"] = large_load(cases, cap, crf, alloc, share, rev, bill, inc, site_share)
         res.append(x)
     draws = {"capital_recovery_factor": crf, "allocation_ratepayer_share": alloc,
              "margin_on_new_sales_share": margin_share, "lowest_quintile_kwh_share": q1_share,

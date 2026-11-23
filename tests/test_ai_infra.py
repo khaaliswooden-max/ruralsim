@@ -254,9 +254,9 @@ def test_fiber_site_hex_nearest_and_county():
 
 # --- back-test inputs: T0-1 tables and the site mask (D-109) -----------------------------
 def test_gate_refuses_backtest_without_mask_inputs_and_returns_them_when_given(monkeypatch):
-    site = {"id": "BT-01", "fips5": "40097", "T0": 2007}
-    monkeypatch.setattr(gate, "backtest_sites", lambda: {"40097": site})
-    monkeypatch.setattr(gate, "preregistration_commit", lambda: "abc")
+    site = {"id": "BT-01", "fips5": "40097", "T0": 2007, "_version": "v1"}
+    monkeypatch.setattr(gate, "backtest_sites", lambda: {"BT-01": site})
+    monkeypatch.setattr(gate, "preregistration_commit", lambda version="v1": "abc")
     with pytest.raises(gate.Refused, match="site_point"):
         gate.check("40097", "BT-01", lambda y: True)          # T0-1 present, but no mask inputs
     site.update(site_point=[-95.3, 36.25], mask_owner_terms=["Google"], mask_keep_osm_ids=[12])
@@ -343,3 +343,70 @@ def test_households_input_uses_vintage_t0m1_and_falls_back_flagged(monkeypatch):
     assert h["vintage_ok"] and h["population"] == 80000
     assert h["households"] == pytest.approx(80000 / (74698 / 25042))
     assert "vintage 2005" in h["population_source"] and "2000" in h["persons_per_household_source"]
+
+
+# --- back-test v2 inputs (D-115) ---------------------------------------------------------
+def test_gate_reads_v2_sites_and_protects_their_counties(monkeypatch, tmp_path):
+    v1, v2 = tmp_path / "v1", tmp_path / "v2"
+    v1.mkdir(); v2.mkdir()
+    (v1 / "sites.yaml").write_text(yaml.safe_dump({"scored_sites": [{"id": "BT-03", "fips5": "41065", "T0": 2005}],
+                                                   "not_selected": [{"fips5": "41013"}]}))
+    (v2 / "sites.yaml").write_text(yaml.safe_dump({"scored_sites": [
+        {"id": "V2-01", "fips5": "41013", "T0": 2010, "site_point": [-120.9, 44.3], "mask_owner_terms": ["Meta"],
+         "cooling": "adiabatic_hybrid"},
+        {"id": "V2-03", "fips5": "41049", "T0": 2008, "site_point": [-119.7, 45.8], "mask_owner_terms": ["Amazon"],
+         "cooling": None}]}))
+    monkeypatch.setattr(gate, "VERSIONS", {"v1": v1, "v2": v2})
+    monkeypatch.setattr(gate, "preregistration_commit", lambda version="v1": "abc" if version == "v2" else None)
+    with pytest.raises(gate.Refused, match="back-test site"):
+        gate.check("41049", None, lambda y: True)                      # Morrow: protected by v2 alone
+    sites = gate.backtest_sites()
+    assert {"BT-03", "V2-01", "V2-03", "v1:41013"} <= set(sites)       # Crook in both versions, no overwrite
+    bt = gate.check("41013", "V2-01", lambda y: y == 2009)
+    assert bt["version"] == "v2" and bt["as_of_year"] == 2009 and bt["cooling"] == "adiabatic_hybrid"
+    assert bt["mask_radius_m"] == 2000.0
+
+
+def test_mask_radius_zero_masks_owner_tagged_only():
+    feats = [{"properties": {"power": "substation", "osm_id": 1, "operator": "Pacific Power"},
+              "geometry": {"type": "Point", "coordinates": [0.0, 0.0]}},
+             {"properties": {"power": "substation", "osm_id": 2, "operator": "Meta Platforms"},
+              "geometry": {"type": "Point", "coordinates": [0.05, 0.0]}}]
+    f = lambda lon, lat: (lon * 100000.0, lat * 100000.0)       # noqa: E731  ~metres
+    _, m2000 = network.apply_mask(feats, f, (0.0, 0.0), 2000.0, ["Meta"])
+    _, m0 = network.apply_mask(feats, f, (0.0, 0.0), 0.0, ["Meta"])
+    assert {m["osm_id"] for m in m2000} == {1, 2}
+    assert {m["osm_id"] for m in m0} == {2}                      # the substation at the site point stays
+
+
+def test_backtest_cooling_comes_from_the_site():
+    from tools.engines.ai_infra import run
+    scen = [{"name": "y2014", "facility_avg_mw": 10.0}, {"name": "y2015", "facility_avg_mw": 12.0}]
+    bt = {"site_id": "V2-01", "cooling": "adiabatic_hybrid"}
+    out = run.backtest_scenarios(scen, bt, ["cooling_water"])
+    assert [s["cooling"] for s in out] == ["adiabatic_hybrid"] * 2 and bt["cooling_source"]
+    with pytest.raises(gate.Refused, match="other than the site's"):
+        run.backtest_scenarios([{"name": "y", "cooling": "evaporative"}], dict(bt), ["cooling_water"])
+    with pytest.raises(gate.Refused, match="no cooling design"):
+        run.backtest_scenarios(scen, {"site_id": "V2-03", "cooling": None}, ["cooling_water"])
+    assert run.backtest_scenarios(scen, None, ["cooling_water"]) is scen   # not a back-test: unchanged
+
+
+def test_large_load_output_above_the_validity_limit():
+    row = {"mean_q1": 8000.0, "mean_q1_moe": 1500.0}
+    ups = [{"type": "substation", "subtype": "new customer substation", "kv": 115, "mva": 120},
+           {"type": "line_new", "kv": 115, "km": 10}]
+    big = {"peak_mw_net": 120, "grid_mwh": 900000}             # 3x the example utility's 3e5 MWh
+    small = {"peak_mw_net": 5, "grid_mwh": 30000}               # 0.1x: inside the limit
+    out = {a: rate_impact.run(_cand(True)[:1], ups, big, {}, a, row, CFG, np.random.default_rng(7))
+           for a in rate_impact.ALLOCATIONS}
+    ll = {a: out[a]["per_utility"][0]["large_load"] for a in out}
+    assert all(v["valid_for_site_share"] for v in ll.values())
+    assert ll["direct_assignment"]["lowest_quintile_rate_change_pct"] == 0.0
+    assert 0 <= ll["large_load_tariff"]["lowest_quintile_rate_change_pct"] <= ll["socialized"]["lowest_quintile_rate_change_pct"]
+    r = out["socialized"]
+    c = _cand(True)[0]
+    expect = 100 * r["upgrade_capex_usd"] * r["crf"] * 1.0 * 1.0 * (c["residential_mwh"] / c["total_mwh"]) / c["residential_revenue_usd"]
+    assert ll["socialized"]["lowest_quintile_rate_change_pct"] == pytest.approx(expect)   # no margin, no capacity term
+    s = rate_impact.run(_cand(True)[:1], ups, small, {}, "socialized", row, CFG, np.random.default_rng(7))
+    assert "large_load" not in s["per_utility"][0]

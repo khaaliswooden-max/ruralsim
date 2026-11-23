@@ -88,7 +88,8 @@ def apply_mask(features, f_enu, site_xy=None, radius_m=2000.0, owner_terms=()):
         p = ft["properties"]
         if p.get("power") == "substation":
             g = _project(ft["geometry"], f_enu)
-            near = site_xy is not None and g is not None and g.distance(Point(site_xy)) <= radius_m
+            # radius 0 is v2's upper-bound network: owner-tagged substations only (v2 §4.2, D-115)
+            near = radius_m > 0 and site_xy is not None and g is not None and g.distance(Point(site_xy)) <= radius_m
             text = f"{p.get('operator', '')} {p.get('name', '')}".lower()
             owned = any(t in text for t in terms)
             if near or owned:

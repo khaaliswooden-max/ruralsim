@@ -48,10 +48,10 @@ def test_refusals_name_the_reason_and_never_patch(mutate, reason):
 
 
 def test_backtest_county_is_held(monkeypatch):
-    monkeypatch.setattr(proposal.gate, "backtest_run_recorded", lambda: False)
+    monkeypatch.setattr(proposal.gate, "backtest_run_recorded", lambda f=None: False)
     assert proposal.holds("40097") == ["held_backtest_gate"]
     assert proposal.holds("20019") == []
-    monkeypatch.setattr(proposal.gate, "backtest_run_recorded", lambda: True)
+    monkeypatch.setattr(proposal.gate, "backtest_run_recorded", lambda f=None: True)
     assert proposal.holds("40097") == []
 
 
