@@ -2,7 +2,7 @@
 
 No retail service-territory polygons exist, so the serving utility at a point is unknown.
 The module runs every utility EIA-861 lists for the county, as if it served the site, and
-reports each. Utility revenue, sales, customers and ownership are observed (EIA-861 2024);
+reports each. Utility revenue, sales, customers and ownership are observed (EIA-861 of the run's year: 2024, or T0-1 in a back-test);
 costs, cost recovery and cost allocation are assumed and drawn per seed.
 
 Rate change = net annual cost landing on the utility's customers, times the residential
@@ -41,7 +41,7 @@ def _ownership_from_name(name: str) -> str:
     return "unknown"
 
 
-def candidates(fips5: str, state: str, eia) -> list[dict]:
+def candidates(fips5: str, state: str, eia, year: int = 2024) -> list[dict]:
     terr = eia("eia861_service_territory")
     sales = eia("eia861_sales_ult_cust")
     ud = eia("eia861_utility_data")
@@ -58,15 +58,22 @@ def candidates(fips5: str, state: str, eia) -> list[dict]:
             f = sf[sf.utility_number == un]
         c = {"utility_number": un, "utility_name": t.utility_name, "short_form": t.short_form == "Y"}
         if len(d):
-            c["ownership"], c["ownership_provenance"] = d.ownership_type.iloc[0], "observed (EIA-861 Utility_Data)"
-            c["transmission_owner"] = bool((d.transmission == "Y").any())
+            c["ownership"], c["ownership_provenance"] = d.ownership_type.iloc[0], f"observed (EIA-861 Utility_Data {year})"
+            tv = d.transmission.dropna()
+            c["transmission_owner"] = bool((tv == "Y").any())
+            # EIA marks activities "Y"; most other utilities leave the field blank. Blank is read as
+            # not an owner, and labelled so (D-109).
+            c["transmission_owner_provenance"] = (f"observed (EIA-861 Utility_Data {year}: Y)" if c["transmission_owner"]
+                                                  else f"observed (EIA-861 Utility_Data {year}: N)" if len(tv)
+                                                  else f"assumed (EIA-861 Utility_Data {year}: transmission blank, read as not an owner)")
         elif len(f) and f.ownership.iloc[0]:
-            c["ownership"], c["ownership_provenance"] = f.ownership.iloc[0], "observed (EIA-861 Short_Form)"
+            c["ownership"], c["ownership_provenance"] = f.ownership.iloc[0], f"observed (EIA-861 Short_Form {year})"
             c["transmission_owner"] = False
             c["transmission_owner_provenance"] = "assumed (short-form filers are small distribution utilities)"
         else:
             c["ownership"], c["ownership_provenance"] = _ownership_from_name(t.utility_name), "derived (name)"
             c["transmission_owner"] = False
+            c["transmission_owner_provenance"] = "assumed (utility not in EIA-861 Utility_Data)"
         if len(s) and s.residential_revenue_kusd.sum() > 0 and s.residential_mwh.sum() > 0:
             g = s.sum(numeric_only=True)
             c.update(
@@ -79,7 +86,7 @@ def candidates(fips5: str, state: str, eia) -> list[dict]:
                 residential_kwh_per_customer=float(g.residential_mwh * 1000 / max(g.residential_customers, 1)),
                 industrial_avg_rate_usd_per_kwh=(float(g.industrial_revenue_kusd / g.industrial_mwh)
                                                  if g.industrial_mwh > 0 else float(g.total_revenue_kusd / g.total_mwh)),
-                data="observed (EIA-861 Sales_Ult_Cust 2024)")
+                data=f"observed (EIA-861 Sales_Ult_Cust {year})")
         elif len(f) and f.total_revenue_thousand_dollars.iloc[0] > 0 and f.total_sales_mwh.iloc[0] > 0:
             g = f.iloc[0]
             c.update(
@@ -89,7 +96,7 @@ def candidates(fips5: str, state: str, eia) -> list[dict]:
                 all_sector_customers=float(g.total_customers),
                 avg_rate_all_sectors_usd_per_kwh=float(g.avg_rate_all_sectors_usd_per_kwh),
                 kwh_per_customer_all_sectors=float(g.kwh_per_customer_all_sectors),
-                data="observed (EIA-861 Short_Form 2024), all-sector totals used as residential stand-ins")
+                data=f"observed (EIA-861 Short_Form {year}), all-sector totals used as residential stand-ins")
         else:
             c["data"] = ("missing: short-form utility not in EIA-861 Short_Form" if c["short_form"]
                          else "missing: no Sales_Ult_Cust row for this state")

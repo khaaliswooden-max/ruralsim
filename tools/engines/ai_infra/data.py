@@ -103,7 +103,7 @@ class County:
                 "manifest_sha256": self.manifest_sha256}
 
 
-@lru_cache(maxsize=8)
+@lru_cache(maxsize=32)
 def eia(table: str, year: int = 2024) -> pd.DataFrame:
     if table not in EIA_TABLES:
         raise KeyError(table)
