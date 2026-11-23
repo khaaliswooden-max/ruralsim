@@ -24,6 +24,11 @@ scored_sites:
     rucc: {"2003": 6, "2023": 6}   # nonmetro both vintages (data/county_master.csv)
     operator: Google
     site: MidAmerica Industrial Park, Pryor
+    site_point: [-95.32238, 36.24043]        # D-203: mean of the 6 OSM buildings tagged operator=Google
+                                             # (ways 309651321, 539761458-60, 539761514, 844380836), from the
+                                             # published world 40097_mayes_ok snapshot 20261120T013228Z-91dd2bd
+    mask_owner_terms: [Google]
+    mask_keep_osm_ids: []                    # none dated before T0 yet; 7 substations lie within 2 km (D-203)
     T0: 2007            # announced May 2007 [OK-1]
     E: [2011]           # first building operational 2011 [OK-2]; paused 2008-2010 [OK-1]
     serving_utility: {name: Grand River Dam Authority, eia_id: 7490, ownership: state,
@@ -51,6 +56,11 @@ scored_sites:
     rucc: {"2013": 6, "2023": 6}
     operator: Google
     site: former TVA Widows Creek Fossil Plant, Bridgeport/Stevenson
+    site_point: [-85.74662, 34.91351]        # D-203: mean of the 2 OSM buildings tagged building=data,
+                                             # operator=Google (ways 844371952-3), world 01071_jackson_al
+                                             # snapshot 20261118T004058Z-51fd9fb
+    mask_owner_terms: [Google]               # also matches the substation tagged operator="Google LLC" (way 1160863462)
+    mask_keep_osm_ids: []                    # Widows Creek Substation (TVA, relation 14133615) is 3.5 km away: not masked
     T0: 2015            # announced 2015-06-24 [AL-1]
     E: [2018, 2019]     # "established 2018" [AL-4]; "came online 2019" (secondary) [AL-5]
     serving_utility: {name: Tennessee Valley Authority, eia_id: 18642, ownership: federal,
@@ -78,6 +88,12 @@ scored_sites:
     rucc: {"2003": 6, "2023": 7}
     operator: Google
     site: The Dalles (Port of The Dalles land)
+    site_point: [-121.201406, 45.63243]      # D-203: OSM way 231769626 "Google Data Center The Dalles Oregon"
+                                             # (operator=Google, the original campus; Taylor Lake and the
+                                             # Columbia Rd campus are later), oregon-latest 2026-11-15T21:22:28Z (R2 mirror)
+    mask_owner_terms: [Google, Design LLC]
+    mask_keep_osm_ids: []                    # none dated yet; BPA Chenoweth Substation (way 94922230, 0.4 km)
+                                             # is the first candidate to date (D-203)
     T0: 2005            # Port approved land sale 2005-02-18 [OR-1]
     E: [2006]           # first data center 2006 [OR-3, OR-4]
     serving_utility: {name: Northern Wasco County PUD, eia_id: 13788, ownership: political_subdivision,
@@ -112,6 +128,11 @@ scored_sites:
     rucc: {"2003": 4, "2023": 5}
     operator: Microsoft (first wave also Yahoo)
     site: Quincy
+    site_point: [-119.863077, 47.23925]      # D-203: OSM way 283051497 "Microsoft Columbia Data Center" (the
+                                             # 2007 Columbia 1/2 campus; the MWH campus to the west is later),
+                                             # washington-latest 2026-11-15T21:22:28Z (R2 mirror)
+    mask_owner_terms: [Microsoft, Yahoo]     # the info-set owners only (§4.2.2); Yahoo's campus is 2.8 km east
+    mask_keep_osm_ids: []
     T0: 2006            # Microsoft bought ~75 acres in 2006 [WA-1]
     E: [2007]           # Microsoft ribbon cutting 2007-04-16; Yahoo phase 1 built 2007 [WA-1, WA-2]
     serving_utility: {name: PUD No 2 of Grant County, eia_id: 14624, ownership: political_subdivision,
