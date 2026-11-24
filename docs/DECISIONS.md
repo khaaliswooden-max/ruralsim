@@ -471,3 +471,21 @@ Required before any v2 back-test run.
   - 55 tests pass in the pinned engine environment.
 
 *Invalidated by:* a host that needs other retry rules; a decision to fall back automatically to a second host.
+
+## D-210 (2026-11-24, rollout step 3) — Back-test v2 run plan, fixed before the first run
+Committed and pushed before any v2 run, as v2 §5.1 and §8 require. v2's pre-registration (D-207, PR #90) and D-208 are on main; step 2's inputs are on main (D-115, D-116, PR #102). No bar, formula, site or grading rule changes.
+- **Frozen engine.** `tools/engines/ai_infra` as of `56b306b` (its last change, D-116), unchanged through main `e8cf12f`. A run counts only if its engine directory is byte-identical to that commit.
+- **Where.** The "Back-test run" workflow (D-209) on branch `backtest/v2-run`, never in a chat sandbox. 20 seeds.
+- **Eight runs.** Cards `BACKTEST-2-V201-power`, `-V202-power`, `-V203-power`, each at `--mask-radius-m 2000` (lower-bound network) and `--mask-radius-m 0` (upper-bound network, owner-tagged substations only) (§4.2). Cards `BACKTEST-2-V201-water` and `-V202-water`, once each (the mask does not enter the water module). Card loads are the registered observed values (§5.3): scenarios `g1_E<E>` at E+2, `r1_E<E>` at E+5, `y<year>` for water.
+- **Admissible run.** The record's `data_host` is `https://data.ruralsim.io`; 20 seeds; the declared v2 site and mask radius; not refused; frozen engine. An inadmissible run scores nothing and is reported.
+- **Field mapping (§8 allows it).**
+  - G1: a seed predicts a substation if its `power_flow.required_upgrades` holds one (`share_seeds_new_substation`). "Yes" when at least 10 of the 20 seeds do, "no" when that cannot happen even if every non-computed seed did; otherwise indeterminate. Lines are not compared: no site documents one (§6.1).
+  - R1 above the floor (V2-03): `rate_impact[allocation].per_utility["19325"].large_load.lowest_quintile_rate_change_pct` p50 (by case where ownership is blank), only with `valid_for_site_share: true` (§5.5(b)).
+  - W1: `annual_withdrawal_m3` p50 per year scenario.
+- **Stated before the run, stricter than or silent in the text.**
+  1. R1 at V2-03 is computed on both mask bounds and scored only if both give the same verdict, for §4.2's reason (the upgrade cost passed to residents depends on the unobservable pre-T0 grid).
+  2. V2-01 and V2-02 R1 are computed and published as "below the attribution floor, not scored" (§12), with the verdict they would have had.
+  3. "Pass, interval miss" (§5.1): for W1, the observed withdrawal is outside p10–p90; for R1, neither the peer- nor the state-differenced value is inside p10–p90.
+- **Scorer.** `validation/backtest/v2/tools/score_run_v2.py`, committed with this entry and before any run's output is read. Results go to `validation/backtest/v2/RESULTS_<date>.{json,md}`, misses first.
+
+*Invalidated by:* nothing once the first v2 run is recorded (§8): v2 is then frozen, and a change needs v3 on new held-out sites.

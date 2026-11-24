@@ -266,3 +266,186 @@
   fidelity_tier: B_pilot_3d
   provenance_floor: assumed
   risks_to_residents: "none: a back-test of a built site; no recommendation is made"
+
+# Back-test v2 (D-207, run plan D-210). Loads are the registered observed values
+# (validation/backtest/v2/observed/observed_values.json, §5.3): G1 scenarios at E+2, R1 scenarios at E+5,
+# water scenarios at each disclosed year. Each power card runs twice, at --mask-radius-m 2000 and 0 (§4.2).
+
+- id: BACKTEST-2-V201-power
+  title: "Back-test V2-01 Crook County, OR (Meta (Facebook)): grid build and residential rate, conditional on observed load"
+  category: energy_compute
+  hypothesis: "Scored by validation/backtest/v2/PREREGISTRATION.md §6.1 (G1) and §6.2 (R1), not by this card."
+  counties: ["41013"]
+  site: {rule: backtest, note: "site_point from validation/backtest/v2/sites.yaml, set by gate.check"}
+  load_input: facility_avg_mw
+  intervention:
+    description: "the load that actually arrived, as facility average MW, in the year each comparison needs (§5.3); no on-site generation; three cost allocations"
+    parameters: {facility_avg_mw: [25.6, 37.3]}
+    parameter_sources: {facility_avg_mw: "observed (\u00a75.3): g1_E2011: 25.6 aMW (operator disclosure 2013); r1_E2011: 37.3 aMW (operator disclosure 2016)",
+                        everything else: "params/assumed.yaml (assumed, sampled); EIA-861/860 of T0-1 = 2009; OSM masked at the run's bound (§4.2)"}
+  scenarios:
+    - {name: g1_E2011, facility_avg_mw: 25.6}
+    - {name: r1_E2011, facility_avg_mw: 37.3}
+  baseline: same network and county load without the site, same seed
+  duration: "one peak hour (N-0 power flow) and one year (rates)"
+  time_step: "steady state"
+  engines: [power, economy]
+  seeds: 20
+  metrics:
+    primary: "share_seeds_new_substation (G1); lowest_quintile_rate_change_pct for EIA 14354, large_load where the site is above the validity limit (R1)"
+    secondary: [new_line_km, site_share_of_utility_sales]
+    rqli_domains_affected: [cost_burden, power_reliability]
+  criterion: {grid_clean_seed_share: 0.9, rate_change_pct_max: 2.0,
+              rule: "engine screening judge only; the back-test is scored by the pre-registration"}
+  success_criterion: "see validation/backtest/v2/PREREGISTRATION.md"
+  fidelity_tier: B_pilot_3d
+  provenance_floor: assumed
+  risks_to_residents: "none: a back-test of a built site; no recommendation is made"
+
+- id: BACKTEST-2-V201-water
+  title: "Back-test V2-01 Crook County, OR (Meta (Facebook)): annual water withdrawal per disclosed year, conditional on observed load"
+  category: energy_compute
+  hypothesis: "Scored by validation/backtest/v2/PREREGISTRATION.md §6.3 (W1), not by this card."
+  counties: ["41013"]
+  site: {rule: backtest, note: "site_point from validation/backtest/v2/sites.yaml, set by gate.check"}
+  modules: [cooling_water]
+  load_input: facility_avg_mw
+  intervention:
+    description: "cooling design adiabatic_hybrid from sites.yaml (§5.4); load per year = Meta's per-site disclosure (§5.3)"
+    parameters: {cooling: adiabatic_hybrid}
+    parameter_sources: {cooling: "sites.yaml (§5.4, mapped by design description)",
+                        facility_avg_mw: "observed: Meta per-site electricity, MWh / 8760 (CR-4, CR-5; observed_values.json W1)",
+                        everything else: "params/assumed.yaml cooling block (assumed, sampled)"}
+  scenarios:
+    - {name: y2014, facility_avg_mw: 29.9, cooling: adiabatic_hybrid}
+    - {name: y2015, facility_avg_mw: 32.4, cooling: adiabatic_hybrid}
+    - {name: y2016, facility_avg_mw: 37.3, cooling: adiabatic_hybrid}
+    - {name: y2017, facility_avg_mw: 48.6, cooling: adiabatic_hybrid}
+    - {name: y2018, facility_avg_mw: 55.7, cooling: adiabatic_hybrid}
+    - {name: y2019, facility_avg_mw: 65.4, cooling: adiabatic_hybrid}
+    - {name: y2020, facility_avg_mw: 78.3, cooling: adiabatic_hybrid}
+  baseline: none
+  duration: "30 years of daily weather (1991-2020)"
+  time_step: "1 day"
+  engines: [water_environment]
+  seeds: 20
+  metrics:
+    primary: annual_withdrawal_m3 (m3 per year), per disclosed year
+    secondary: [wue_l_per_it_kwh, pue_effective_annual]
+    rqli_domains_affected: [environment]
+  criterion:
+    peak_day_share_of_low_flow_max: 0.10
+    annual_share_of_public_supply_max: 0.10
+    source_rule: "largest-drainage gauge with low-flow statistics within 50 km of the site; nearest gauge reported, not scored"
+    rule: "engine screening judge only; the back-test is scored by the pre-registration"
+  success_criterion: "see validation/backtest/v2/PREREGISTRATION.md"
+  fidelity_tier: B_pilot_3d
+  provenance_floor: assumed
+  risks_to_residents: "none: a back-test of a built site; no recommendation is made"
+
+- id: BACKTEST-2-V202-power
+  title: "Back-test V2-02 Rutherford County, NC (Meta (Facebook)): grid build and residential rate, conditional on observed load"
+  category: energy_compute
+  hypothesis: "Scored by validation/backtest/v2/PREREGISTRATION.md §6.1 (G1) and §6.2 (R1), not by this card."
+  counties: ["37161"]
+  site: {rule: backtest, note: "site_point from validation/backtest/v2/sites.yaml, set by gate.check"}
+  load_input: facility_avg_mw
+  intervention:
+    description: "the load that actually arrived, as facility average MW, in the year each comparison needs (§5.3); no on-site generation; three cost allocations"
+    parameters: {facility_avg_mw: [25.7, 36.8, 38.7, 49.4]}
+    parameter_sources: {facility_avg_mw: "observed (\u00a75.3): g1_E2011: 25.7 aMW (operator disclosure 2013); g1_E2012: 36.8 aMW (operator disclosure 2014); r1_E2011: 38.7 aMW (operator disclosure 2016); r1_E2012: 49.4 aMW (operator disclosure 2017)",
+                        everything else: "params/assumed.yaml (assumed, sampled); EIA-861/860 of T0-1 = 2009; OSM masked at the run's bound (§4.2)"}
+  scenarios:
+    - {name: g1_E2011, facility_avg_mw: 25.7}
+    - {name: g1_E2012, facility_avg_mw: 36.8}
+    - {name: r1_E2011, facility_avg_mw: 38.7}
+    - {name: r1_E2012, facility_avg_mw: 49.4}
+  baseline: same network and county load without the site, same seed
+  duration: "one peak hour (N-0 power flow) and one year (rates)"
+  time_step: "steady state"
+  engines: [power, economy]
+  seeds: 20
+  metrics:
+    primary: "share_seeds_new_substation (G1); lowest_quintile_rate_change_pct for EIA 5416, large_load where the site is above the validity limit (R1)"
+    secondary: [new_line_km, site_share_of_utility_sales]
+    rqli_domains_affected: [cost_burden, power_reliability]
+  criterion: {grid_clean_seed_share: 0.9, rate_change_pct_max: 2.0,
+              rule: "engine screening judge only; the back-test is scored by the pre-registration"}
+  success_criterion: "see validation/backtest/v2/PREREGISTRATION.md"
+  fidelity_tier: B_pilot_3d
+  provenance_floor: assumed
+  risks_to_residents: "none: a back-test of a built site; no recommendation is made"
+
+- id: BACKTEST-2-V202-water
+  title: "Back-test V2-02 Rutherford County, NC (Meta (Facebook)): annual water withdrawal per disclosed year, conditional on observed load"
+  category: energy_compute
+  hypothesis: "Scored by validation/backtest/v2/PREREGISTRATION.md §6.3 (W1), not by this card."
+  counties: ["37161"]
+  site: {rule: backtest, note: "site_point from validation/backtest/v2/sites.yaml, set by gate.check"}
+  modules: [cooling_water]
+  load_input: facility_avg_mw
+  intervention:
+    description: "cooling design adiabatic_hybrid from sites.yaml (§5.4); load per year = Meta's per-site disclosure (§5.3)"
+    parameters: {cooling: adiabatic_hybrid}
+    parameter_sources: {cooling: "sites.yaml (§5.4, mapped by design description)",
+                        facility_avg_mw: "observed: Meta per-site electricity, MWh / 8760 (CR-4, CR-5; observed_values.json W1)",
+                        everything else: "params/assumed.yaml cooling block (assumed, sampled)"}
+  scenarios:
+    - {name: y2014, facility_avg_mw: 36.8, cooling: adiabatic_hybrid}
+    - {name: y2015, facility_avg_mw: 35.4, cooling: adiabatic_hybrid}
+    - {name: y2016, facility_avg_mw: 38.7, cooling: adiabatic_hybrid}
+    - {name: y2017, facility_avg_mw: 49.4, cooling: adiabatic_hybrid}
+    - {name: y2018, facility_avg_mw: 62.4, cooling: adiabatic_hybrid}
+    - {name: y2019, facility_avg_mw: 70.1, cooling: adiabatic_hybrid}
+    - {name: y2020, facility_avg_mw: 67.9, cooling: adiabatic_hybrid}
+  baseline: none
+  duration: "30 years of daily weather (1991-2020)"
+  time_step: "1 day"
+  engines: [water_environment]
+  seeds: 20
+  metrics:
+    primary: annual_withdrawal_m3 (m3 per year), per disclosed year
+    secondary: [wue_l_per_it_kwh, pue_effective_annual]
+    rqli_domains_affected: [environment]
+  criterion:
+    peak_day_share_of_low_flow_max: 0.10
+    annual_share_of_public_supply_max: 0.10
+    source_rule: "largest-drainage gauge with low-flow statistics within 50 km of the site; nearest gauge reported, not scored"
+    rule: "engine screening judge only; the back-test is scored by the pre-registration"
+  success_criterion: "see validation/backtest/v2/PREREGISTRATION.md"
+  fidelity_tier: B_pilot_3d
+  provenance_floor: assumed
+  risks_to_residents: "none: a back-test of a built site; no recommendation is made"
+
+- id: BACKTEST-2-V203-power
+  title: "Back-test V2-03 Morrow County, OR (Amazon (AWS)): grid build and residential rate, conditional on observed load"
+  category: energy_compute
+  hypothesis: "Scored by validation/backtest/v2/PREREGISTRATION.md §6.1 (G1) and §6.2 (R1), not by this card."
+  counties: ["41049"]
+  site: {rule: backtest, note: "site_point from validation/backtest/v2/sites.yaml, set by gate.check"}
+  load_input: facility_avg_mw
+  intervention:
+    description: "the load that actually arrived, as facility average MW, in the year each comparison needs (§5.3); no on-site generation; three cost allocations"
+    parameters: {facility_avg_mw: [21.7, 71.3, 96.7, 170.4]}
+    parameter_sources: {facility_avg_mw: "observed (\u00a75.3): g1_E2011: 21.7 aMW (EIA-861 Parts A+B, utility 19325 2013); g1_E2013: 71.3 aMW (EIA-861 Parts A+B, utility 19325 2015); r1_E2011: 96.7 aMW (EIA-861 Parts A+B, utility 19325 2016); r1_E2013: 170.4 aMW (EIA-861 Parts A+B, utility 19325 2018)",
+                        everything else: "params/assumed.yaml (assumed, sampled); EIA-861/860 of T0-1 = 2007; OSM masked at the run's bound (§4.2)"}
+  scenarios:
+    - {name: g1_E2011, facility_avg_mw: 21.7}
+    - {name: g1_E2013, facility_avg_mw: 71.3}
+    - {name: r1_E2011, facility_avg_mw: 96.7}
+    - {name: r1_E2013, facility_avg_mw: 170.4}
+  baseline: same network and county load without the site, same seed
+  duration: "one peak hour (N-0 power flow) and one year (rates)"
+  time_step: "steady state"
+  engines: [power, economy]
+  seeds: 20
+  metrics:
+    primary: "share_seeds_new_substation (G1); lowest_quintile_rate_change_pct for EIA 19325, large_load where the site is above the validity limit (R1)"
+    secondary: [new_line_km, site_share_of_utility_sales]
+    rqli_domains_affected: [cost_burden, power_reliability]
+  criterion: {grid_clean_seed_share: 0.9, rate_change_pct_max: 2.0,
+              rule: "engine screening judge only; the back-test is scored by the pre-registration"}
+  success_criterion: "see validation/backtest/v2/PREREGISTRATION.md"
+  fidelity_tier: B_pilot_3d
+  provenance_floor: assumed
+  risks_to_residents: "none: a back-test of a built site; no recommendation is made"

@@ -9,7 +9,8 @@ Back-test v2 (D-207). It uses three held-out rural sites and fixes the three rul
 | `sites.yaml` | Inputs (`before:`, site point, mask terms, load, cooling) and observations (`observed:`). |
 | `tools/derive_observed_v2.py` | Observed loads and R1 values from EIA-861 and the operator disclosures. State-filtered, Parts A+B, with the detectability test. |
 | `observed/observed_values.json` | Its output. |
+| `tools/score_run_v2.py` | The scorer (D-210), committed before any run. It refuses to score a run whose data host is not `https://data.ruralsim.io` or whose engine differs from the frozen one. |
 
     python3 tools/derive_observed_v2.py --zips DIR    # DIR holds f861_<year>.zip, 2001-2024 (hashes in ../observed/)
 
-No runs yet. Every result is SPECULATIVE unless it passes this method. Public screening runs stay SPECULATIVE.
+Run plan: D-210 and §13. Runs go on the GitHub "Back-test run" workflow (D-209), never in a chat sandbox. No runs yet. Every result is SPECULATIVE unless it passes this method. Public screening runs stay SPECULATIVE.
