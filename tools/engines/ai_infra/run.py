@@ -703,6 +703,8 @@ def finish(out, recs, modules):
     for r in recs:
         r.pop("not_modelled_entries", None)
     out["disclosure_project"] = DISCLOSURE_PROJECT
+    out["data_host"] = data.BASE                     # D-116: every record names where its data came from
+    out["data_downloads"] = data.download_report()
     not_modelled.validate(out)
     return out
 
@@ -719,6 +721,7 @@ def main(argv=None):
     a = ap.parse_args(argv)
     if a.mask_radius_m is not None and not a.backtest:
         ap.error("--mask-radius-m applies only to a declared back-test (--backtest)")
+    data.reset_download_log()
     cards = {c["id"]: c for c in yaml.safe_load(CARDS.read_text())}
     card = cards[a.card]
     cfg = yaml.safe_load((HERE / "params" / "assumed.yaml").read_text())

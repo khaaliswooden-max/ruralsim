@@ -269,6 +269,7 @@ def main(argv=None):
     a = ap.parse_args(argv)
     cfg = yaml.safe_load((run.HERE / "params" / "assumed.yaml").read_text())
     activsg = json.loads((run.HERE / "params" / "activsg_distributions.json").read_text())
+    data.reset_download_log()
     raw, sha = proposal.load(a.card_path)
     t0 = dt.datetime.now(dt.UTC)
     base = {"run_id": f"{raw.get('card_id')}/{t0.strftime('%Y%m%dT%H%M%SZ')}", "card_id": raw.get("card_id"),

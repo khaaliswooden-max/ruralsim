@@ -445,3 +445,29 @@ Khaalis moved ruralsim.io's DNS from Vercel to Cloudflare and connected `data.ru
 
 ## D-209 (2026-11-22, rollout step 3) — Back-test runs on a GitHub runner; data from data.ruralsim.io
 Decided by Khaalis. Back-test runs from now on, v2 first, run on a GitHub Actions runner, not in a chat sandbox. The data base stays the engine's default, `https://data.ruralsim.io` (D-066). It is not pinned to r2.dev. The connection resets seen from the step-3 sandbox (about 5 in 12 fetches) were the sandbox's network: the domain tested clean from Khaalis's machine (75 of 75) and from a GitHub runner. New manual workflow `.github/workflows/backtest-run.yml` (Actions → "Back-test run") does four things. (1) It installs the engine's pinned environment (D-103). (2) It runs `tests/test_ai_infra.py`. (3) It runs one declared back-test (card, county, site id, seeds), which the engine's gate still refuses unless that site is registered. (4) It uploads the ledger record, the log and the commit as an artifact. It writes nothing to the repo or R2, and it has no push trigger. Its inputs reach the shell as environment variables, never spliced into the script. A run's record reaches main only through a step-3 PR together with its scoring. v2 runs after step 2's download-retry fix merges, and after the other step-2 items in v2 §11. *Invalidated by:* the runner's network failing the same way (then record it and decide again).
+
+## D-116 (2026-11-22, rollout step 2) — Downloader: retries with backoff, missing only on a real 404, data host in every record
+Required before any v2 back-test run.
+- **Retries.** `data._get` tries each file up to 3 times, waiting 2 s and then 4 s. It retries on:
+  - a dropped, reset or refused connection, or a timeout;
+  - a truncated body (bytes received ≠ Content-Length);
+  - a sha256 mismatch;
+  - HTTP 408, 425, 429 or 5xx.
+
+  After the last try it raises `DownloadFailed`.
+- **Missing means 404.** HTTP 404 raises at once and is the only error read as "missing". Any other 4xx raises at once and is never read as missing. Before this, `eia_available` turned every exception into `False`, so a network failure reached the gate as "T0−1 tables are not in R2". It now returns `False` only on a 404 and otherwise raises.
+- **Fresh index.** `worlds/index.json`, the one mutable file, is fetched fresh once per process. A cached copy had hidden a newly published county ("41065 is not published").
+- **Data host in every record.** `run.finish` writes `data_host` (the base URL actually used, D-066's `https://data.ruralsim.io` unless `RURALSIM_DATA_BASE` overrides it) and `data_downloads` (fetch count, retried files, missing-404 URLs, failures) into every record, including proposal-card refusals and holds.
+- **Checks.**
+  - 7 new tests against a local server that drops connections, truncates bodies, answers 503 and 404, and serves a wrong hash.
+  - 52 tests pass.
+  - EXP-0014 is unchanged.
+- **Seen while testing.** From this session's workspace, half of all requests to data.ruralsim.io failed: the agent proxy reported `ws_closed_mid_exchange`, the tunnel to its egress proxy closing mid-exchange. r2.dev answered 20 of 20. That is this environment's network path, not shown to be the domain. But at that rate a file fails all three tries one time in eight, so a run here can still stop with `DownloadFailed`, loudly and never as "missing". Pointing `RURALSIM_DATA_BASE` at r2.dev (same bytes, same hashes) works, and the record then names r2.dev.
+
+- **Added in pre-merge review (2026-11-24).**
+  - A TLS connection dropped mid-body (`ssl.SSLError`, e.g. `SSLEOFError`) escaped after one try; it is now retried like any other drop.
+  - The cache is one folder per data host, so a file fetched from r2.dev is never reused under `data.ruralsim.io` and recorded as coming from there. The EIA and Census tables are not hash-pinned, so this matters. The change costs one re-download per host.
+  - The download log starts fresh with each run, so a record reports only its own fetches and cache hits (`fetches`, `from_cache`).
+  - 55 tests pass in the pinned engine environment.
+
+*Invalidated by:* a host that needs other retry rules; a decision to fall back automatically to a second host.
