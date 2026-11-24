@@ -721,6 +721,7 @@ def main(argv=None):
     a = ap.parse_args(argv)
     if a.mask_radius_m is not None and not a.backtest:
         ap.error("--mask-radius-m applies only to a declared back-test (--backtest)")
+    data.reset_download_log()
     cards = {c["id"]: c for c in yaml.safe_load(CARDS.read_text())}
     card = cards[a.card]
     cfg = yaml.safe_load((HERE / "params" / "assumed.yaml").read_text())

@@ -11,6 +11,7 @@ import http.client
 import json
 import os
 import socket
+import ssl
 import time
 import urllib.error
 import urllib.request
@@ -21,7 +22,10 @@ import pandas as pd
 import pyproj
 
 BASE = os.environ.get("RURALSIM_DATA_BASE", "https://data.ruralsim.io").rstrip("/")
-CACHE = Path(os.environ.get("RURALSIM_CACHE", Path.home() / ".cache" / "ruralsim")) / "ai_infra"
+# One cache folder per data host (D-116), so a record's data_host is also where every cached file
+# it read came from: a file fetched from r2.dev is never reused as if data.ruralsim.io served it.
+CACHE = (Path(os.environ.get("RURALSIM_CACHE", Path.home() / ".cache" / "ruralsim")) / "ai_infra"
+         / BASE.split("://", 1)[-1].replace("/", "_").replace(":", "_"))
 ROOT = Path(__file__).resolve().parents[3]
 
 EIA_TABLES = ("eia860_generators", "eia860_plants", "eia861_utility_data",
@@ -56,10 +60,11 @@ def _fetch_once(url: str, tmp: Path) -> None:
 
 def _get(url: str, dest: Path, sha256: str | None = None, refresh: bool = False) -> Path:
     """Fetch url to dest (cached). Up to RETRIES tries with backoff on a dropped or refused
-    connection, a timeout, a truncated body, a sha256 mismatch or HTTP 408/425/429/5xx. HTTP 404
+    connection (including a TLS drop mid-body), a timeout, a truncated body, a sha256 mismatch or HTTP 408/425/429/5xx. HTTP 404
     is raised at once (the file is missing); any other HTTP 4xx too. After the last try:
     DownloadFailed."""
     if not refresh and dest.exists() and (sha256 is None or _sha(dest) == sha256):
+        DOWNLOADS.append({"url": url, "tries": 0, "outcome": "cached"})
         return dest
     dest.parent.mkdir(parents=True, exist_ok=True)
     tmp = dest.with_suffix(dest.suffix + ".part")
@@ -79,7 +84,7 @@ def _get(url: str, dest: Path, sha256: str | None = None, refresh: bool = False)
                 raise
             last = e
         except (urllib.error.URLError, TimeoutError, ConnectionError, http.client.HTTPException,
-                socket.timeout, ValueError) as e:
+                socket.timeout, ssl.SSLError, ValueError) as e:   # ssl.SSLError: a TLS drop mid-body
             last = e
         tmp.unlink(missing_ok=True)
         if attempt < RETRIES:
@@ -90,10 +95,17 @@ def _get(url: str, dest: Path, sha256: str | None = None, refresh: bool = False)
 
 def download_report() -> dict:
     """For the run record: where the data came from and how the fetches went."""
-    return {"host": BASE, "fetches": len(DOWNLOADS),
+    return {"host": BASE, "cache": str(CACHE),
+            "fetches": sum(1 for d in DOWNLOADS if d["outcome"] != "cached"),
+            "from_cache": sum(1 for d in DOWNLOADS if d["outcome"] == "cached"),
             "retried": [d for d in DOWNLOADS if d["tries"] > 1 and d["outcome"] == "ok"],
             "missing_404": [d["url"] for d in DOWNLOADS if d["outcome"] == "HTTP 404"],
-            "failed": [d for d in DOWNLOADS if d["outcome"] not in ("ok", "HTTP 404")]}
+            "failed": [d for d in DOWNLOADS if d["outcome"] not in ("ok", "cached", "HTTP 404")]}
+
+
+def reset_download_log() -> None:
+    """Start a run's download log (one record, one log)."""
+    DOWNLOADS.clear()
 
 
 def _sha(p: Path) -> str:

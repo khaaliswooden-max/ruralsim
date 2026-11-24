@@ -464,4 +464,10 @@ Required before any v2 back-test run.
   - EXP-0014 is unchanged.
 - **Seen while testing.** From this session's workspace, half of all requests to data.ruralsim.io failed: the agent proxy reported `ws_closed_mid_exchange`, the tunnel to its egress proxy closing mid-exchange. r2.dev answered 20 of 20. That is this environment's network path, not shown to be the domain. But at that rate a file fails all three tries one time in eight, so a run here can still stop with `DownloadFailed`, loudly and never as "missing". Pointing `RURALSIM_DATA_BASE` at r2.dev (same bytes, same hashes) works, and the record then names r2.dev.
 
+- **Added in pre-merge review (2026-11-24).**
+  - A TLS connection dropped mid-body (`ssl.SSLError`, e.g. `SSLEOFError`) escaped after one try; it is now retried like any other drop.
+  - The cache is one folder per data host, so a file fetched from r2.dev is never reused under `data.ruralsim.io` and recorded as coming from there. The EIA and Census tables are not hash-pinned, so this matters. The change costs one re-download per host.
+  - The download log starts fresh with each run, so a record reports only its own fetches and cache hits (`fetches`, `from_cache`).
+  - 55 tests pass in the pinned engine environment.
+
 *Invalidated by:* a host that needs other retry rules; a decision to fall back automatically to a second host.

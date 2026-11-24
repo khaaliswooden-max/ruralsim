@@ -86,6 +86,58 @@ def test_404_is_missing_at_once_and_other_4xx_raise(server, tmp_path, monkeypatc
 
 def test_download_report_names_the_host(server, tmp_path):
     data._get(f"{server}/drop/g.bin", tmp_path / "g.bin")
+    data._get(f"{server}/drop/g.bin", tmp_path / "g.bin")             # second read: from the cache
     r = data.download_report()
-    assert r["host"] == data.BASE and r["fetches"] == 1 and r["retried"][0]["tries"] == 2
+    assert r["host"] == data.BASE and r["fetches"] == 1 and r["from_cache"] == 1 and r["retried"][0]["tries"] == 2
     assert r["missing_404"] == [] and r["failed"] == []
+
+
+def test_tls_drop_mid_body_is_retried_and_never_missing(tmp_path, monkeypatch):
+    import ssl
+    calls = []
+
+    def flaky(url, tmp):
+        calls.append(1)
+        if len(calls) == 1:
+            raise ssl.SSLEOFError(8, "EOF occurred in violation of protocol")
+        tmp.write_bytes(BODY)
+    monkeypatch.setattr(data, "_fetch_once", flaky)
+    assert data._get("https://h/f.bin", tmp_path / "f.bin").read_bytes() == BODY and len(calls) == 2
+
+    def always(url, tmp):
+        raise ssl.SSLEOFError(8, "EOF occurred in violation of protocol")
+    monkeypatch.setattr(data, "_fetch_once", always)
+    with pytest.raises(data.DownloadFailed) as e:
+        data._get("https://h/g.bin", tmp_path / "g.bin")
+    assert not data.is_missing(e.value)
+
+
+def test_backoff_waits_2_then_4_seconds(tmp_path, monkeypatch):
+    slept = []
+    monkeypatch.setattr(data, "BACKOFF_S", 2.0)
+    monkeypatch.setattr(data.time, "sleep", slept.append)
+
+    def reset(url, tmp):
+        raise ConnectionResetError(104, "Connection reset by peer")
+    monkeypatch.setattr(data, "_fetch_once", reset)
+    with pytest.raises(data.DownloadFailed):
+        data._get("https://h/f.bin", tmp_path / "f.bin")
+    assert slept == [2.0, 4.0]                                   # 3 tries, waits between them only
+
+
+def test_cache_is_per_host():
+    import importlib
+    import os
+    old = os.environ.get("RURALSIM_DATA_BASE")
+    try:
+        os.environ["RURALSIM_DATA_BASE"] = "https://a.example"
+        a = importlib.reload(data).CACHE
+        os.environ["RURALSIM_DATA_BASE"] = "https://b.example/sub"
+        b = importlib.reload(data).CACHE
+    finally:
+        if old is None:
+            os.environ.pop("RURALSIM_DATA_BASE", None)
+        else:
+            os.environ["RURALSIM_DATA_BASE"] = old
+        importlib.reload(data)
+    assert a != b and a.name == "a.example" and b.name == "b.example_sub"
