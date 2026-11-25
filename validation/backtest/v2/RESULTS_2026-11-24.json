@@ -1,0 +1,1933 @@
+{
+ "date": "2026-11-24",
+ "preregistration": "validation/backtest/v2/PREREGISTRATION.md (D-207; run plan D-210)",
+ "frozen_engine": "56b306b1844484eef2619c910ac081879a200707",
+ "data_host_required": "https://data.ruralsim.io",
+ "grade_rule": "\u00a77",
+ "grades": {
+  "G1": {
+   "scored": 3,
+   "passes": 3,
+   "misses": 0,
+   "grade": "PLAUSIBLE for the v2 back-test sites"
+  },
+  "R1": {
+   "scored": 1,
+   "passes": 0,
+   "misses": 1,
+   "grade": "SPECULATIVE"
+  },
+  "W1": {
+   "scored": 2,
+   "passes": 0,
+   "misses": 2,
+   "grade": "SPECULATIVE"
+  }
+ },
+ "per_site": {
+  "V2-01": {
+   "G1": {
+    "status": "PASS",
+    "observed": {
+     "new_substation": true,
+     "new_line_ge_69kv": null,
+     "detail": "BPA and Pacific Power completed the Ponderosa substation upgrade (+350 MW to the local grid) in January 2013, which BPA had planned for 2014; in October 2010 the local BPA substation lacked capacity for Facebook's planned buildings",
+     "source": [
+      "CR-3",
+      "CR-7"
+     ]
+    },
+    "line_ge_69kv": "not compared: no site documents one (\u00a76.1)",
+    "by_E": [
+     {
+      "E": 2011,
+      "scenario": "g1_E2011",
+      "observed_new_substation": true,
+      "bounds": {
+       "lower": {
+        "share_seeds_new_substation": 1.0,
+        "share_seeds_new_line_ge_69kv": 1.0,
+        "status_counts": {
+         "computed": 20
+        },
+        "masked_features": 6,
+        "seeds_computed": 20,
+        "seeds_with_substation": 20,
+        "predicted_new_substation": true
+       },
+       "upper": {
+        "share_seeds_new_substation": 1.0,
+        "share_seeds_new_line_ge_69kv": 0.0,
+        "status_counts": {
+         "computed": 20
+        },
+        "masked_features": 0,
+        "seeds_computed": 20,
+        "seeds_with_substation": 20,
+        "predicted_new_substation": true
+       }
+      },
+      "bound_verdicts": {
+       "lower": "PASS",
+       "upper": "PASS"
+      },
+      "verdict": "PASS"
+     }
+    ]
+   },
+   "R1": {
+    "status": "NOT SCORED",
+    "reason": "below the attribution floor, not scored (\u00a75.5(a)); computed and published as \u00a712 requires",
+    "by_E": [
+     {
+      "E": 2011,
+      "scenario": "r1_E2011",
+      "utility_eia_id": 14354,
+      "observed_peer_pp": 17.62,
+      "observed_state_pp": 8.97,
+      "peer_n": 2,
+      "site_share_of_T0m1_sales": 0.0244,
+      "bounds": {
+       "lower": {
+        "interval_pp": [
+         3.97,
+         22.62
+        ],
+        "sign_required": 1,
+        "per_allocation": {
+         "direct_assignment": {
+          "status": "miss",
+          "source": "main model",
+          "bands": {
+           "single": {
+            "p10": -0.3252936387360892,
+            "p50": -0.1750599814883365,
+            "p90": 0.09657882861763198,
+            "n": 20
+           }
+          },
+          "p50_by_case": {
+           "single": -0.1750599814883365
+          },
+          "case_passes": {
+           "single": false
+          }
+         },
+         "large_load_tariff": {
+          "status": "miss",
+          "source": "main model",
+          "bands": {
+           "single": {
+            "p10": -0.3090072356938941,
+            "p50": -0.1269529829513762,
+            "p90": 0.12819200469246878,
+            "n": 20
+           }
+          },
+          "p50_by_case": {
+           "single": -0.1269529829513762
+          },
+          "case_passes": {
+           "single": false
+          }
+         },
+         "socialized": {
+          "status": "miss",
+          "source": "main model",
+          "bands": {
+           "single": {
+            "p10": -0.0958462948431489,
+            "p50": 0.03486161918305779,
+            "p90": 0.35318808760916787,
+            "n": 20
+           }
+          },
+          "p50_by_case": {
+           "single": 0.03486161918305779
+          },
+          "case_passes": {
+           "single": false
+          }
+         }
+        }
+       },
+       "upper": {
+        "interval_pp": [
+         3.97,
+         22.62
+        ],
+        "sign_required": 1,
+        "per_allocation": {
+         "direct_assignment": {
+          "status": "miss",
+          "source": "main model",
+          "bands": {
+           "single": {
+            "p10": -0.3252936387360892,
+            "p50": -0.1750599814883365,
+            "p90": 0.09657882861763198,
+            "n": 20
+           }
+          },
+          "p50_by_case": {
+           "single": -0.1750599814883365
+          },
+          "case_passes": {
+           "single": false
+          }
+         },
+         "large_load_tariff": {
+          "status": "miss",
+          "source": "main model",
+          "bands": {
+           "single": {
+            "p10": -0.3137367801997734,
+            "p50": -0.14604931809551647,
+            "p90": 0.10672256640119818,
+            "n": 20
+           }
+          },
+          "p50_by_case": {
+           "single": -0.14604931809551647
+          },
+          "case_passes": {
+           "single": false
+          }
+         },
+         "socialized": {
+          "status": "miss",
+          "source": "main model",
+          "bands": {
+           "single": {
+            "p10": -0.21243108530339672,
+            "p50": -0.051407001728914485,
+            "p90": 0.20118998900369656,
+            "n": 20
+           }
+          },
+          "p50_by_case": {
+           "single": -0.051407001728914485
+          },
+          "case_passes": {
+           "single": false
+          }
+         }
+        }
+       }
+      },
+      "bound_verdicts": {
+       "lower": "MISS",
+       "upper": "MISS"
+      },
+      "verdict": "NOT SCORED",
+      "reason": "below the attribution floor, not scored (\u00a75.5(a))",
+      "unscored_comparison": "MISS"
+     }
+    ]
+   },
+   "W1": {
+    "status": "MISS",
+    "share_years_pass": 0.0,
+    "years_scored": 7,
+    "years": [
+     {
+      "year": 2014,
+      "observed_m3": 41639.0,
+      "predicted_p50_m3": 11370,
+      "band_m3": {
+       "p10": 2461.9690120149,
+       "p50": 11369.530222301193,
+       "p90": 21226.710657917545,
+       "n": 20
+      },
+      "ratio": 0.273,
+      "status": "MISS",
+      "cooling_type": "adiabatic_hybrid",
+      "wue_l_per_it_kwh": {
+       "p10": 0.013109005058073575,
+       "p50": 0.05602381866212926,
+       "p90": 0.09455555882885867,
+       "n": 20
+      }
+     },
+     {
+      "year": 2015,
+      "observed_m3": 68137.0,
+      "predicted_p50_m3": 12320,
+      "band_m3": {
+       "p10": 2667.81926385561,
+       "p50": 12320.159839550459,
+       "p90": 23001.51924135547,
+       "n": 20
+      },
+      "ratio": 0.181,
+      "status": "MISS",
+      "cooling_type": "adiabatic_hybrid",
+      "wue_l_per_it_kwh": {
+       "p10": 0.013109005058073575,
+       "p50": 0.05602381866212925,
+       "p90": 0.0945555588288587,
+       "n": 20
+      }
+     },
+     {
+      "year": 2016,
+      "observed_m3": 70000.0,
+      "predicted_p50_m3": 14183,
+      "band_m3": {
+       "p10": 3071.2857574634027,
+       "p50": 14183.393889359017,
+       "p90": 26480.144064893793,
+       "n": 20
+      },
+      "ratio": 0.203,
+      "status": "MISS",
+      "cooling_type": "adiabatic_hybrid",
+      "wue_l_per_it_kwh": {
+       "p10": 0.013109005058073575,
+       "p50": 0.05602381866212926,
+       "p90": 0.09455555882885869,
+       "n": 20
+      }
+     },
+     {
+      "year": 2017,
+      "observed_m3": 172000.0,
+      "predicted_p50_m3": 18480,
+      "band_m3": {
+       "p10": 4001.7288957834157,
+       "p50": 18480.23975932569,
+       "p90": 34502.27886203321,
+       "n": 20
+      },
+      "ratio": 0.107,
+      "status": "MISS",
+      "cooling_type": "adiabatic_hybrid",
+      "wue_l_per_it_kwh": {
+       "p10": 0.013109005058073575,
+       "p50": 0.05602381866212924,
+       "p90": 0.09455555882885866,
+       "n": 20
+      }
+     },
+     {
+      "year": 2018,
+      "observed_m3": 160000.0,
+      "predicted_p50_m3": 21180,
+      "band_m3": {
+       "p10": 4586.3436110110315,
+       "p50": 21180.0278723136,
+       "p90": 39542.73523899691,
+       "n": 20
+      },
+      "ratio": 0.132,
+      "status": "MISS",
+      "cooling_type": "adiabatic_hybrid",
+      "wue_l_per_it_kwh": {
+       "p10": 0.01310900505807357,
+       "p50": 0.05602381866212926,
+       "p90": 0.09455555882885869,
+       "n": 20
+      }
+     },
+     {
+      "year": 2019,
+      "observed_m3": 208000.0,
+      "predicted_p50_m3": 24868,
+      "band_m3": {
+       "p10": 5385.042588152991,
+       "p50": 24868.47078724074,
+       "p90": 46428.99254273604,
+       "n": 20
+      },
+      "ratio": 0.12,
+      "status": "MISS",
+      "cooling_type": "adiabatic_hybrid",
+      "wue_l_per_it_kwh": {
+       "p10": 0.013109005058073574,
+       "p50": 0.05602381866212924,
+       "p90": 0.09455555882885869,
+       "n": 20
+      }
+     },
+     {
+      "year": 2020,
+      "observed_m3": 445000.0,
+      "predicted_p50_m3": 29774,
+      "band_m3": {
+       "p10": 6447.2298876510595,
+       "p50": 29773.71961224694,
+       "p90": 55587.00483327572,
+       "n": 20
+      },
+      "ratio": 0.067,
+      "status": "MISS",
+      "cooling_type": "adiabatic_hybrid",
+      "wue_l_per_it_kwh": {
+       "p10": 0.013109005058073579,
+       "p50": 0.05602381866212925,
+       "p90": 0.09455555882885867,
+       "n": 20
+      }
+     }
+    ]
+   }
+  },
+  "V2-02": {
+   "G1": {
+    "status": "PASS",
+    "observed": {
+     "new_substation": true,
+     "new_line_ge_69kv": null,
+     "detail": "a 100 kV substation on the campus tagged operator=Facebook in OSM; it serves the site by construction, but no record dates it",
+     "source": [
+      "RU-5"
+     ],
+     "caveat": "build date not documented; counted as built for the site because its operator is the site's owner"
+    },
+    "line_ge_69kv": "not compared: no site documents one (\u00a76.1)",
+    "by_E": [
+     {
+      "E": 2011,
+      "scenario": "g1_E2011",
+      "observed_new_substation": true,
+      "bounds": {
+       "lower": {
+        "share_seeds_new_substation": 1.0,
+        "share_seeds_new_line_ge_69kv": 0.0,
+        "status_counts": {
+         "computed": 20
+        },
+        "masked_features": 1,
+        "seeds_computed": 20,
+        "seeds_with_substation": 20,
+        "predicted_new_substation": true
+       },
+       "upper": {
+        "share_seeds_new_substation": 1.0,
+        "share_seeds_new_line_ge_69kv": 0.0,
+        "status_counts": {
+         "computed": 20
+        },
+        "masked_features": 1,
+        "seeds_computed": 20,
+        "seeds_with_substation": 20,
+        "predicted_new_substation": true
+       }
+      },
+      "bound_verdicts": {
+       "lower": "PASS",
+       "upper": "PASS"
+      },
+      "verdict": "PASS"
+     },
+     {
+      "E": 2012,
+      "scenario": "g1_E2012",
+      "observed_new_substation": true,
+      "bounds": {
+       "lower": {
+        "share_seeds_new_substation": 1.0,
+        "share_seeds_new_line_ge_69kv": 0.3,
+        "status_counts": {
+         "computed": 20
+        },
+        "masked_features": 1,
+        "seeds_computed": 20,
+        "seeds_with_substation": 20,
+        "predicted_new_substation": true
+       },
+       "upper": {
+        "share_seeds_new_substation": 1.0,
+        "share_seeds_new_line_ge_69kv": 0.3,
+        "status_counts": {
+         "computed": 20
+        },
+        "masked_features": 1,
+        "seeds_computed": 20,
+        "seeds_with_substation": 20,
+        "predicted_new_substation": true
+       }
+      },
+      "bound_verdicts": {
+       "lower": "PASS",
+       "upper": "PASS"
+      },
+      "verdict": "PASS"
+     }
+    ]
+   },
+   "R1": {
+    "status": "NOT SCORED",
+    "reason": "below the attribution floor, not scored (\u00a75.5(a)); computed and published as \u00a712 requires",
+    "by_E": [
+     {
+      "E": 2011,
+      "scenario": "r1_E2011",
+      "utility_eia_id": 5416,
+      "observed_peer_pp": 20.46,
+      "observed_state_pp": 13.63,
+      "peer_n": 2,
+      "site_share_of_T0m1_sales": 0.0062,
+      "bounds": {
+       "lower": {
+        "interval_pp": [
+         8.63,
+         25.46
+        ],
+        "sign_required": 1,
+        "per_allocation": {
+         "direct_assignment": {
+          "status": "miss",
+          "source": "main model",
+          "bands": {
+           "single": {
+            "p10": -0.06677378999403187,
+            "p50": -0.014881970088407089,
+            "p90": 0.031736556544925174,
+            "n": 20
+           }
+          },
+          "p50_by_case": {
+           "single": -0.014881970088407089
+          },
+          "case_passes": {
+           "single": false
+          }
+         },
+         "large_load_tariff": {
+          "status": "miss",
+          "source": "main model",
+          "bands": {
+           "single": {
+            "p10": -0.06388795909640724,
+            "p50": -0.006698170009570652,
+            "p90": 0.035134624868937564,
+            "n": 20
+           }
+          },
+          "p50_by_case": {
+           "single": -0.006698170009570652
+          },
+          "case_passes": {
+           "single": false
+          }
+         },
+         "socialized": {
+          "status": "miss",
+          "source": "main model",
+          "bands": {
+           "single": {
+            "p10": -0.04678910305151077,
+            "p50": 0.024341886341731237,
+            "p90": 0.06120153152281494,
+            "n": 20
+           }
+          },
+          "p50_by_case": {
+           "single": 0.024341886341731237
+          },
+          "case_passes": {
+           "single": false
+          }
+         }
+        }
+       },
+       "upper": {
+        "interval_pp": [
+         8.63,
+         25.46
+        ],
+        "sign_required": 1,
+        "per_allocation": {
+         "direct_assignment": {
+          "status": "miss",
+          "source": "main model",
+          "bands": {
+           "single": {
+            "p10": -0.06677378999403187,
+            "p50": -0.014881970088407089,
+            "p90": 0.031736556544925174,
+            "n": 20
+           }
+          },
+          "p50_by_case": {
+           "single": -0.014881970088407089
+          },
+          "case_passes": {
+           "single": false
+          }
+         },
+         "large_load_tariff": {
+          "status": "miss",
+          "source": "main model",
+          "bands": {
+           "single": {
+            "p10": -0.06388795909640724,
+            "p50": -0.006698170009570652,
+            "p90": 0.035134624868937564,
+            "n": 20
+           }
+          },
+          "p50_by_case": {
+           "single": -0.006698170009570652
+          },
+          "case_passes": {
+           "single": false
+          }
+         },
+         "socialized": {
+          "status": "miss",
+          "source": "main model",
+          "bands": {
+           "single": {
+            "p10": -0.04678910305151077,
+            "p50": 0.024341886341731237,
+            "p90": 0.06120153152281494,
+            "n": 20
+           }
+          },
+          "p50_by_case": {
+           "single": 0.024341886341731237
+          },
+          "case_passes": {
+           "single": false
+          }
+         }
+        }
+       }
+      },
+      "bound_verdicts": {
+       "lower": "MISS",
+       "upper": "MISS"
+      },
+      "verdict": "NOT SCORED",
+      "reason": "below the attribution floor, not scored (\u00a75.5(a))",
+      "unscored_comparison": "MISS"
+     },
+     {
+      "E": 2012,
+      "scenario": "r1_E2012",
+      "utility_eia_id": 5416,
+      "observed_peer_pp": 20.35,
+      "observed_state_pp": 11.66,
+      "peer_n": 2,
+      "site_share_of_T0m1_sales": 0.008,
+      "bounds": {
+       "lower": {
+        "interval_pp": [
+         6.66,
+         25.35
+        ],
+        "sign_required": 1,
+        "per_allocation": {
+         "direct_assignment": {
+          "status": "miss",
+          "source": "main model",
+          "bands": {
+           "single": {
+            "p10": -0.08523579394587014,
+            "p50": -0.018996623316984762,
+            "p90": 0.040511263393263656,
+            "n": 20
+           }
+          },
+          "p50_by_case": {
+           "single": -0.018996623316984762
+          },
+          "case_passes": {
+           "single": false
+          }
+         },
+         "large_load_tariff": {
+          "status": "miss",
+          "source": "main model",
+          "bands": {
+           "single": {
+            "p10": -0.08103124362782813,
+            "p50": -0.010769960462109616,
+            "p90": 0.048401111686777284,
+            "n": 20
+           }
+          },
+          "p50_by_case": {
+           "single": -0.010769960462109616
+          },
+          "case_passes": {
+           "single": false
+          }
+         },
+         "socialized": {
+          "status": "miss",
+          "source": "main model",
+          "bands": {
+           "single": {
+            "p10": -0.05328943735860904,
+            "p50": 0.016758652161777007,
+            "p90": 0.08501298962904225,
+            "n": 20
+           }
+          },
+          "p50_by_case": {
+           "single": 0.016758652161777007
+          },
+          "case_passes": {
+           "single": false
+          }
+         }
+        }
+       },
+       "upper": {
+        "interval_pp": [
+         6.66,
+         25.35
+        ],
+        "sign_required": 1,
+        "per_allocation": {
+         "direct_assignment": {
+          "status": "miss",
+          "source": "main model",
+          "bands": {
+           "single": {
+            "p10": -0.08523579394587014,
+            "p50": -0.018996623316984762,
+            "p90": 0.040511263393263656,
+            "n": 20
+           }
+          },
+          "p50_by_case": {
+           "single": -0.018996623316984762
+          },
+          "case_passes": {
+           "single": false
+          }
+         },
+         "large_load_tariff": {
+          "status": "miss",
+          "source": "main model",
+          "bands": {
+           "single": {
+            "p10": -0.08103124362782813,
+            "p50": -0.010769960462109616,
+            "p90": 0.048401111686777284,
+            "n": 20
+           }
+          },
+          "p50_by_case": {
+           "single": -0.010769960462109616
+          },
+          "case_passes": {
+           "single": false
+          }
+         },
+         "socialized": {
+          "status": "miss",
+          "source": "main model",
+          "bands": {
+           "single": {
+            "p10": -0.05328943735860904,
+            "p50": 0.016758652161777007,
+            "p90": 0.08501298962904225,
+            "n": 20
+           }
+          },
+          "p50_by_case": {
+           "single": 0.016758652161777007
+          },
+          "case_passes": {
+           "single": false
+          }
+         }
+        }
+       }
+      },
+      "bound_verdicts": {
+       "lower": "MISS",
+       "upper": "MISS"
+      },
+      "verdict": "NOT SCORED",
+      "reason": "below the attribution floor, not scored (\u00a75.5(a))",
+      "unscored_comparison": "MISS"
+     }
+    ]
+   },
+   "W1": {
+    "status": "MISS",
+    "share_years_pass": 0.571,
+    "years_scored": 7,
+    "years": [
+     {
+      "year": 2014,
+      "observed_m3": 117348.0,
+      "predicted_p50_m3": 53525,
+      "band_m3": {
+       "p10": 33189.600199223445,
+       "p50": 53525.224252382184,
+       "p90": 109091.44231286114,
+       "n": 20
+      },
+      "ratio": 0.456,
+      "status": "MISS",
+      "cooling_type": "adiabatic_hybrid",
+      "wue_l_per_it_kwh": {
+       "p10": 0.13459005432617474,
+       "p50": 0.20898201229270352,
+       "p90": 0.43498290021050373,
+       "n": 20
+      }
+     },
+     {
+      "year": 2015,
+      "observed_m3": 124919.0,
+      "predicted_p50_m3": 51489,
+      "band_m3": {
+       "p10": 31926.95236555733,
+       "p50": 51488.938547128506,
+       "p90": 104941.2243987849,
+       "n": 20
+      },
+      "ratio": 0.412,
+      "status": "MISS",
+      "cooling_type": "adiabatic_hybrid",
+      "wue_l_per_it_kwh": {
+       "p10": 0.1345900543261747,
+       "p50": 0.20898201229270347,
+       "p90": 0.4349829002105039,
+       "n": 20
+      }
+     },
+     {
+      "year": 2016,
+      "observed_m3": 123000.0,
+      "predicted_p50_m3": 56289,
+      "band_m3": {
+       "p10": 34903.1936877703,
+       "p50": 56288.7548523693,
+       "p90": 114723.88091053607,
+       "n": 20
+      },
+      "ratio": 0.458,
+      "status": "MISS",
+      "cooling_type": "adiabatic_hybrid",
+      "wue_l_per_it_kwh": {
+       "p10": 0.1345900543261747,
+       "p50": 0.2089820122927034,
+       "p90": 0.43498290021050373,
+       "n": 20
+      }
+     },
+     {
+      "year": 2017,
+      "observed_m3": 129000.0,
+      "predicted_p50_m3": 71852,
+      "band_m3": {
+       "p10": 44553.43070221841,
+       "p50": 71851.79559966522,
+       "p90": 146443.40353954732,
+       "n": 20
+      },
+      "ratio": 0.557,
+      "status": "PASS",
+      "cooling_type": "adiabatic_hybrid",
+      "wue_l_per_it_kwh": {
+       "p10": 0.13459005432617477,
+       "p50": 0.20898201229270344,
+       "p90": 0.4349829002105036,
+       "n": 20
+      }
+     },
+     {
+      "year": 2018,
+      "observed_m3": 99000.0,
+      "predicted_p50_m3": 90760,
+      "band_m3": {
+       "p10": 56278.017729118015,
+       "p50": 90760.162862735,
+       "p90": 184981.14131311234,
+       "n": 20
+      },
+      "ratio": 0.917,
+      "status": "PASS",
+      "cooling_type": "adiabatic_hybrid",
+      "wue_l_per_it_kwh": {
+       "p10": 0.13459005432617474,
+       "p50": 0.20898201229270347,
+       "p90": 0.4349829002105038,
+       "n": 20
+      }
+     },
+     {
+      "year": 2019,
+      "observed_m3": 85000.0,
+      "predicted_p50_m3": 101960,
+      "band_m3": {
+       "p10": 63222.58081428161,
+       "p50": 101959.73424163018,
+       "p90": 207807.33984053164,
+       "n": 20
+      },
+      "ratio": 1.2,
+      "status": "PASS",
+      "cooling_type": "adiabatic_hybrid",
+      "wue_l_per_it_kwh": {
+       "p10": 0.13459005432617477,
+       "p50": 0.20898201229270347,
+       "p90": 0.4349829002105037,
+       "n": 20
+      }
+     },
+     {
+      "year": 2020,
+      "observed_m3": 68000.0,
+      "predicted_p50_m3": 98760,
+      "band_m3": {
+       "p10": 61238.41993280631,
+       "p50": 98759.85670480298,
+       "p90": 201285.56883269764,
+       "n": 20
+      },
+      "ratio": 1.452,
+      "status": "PASS",
+      "cooling_type": "adiabatic_hybrid",
+      "wue_l_per_it_kwh": {
+       "p10": 0.13459005432617477,
+       "p50": 0.20898201229270347,
+       "p90": 0.4349829002105037,
+       "n": 20
+      }
+     }
+    ]
+   }
+  },
+  "V2-03": {
+   "G1": {
+    "status": "PASS",
+    "observed": {
+     "new_substation": true,
+     "new_line_ge_69kv": null,
+     "detail": "a 10 MW substation being built next to the site, 2008 [MO-1]; UEC expanded existing substations and used mobile substations for new campuses [MO-2]",
+     "source": [
+      "MO-1",
+      "MO-2"
+     ]
+    },
+    "line_ge_69kv": "not compared: no site documents one (\u00a76.1)",
+    "by_E": [
+     {
+      "E": 2011,
+      "scenario": "g1_E2011",
+      "observed_new_substation": true,
+      "bounds": {
+       "lower": {
+        "share_seeds_new_substation": 1.0,
+        "share_seeds_new_line_ge_69kv": 1.0,
+        "status_counts": {
+         "computed": 20
+        },
+        "masked_features": 5,
+        "seeds_computed": 20,
+        "seeds_with_substation": 20,
+        "predicted_new_substation": true
+       },
+       "upper": {
+        "share_seeds_new_substation": 1.0,
+        "share_seeds_new_line_ge_69kv": 1.0,
+        "status_counts": {
+         "computed": 20
+        },
+        "masked_features": 1,
+        "seeds_computed": 20,
+        "seeds_with_substation": 20,
+        "predicted_new_substation": true
+       }
+      },
+      "bound_verdicts": {
+       "lower": "PASS",
+       "upper": "PASS"
+      },
+      "verdict": "PASS"
+     },
+     {
+      "E": 2013,
+      "scenario": "g1_E2013",
+      "observed_new_substation": true,
+      "bounds": {
+       "lower": {
+        "share_seeds_new_substation": 1.0,
+        "share_seeds_new_line_ge_69kv": 1.0,
+        "status_counts": {
+         "computed": 20
+        },
+        "masked_features": 5,
+        "seeds_computed": 20,
+        "seeds_with_substation": 20,
+        "predicted_new_substation": true
+       },
+       "upper": {
+        "share_seeds_new_substation": 1.0,
+        "share_seeds_new_line_ge_69kv": 0.0,
+        "status_counts": {
+         "computed": 20
+        },
+        "masked_features": 1,
+        "seeds_computed": 20,
+        "seeds_with_substation": 20,
+        "predicted_new_substation": true
+       }
+      },
+      "bound_verdicts": {
+       "lower": "PASS",
+       "upper": "PASS"
+      },
+      "verdict": "PASS"
+     }
+    ]
+   },
+   "R1": {
+    "status": "MISS",
+    "by_E": [
+     {
+      "E": 2011,
+      "scenario": "r1_E2011",
+      "utility_eia_id": 19325,
+      "observed_peer_pp": 1.98,
+      "observed_state_pp": -0.01,
+      "peer_n": 17,
+      "site_share_of_T0m1_sales": 0.9678,
+      "bounds": {
+       "lower": {
+        "interval_pp": [
+         -5.01,
+         6.98
+        ],
+        "sign_required": null,
+        "per_allocation": {
+         "direct_assignment": {
+          "status": "pass",
+          "source": "large_load",
+          "bands": {
+           "single": {
+            "p10": 0.0,
+            "p50": 0.0,
+            "p90": 0.0,
+            "n": 20
+           }
+          },
+          "share_seeds_above_limit": 1.0,
+          "p50_by_case": {
+           "single": 0.0
+          },
+          "case_passes": {
+           "single": true
+          },
+          "interval_miss": true
+         },
+         "large_load_tariff": {
+          "status": "pass",
+          "source": "large_load",
+          "bands": {
+           "single": {
+            "p10": 0.15065292538988553,
+            "p50": 0.425699921806578,
+            "p90": 0.5879871913770022,
+            "n": 20
+           }
+          },
+          "share_seeds_above_limit": 1.0,
+          "p50_by_case": {
+           "single": 0.425699921806578
+          },
+          "case_passes": {
+           "single": true
+          },
+          "interval_miss": true
+         },
+         "socialized": {
+          "status": "pass",
+          "source": "large_load",
+          "bands": {
+           "single": {
+            "p10": 1.7065698697295382,
+            "p50": 2.7742396114075287,
+            "p90": 4.000403306250327,
+            "n": 20
+           }
+          },
+          "share_seeds_above_limit": 1.0,
+          "p50_by_case": {
+           "single": 2.7742396114075287
+          },
+          "case_passes": {
+           "single": true
+          }
+         }
+        }
+       },
+       "upper": {
+        "interval_pp": [
+         -5.01,
+         6.98
+        ],
+        "sign_required": null,
+        "per_allocation": {
+         "direct_assignment": {
+          "status": "pass",
+          "source": "large_load",
+          "bands": {
+           "single": {
+            "p10": 0.0,
+            "p50": 0.0,
+            "p90": 0.0,
+            "n": 20
+           }
+          },
+          "share_seeds_above_limit": 1.0,
+          "p50_by_case": {
+           "single": 0.0
+          },
+          "case_passes": {
+           "single": true
+          },
+          "interval_miss": true
+         },
+         "large_load_tariff": {
+          "status": "pass",
+          "source": "large_load",
+          "bands": {
+           "single": {
+            "p10": 0.11350475959146096,
+            "p50": 0.3100206147732666,
+            "p90": 0.45013626688053243,
+            "n": 20
+           }
+          },
+          "share_seeds_above_limit": 1.0,
+          "p50_by_case": {
+           "single": 0.3100206147732666
+          },
+          "case_passes": {
+           "single": true
+          },
+          "interval_miss": true
+         },
+         "socialized": {
+          "status": "pass",
+          "source": "large_load",
+          "bands": {
+           "single": {
+            "p10": 1.2422944963595,
+            "p50": 2.20744865361726,
+            "p90": 3.1548455127880843,
+            "n": 20
+           }
+          },
+          "share_seeds_above_limit": 1.0,
+          "p50_by_case": {
+           "single": 2.20744865361726
+          },
+          "case_passes": {
+           "single": true
+          }
+         }
+        }
+       }
+      },
+      "bound_verdicts": {
+       "lower": "PASS",
+       "upper": "PASS"
+      },
+      "verdict": "PASS"
+     },
+     {
+      "E": 2013,
+      "scenario": "r1_E2013",
+      "utility_eia_id": 19325,
+      "observed_peer_pp": -3.86,
+      "observed_state_pp": -7.83,
+      "peer_n": 17,
+      "site_share_of_T0m1_sales": 1.7057,
+      "bounds": {
+       "lower": {
+        "interval_pp": [
+         -12.83,
+         1.14
+        ],
+        "sign_required": null,
+        "per_allocation": {
+         "direct_assignment": {
+          "status": "pass",
+          "source": "large_load",
+          "bands": {
+           "single": {
+            "p10": 0.0,
+            "p50": 0.0,
+            "p90": 0.0,
+            "n": 20
+           }
+          },
+          "share_seeds_above_limit": 1.0,
+          "p50_by_case": {
+           "single": 0.0
+          },
+          "case_passes": {
+           "single": true
+          },
+          "interval_miss": true
+         },
+         "large_load_tariff": {
+          "status": "pass",
+          "source": "large_load",
+          "bands": {
+           "single": {
+            "p10": 0.15890676956538863,
+            "p50": 0.49291321708328795,
+            "p90": 0.7796178786533561,
+            "n": 20
+           }
+          },
+          "share_seeds_above_limit": 1.0,
+          "p50_by_case": {
+           "single": 0.49291321708328795
+          },
+          "case_passes": {
+           "single": true
+          },
+          "interval_miss": true
+         },
+         "socialized": {
+          "status": "miss",
+          "source": "large_load",
+          "bands": {
+           "single": {
+            "p10": 1.9921619519589284,
+            "p50": 3.1509875456203567,
+            "p90": 4.338059491261794,
+            "n": 20
+           }
+          },
+          "share_seeds_above_limit": 1.0,
+          "p50_by_case": {
+           "single": 3.1509875456203567
+          },
+          "case_passes": {
+           "single": false
+          }
+         }
+        }
+       },
+       "upper": {
+        "interval_pp": [
+         -12.83,
+         1.14
+        ],
+        "sign_required": null,
+        "per_allocation": {
+         "direct_assignment": {
+          "status": "pass",
+          "source": "large_load",
+          "bands": {
+           "single": {
+            "p10": 0.0,
+            "p50": 0.0,
+            "p90": 0.0,
+            "n": 20
+           }
+          },
+          "share_seeds_above_limit": 1.0,
+          "p50_by_case": {
+           "single": 0.0
+          },
+          "case_passes": {
+           "single": true
+          },
+          "interval_miss": true
+         },
+         "large_load_tariff": {
+          "status": "pass",
+          "source": "large_load",
+          "bands": {
+           "single": {
+            "p10": 0.11942503100415482,
+            "p50": 0.3277499877688944,
+            "p90": 0.4593985793947504,
+            "n": 20
+           }
+          },
+          "share_seeds_above_limit": 1.0,
+          "p50_by_case": {
+           "single": 0.3277499877688944
+          },
+          "case_passes": {
+           "single": true
+          },
+          "interval_miss": true
+         },
+         "socialized": {
+          "status": "miss",
+          "source": "large_load",
+          "bands": {
+           "single": {
+            "p10": 1.2540062538050345,
+            "p50": 2.265681097234001,
+            "p90": 3.2976515893925327,
+            "n": 20
+           }
+          },
+          "share_seeds_above_limit": 1.0,
+          "p50_by_case": {
+           "single": 2.265681097234001
+          },
+          "case_passes": {
+           "single": false
+          }
+         }
+        }
+       }
+      },
+      "bound_verdicts": {
+       "lower": "MISS",
+       "upper": "MISS"
+      },
+      "verdict": "MISS"
+     }
+    ]
+   },
+   "W1": {
+    "status": "NOT SCORED",
+    "reason": "no site-scope water record"
+   }
+  }
+ },
+ "runs": {
+  "V2-01 power upper bound (0 m)": {
+   "run_id": "BACKTEST-2-V201-power/20261125T003350Z",
+   "card_id": "BACKTEST-2-V201-power",
+   "engine_version": "1c60a12e7fa47a25c98044a8047c16f312308c4f",
+   "params_sha256": "d0e5a64afaa127f7c6a2a6dc857c6adc6490eb040c5e830e81118bdb7608d3b6",
+   "data_host": "https://data.ruralsim.io",
+   "seeds": 20,
+   "refused": [],
+   "eia_tables": {
+    "2009": {
+     "year": 2009,
+     "purpose": "back-test T0-1 inputs (PREREGISTRATION.md 4.2.1, D-062)",
+     "sources": {
+      "eia860": "https://www.eia.gov/electricity/data/eia860/archive/xls/eia8602009.zip",
+      "eia861": "https://www.eia.gov/electricity/data/eia861/archive/zip/861_2009.zip",
+      "census_counties": "https://www2.census.gov/geo/tiger/GENZ2024/shp/cb_2024_us_county_500k.zip"
+     },
+     "license": "public domain (U.S. EIA; U.S. Census Bureau)",
+     "rows": {
+      "eia860_generators": 22238,
+      "eia860_plants": 6816,
+      "eia861_utility_data": 3272,
+      "eia861_sales_ult_cust": 3598,
+      "eia861_short_form": 0,
+      "eia861_service_territory": 11758
+     },
+     "short_form": "none before 2012 (empty table, 2024 columns)",
+     "plants_us_50_dc": 6815,
+     "plants_county_by_method": {
+      "plant_code_2024": 5463,
+      "name_match": 1280,
+      "none": 72
+     },
+     "territory_rows_matched": 11470,
+     "territory_rows_unmatched": 288,
+     "counties": "2024 Census counties (cb_2024), as in the worlds",
+     "written_utc": "2026-11-23T03:24:32.662286+00:00"
+    }
+   },
+   "data_downloads": {
+    "host": "https://data.ruralsim.io",
+    "cache": "/home/runner/.cache/ruralsim/ai_infra/data.ruralsim.io",
+    "fetches": 15,
+    "from_cache": 3,
+    "retried": [],
+    "missing_404": [],
+    "failed": []
+   },
+   "engine_check": "tools/engines/ai_infra at 1c60a12e7fa4 identical to frozen 56b306b18444",
+   "backtest": {
+    "site_id": "V2-01",
+    "version": "v2",
+    "preregistration_commit": "1c60a12e7fa47a25c98044a8047c16f312308c4f",
+    "as_of_year": 2009,
+    "site_point": [
+     -120.88562,
+     44.29732
+    ],
+    "mask_owner_terms": [
+     "Meta",
+     "Facebook"
+    ],
+    "mask_radius_m": 0.0,
+    "cooling": "adiabatic_hybrid",
+    "mask_keep_osm_ids": [],
+    "mask_bound": "upper bound (owner-tagged substations only)"
+   },
+   "eia_year": 2009,
+   "admissible": true,
+   "ledger": "20261125T003350_20seeds.json",
+   "bound": "upper",
+   "run_context": [
+    "commit 1c60a12e7fa47a25c98044a8047c16f312308c4f",
+    "engine 1c60a12e7fa47a25c98044a8047c16f312308c4f",
+    "data_base default (see tools/engines/ai_infra/data.py)"
+   ],
+   "actions_run": "https://github.com/khaaliswooden-max/ruralsim/actions/runs/45518960035"
+  },
+  "V2-01 power lower bound (2000 m)": {
+   "run_id": "BACKTEST-2-V201-power/20261125T003246Z",
+   "card_id": "BACKTEST-2-V201-power",
+   "engine_version": "1c60a12e7fa47a25c98044a8047c16f312308c4f",
+   "params_sha256": "d0e5a64afaa127f7c6a2a6dc857c6adc6490eb040c5e830e81118bdb7608d3b6",
+   "data_host": "https://data.ruralsim.io",
+   "seeds": 20,
+   "refused": [],
+   "eia_tables": {
+    "2009": {
+     "year": 2009,
+     "purpose": "back-test T0-1 inputs (PREREGISTRATION.md 4.2.1, D-062)",
+     "sources": {
+      "eia860": "https://www.eia.gov/electricity/data/eia860/archive/xls/eia8602009.zip",
+      "eia861": "https://www.eia.gov/electricity/data/eia861/archive/zip/861_2009.zip",
+      "census_counties": "https://www2.census.gov/geo/tiger/GENZ2024/shp/cb_2024_us_county_500k.zip"
+     },
+     "license": "public domain (U.S. EIA; U.S. Census Bureau)",
+     "rows": {
+      "eia860_generators": 22238,
+      "eia860_plants": 6816,
+      "eia861_utility_data": 3272,
+      "eia861_sales_ult_cust": 3598,
+      "eia861_short_form": 0,
+      "eia861_service_territory": 11758
+     },
+     "short_form": "none before 2012 (empty table, 2024 columns)",
+     "plants_us_50_dc": 6815,
+     "plants_county_by_method": {
+      "plant_code_2024": 5463,
+      "name_match": 1280,
+      "none": 72
+     },
+     "territory_rows_matched": 11470,
+     "territory_rows_unmatched": 288,
+     "counties": "2024 Census counties (cb_2024), as in the worlds",
+     "written_utc": "2026-11-23T03:24:32.662286+00:00"
+    }
+   },
+   "data_downloads": {
+    "host": "https://data.ruralsim.io",
+    "cache": "/home/runner/.cache/ruralsim/ai_infra/data.ruralsim.io",
+    "fetches": 15,
+    "from_cache": 3,
+    "retried": [],
+    "missing_404": [],
+    "failed": []
+   },
+   "engine_check": "tools/engines/ai_infra at 1c60a12e7fa4 identical to frozen 56b306b18444",
+   "backtest": {
+    "site_id": "V2-01",
+    "version": "v2",
+    "preregistration_commit": "1c60a12e7fa47a25c98044a8047c16f312308c4f",
+    "as_of_year": 2009,
+    "site_point": [
+     -120.88562,
+     44.29732
+    ],
+    "mask_owner_terms": [
+     "Meta",
+     "Facebook"
+    ],
+    "mask_radius_m": 2000.0,
+    "cooling": "adiabatic_hybrid",
+    "mask_keep_osm_ids": [],
+    "mask_bound": "lower bound (2000 m radius and owner-tagged)"
+   },
+   "eia_year": 2009,
+   "admissible": true,
+   "ledger": "20261125T003246_20seeds.json",
+   "bound": "lower",
+   "run_context": [
+    "commit 1c60a12e7fa47a25c98044a8047c16f312308c4f",
+    "engine 1c60a12e7fa47a25c98044a8047c16f312308c4f",
+    "data_base default (see tools/engines/ai_infra/data.py)"
+   ],
+   "actions_run": "https://github.com/khaaliswooden-max/ruralsim/actions/runs/45518793141"
+  },
+  "V2-02 power upper bound (0 m)": {
+   "run_id": "BACKTEST-2-V202-power/20261125T003816Z",
+   "card_id": "BACKTEST-2-V202-power",
+   "engine_version": "1c60a12e7fa47a25c98044a8047c16f312308c4f",
+   "params_sha256": "d0e5a64afaa127f7c6a2a6dc857c6adc6490eb040c5e830e81118bdb7608d3b6",
+   "data_host": "https://data.ruralsim.io",
+   "seeds": 20,
+   "refused": [],
+   "eia_tables": {
+    "2009": {
+     "year": 2009,
+     "purpose": "back-test T0-1 inputs (PREREGISTRATION.md 4.2.1, D-062)",
+     "sources": {
+      "eia860": "https://www.eia.gov/electricity/data/eia860/archive/xls/eia8602009.zip",
+      "eia861": "https://www.eia.gov/electricity/data/eia861/archive/zip/861_2009.zip",
+      "census_counties": "https://www2.census.gov/geo/tiger/GENZ2024/shp/cb_2024_us_county_500k.zip"
+     },
+     "license": "public domain (U.S. EIA; U.S. Census Bureau)",
+     "rows": {
+      "eia860_generators": 22238,
+      "eia860_plants": 6816,
+      "eia861_utility_data": 3272,
+      "eia861_sales_ult_cust": 3598,
+      "eia861_short_form": 0,
+      "eia861_service_territory": 11758
+     },
+     "short_form": "none before 2012 (empty table, 2024 columns)",
+     "plants_us_50_dc": 6815,
+     "plants_county_by_method": {
+      "plant_code_2024": 5463,
+      "name_match": 1280,
+      "none": 72
+     },
+     "territory_rows_matched": 11470,
+     "territory_rows_unmatched": 288,
+     "counties": "2024 Census counties (cb_2024), as in the worlds",
+     "written_utc": "2026-11-23T03:24:32.662286+00:00"
+    }
+   },
+   "data_downloads": {
+    "host": "https://data.ruralsim.io",
+    "cache": "/home/runner/.cache/ruralsim/ai_infra/data.ruralsim.io",
+    "fetches": 15,
+    "from_cache": 3,
+    "retried": [],
+    "missing_404": [],
+    "failed": []
+   },
+   "engine_check": "tools/engines/ai_infra at 1c60a12e7fa4 identical to frozen 56b306b18444",
+   "backtest": {
+    "site_id": "V2-02",
+    "version": "v2",
+    "preregistration_commit": "1c60a12e7fa47a25c98044a8047c16f312308c4f",
+    "as_of_year": 2009,
+    "site_point": [
+     -81.82411,
+     35.31584
+    ],
+    "mask_owner_terms": [
+     "Meta",
+     "Facebook"
+    ],
+    "mask_radius_m": 0.0,
+    "cooling": "adiabatic_hybrid",
+    "mask_keep_osm_ids": [],
+    "mask_bound": "upper bound (owner-tagged substations only)"
+   },
+   "eia_year": 2009,
+   "admissible": true,
+   "ledger": "20261125T003816_20seeds.json",
+   "bound": "upper",
+   "run_context": [
+    "commit 1c60a12e7fa47a25c98044a8047c16f312308c4f",
+    "engine 1c60a12e7fa47a25c98044a8047c16f312308c4f",
+    "data_base default (see tools/engines/ai_infra/data.py)"
+   ],
+   "actions_run": "https://github.com/khaaliswooden-max/ruralsim/actions/runs/45519482089"
+  },
+  "V2-03 power lower bound (2000 m)": {
+   "run_id": "BACKTEST-2-V203-power/20261125T003613Z",
+   "card_id": "BACKTEST-2-V203-power",
+   "engine_version": "1c60a12e7fa47a25c98044a8047c16f312308c4f",
+   "params_sha256": "d0e5a64afaa127f7c6a2a6dc857c6adc6490eb040c5e830e81118bdb7608d3b6",
+   "data_host": "https://data.ruralsim.io",
+   "seeds": 20,
+   "refused": [],
+   "eia_tables": {
+    "2007": {
+     "year": 2007,
+     "purpose": "back-test T0-1 inputs (PREREGISTRATION.md 4.2.1, D-062)",
+     "sources": {
+      "eia860": "https://www.eia.gov/electricity/data/eia860/archive/xls/eia8602007.zip",
+      "eia861": "https://www.eia.gov/electricity/data/eia861/archive/zip/861_2007.zip",
+      "census_counties": "https://www2.census.gov/geo/tiger/GENZ2024/shp/cb_2024_us_county_500k.zip"
+     },
+     "license": "public domain (U.S. EIA; U.S. Census Bureau)",
+     "rows": {
+      "eia860_generators": 21261,
+      "eia860_plants": 6413,
+      "eia861_utility_data": 3267,
+      "eia861_sales_ult_cust": 3508,
+      "eia861_short_form": 0,
+      "eia861_service_territory": 11883
+     },
+     "short_form": "none before 2012 (empty table, 2024 columns)",
+     "plants_us_50_dc": 6412,
+     "plants_county_by_method": {
+      "plant_code_2024": 5112,
+      "name_match": 1227,
+      "none": 73
+     },
+     "territory_rows_matched": 11570,
+     "territory_rows_unmatched": 313,
+     "counties": "2024 Census counties (cb_2024), as in the worlds",
+     "written_utc": "2026-11-23T03:24:23.926034+00:00"
+    }
+   },
+   "data_downloads": {
+    "host": "https://data.ruralsim.io",
+    "cache": "/home/runner/.cache/ruralsim/ai_infra/data.ruralsim.io",
+    "fetches": 15,
+    "from_cache": 3,
+    "retried": [],
+    "missing_404": [],
+    "failed": []
+   },
+   "engine_check": "tools/engines/ai_infra at 1c60a12e7fa4 identical to frozen 56b306b18444",
+   "backtest": {
+    "site_id": "V2-03",
+    "version": "v2",
+    "preregistration_commit": "1c60a12e7fa47a25c98044a8047c16f312308c4f",
+    "as_of_year": 2007,
+    "site_point": [
+     -119.6546,
+     45.84088
+    ],
+    "mask_owner_terms": [
+     "Amazon",
+     "AWS",
+     "Vadata"
+    ],
+    "mask_radius_m": 2000.0,
+    "cooling": null,
+    "mask_keep_osm_ids": [],
+    "mask_bound": "lower bound (2000 m radius and owner-tagged)"
+   },
+   "eia_year": 2007,
+   "admissible": true,
+   "ledger": "20261125T003613_20seeds.json",
+   "bound": "lower",
+   "run_context": [
+    "commit 1c60a12e7fa47a25c98044a8047c16f312308c4f",
+    "engine 1c60a12e7fa47a25c98044a8047c16f312308c4f",
+    "data_base default (see tools/engines/ai_infra/data.py)"
+   ],
+   "actions_run": "https://github.com/khaaliswooden-max/ruralsim/actions/runs/45519261803"
+  },
+  "V2-02 power lower bound (2000 m)": {
+   "run_id": "BACKTEST-2-V202-power/20261125T003447Z",
+   "card_id": "BACKTEST-2-V202-power",
+   "engine_version": "1c60a12e7fa47a25c98044a8047c16f312308c4f",
+   "params_sha256": "d0e5a64afaa127f7c6a2a6dc857c6adc6490eb040c5e830e81118bdb7608d3b6",
+   "data_host": "https://data.ruralsim.io",
+   "seeds": 20,
+   "refused": [],
+   "eia_tables": {
+    "2009": {
+     "year": 2009,
+     "purpose": "back-test T0-1 inputs (PREREGISTRATION.md 4.2.1, D-062)",
+     "sources": {
+      "eia860": "https://www.eia.gov/electricity/data/eia860/archive/xls/eia8602009.zip",
+      "eia861": "https://www.eia.gov/electricity/data/eia861/archive/zip/861_2009.zip",
+      "census_counties": "https://www2.census.gov/geo/tiger/GENZ2024/shp/cb_2024_us_county_500k.zip"
+     },
+     "license": "public domain (U.S. EIA; U.S. Census Bureau)",
+     "rows": {
+      "eia860_generators": 22238,
+      "eia860_plants": 6816,
+      "eia861_utility_data": 3272,
+      "eia861_sales_ult_cust": 3598,
+      "eia861_short_form": 0,
+      "eia861_service_territory": 11758
+     },
+     "short_form": "none before 2012 (empty table, 2024 columns)",
+     "plants_us_50_dc": 6815,
+     "plants_county_by_method": {
+      "plant_code_2024": 5463,
+      "name_match": 1280,
+      "none": 72
+     },
+     "territory_rows_matched": 11470,
+     "territory_rows_unmatched": 288,
+     "counties": "2024 Census counties (cb_2024), as in the worlds",
+     "written_utc": "2026-11-23T03:24:32.662286+00:00"
+    }
+   },
+   "data_downloads": {
+    "host": "https://data.ruralsim.io",
+    "cache": "/home/runner/.cache/ruralsim/ai_infra/data.ruralsim.io",
+    "fetches": 15,
+    "from_cache": 3,
+    "retried": [],
+    "missing_404": [],
+    "failed": []
+   },
+   "engine_check": "tools/engines/ai_infra at 1c60a12e7fa4 identical to frozen 56b306b18444",
+   "backtest": {
+    "site_id": "V2-02",
+    "version": "v2",
+    "preregistration_commit": "1c60a12e7fa47a25c98044a8047c16f312308c4f",
+    "as_of_year": 2009,
+    "site_point": [
+     -81.82411,
+     35.31584
+    ],
+    "mask_owner_terms": [
+     "Meta",
+     "Facebook"
+    ],
+    "mask_radius_m": 2000.0,
+    "cooling": "adiabatic_hybrid",
+    "mask_keep_osm_ids": [],
+    "mask_bound": "lower bound (2000 m radius and owner-tagged)"
+   },
+   "eia_year": 2009,
+   "admissible": true,
+   "ledger": "20261125T003447_20seeds.json",
+   "bound": "lower",
+   "run_context": [
+    "commit 1c60a12e7fa47a25c98044a8047c16f312308c4f",
+    "engine 1c60a12e7fa47a25c98044a8047c16f312308c4f",
+    "data_base default (see tools/engines/ai_infra/data.py)"
+   ],
+   "actions_run": "https://github.com/khaaliswooden-max/ruralsim/actions/runs/45519061138"
+  },
+  "V2-03 power upper bound (0 m)": {
+   "run_id": "BACKTEST-2-V203-power/20261125T003901Z",
+   "card_id": "BACKTEST-2-V203-power",
+   "engine_version": "1c60a12e7fa47a25c98044a8047c16f312308c4f",
+   "params_sha256": "d0e5a64afaa127f7c6a2a6dc857c6adc6490eb040c5e830e81118bdb7608d3b6",
+   "data_host": "https://data.ruralsim.io",
+   "seeds": 20,
+   "refused": [],
+   "eia_tables": {
+    "2007": {
+     "year": 2007,
+     "purpose": "back-test T0-1 inputs (PREREGISTRATION.md 4.2.1, D-062)",
+     "sources": {
+      "eia860": "https://www.eia.gov/electricity/data/eia860/archive/xls/eia8602007.zip",
+      "eia861": "https://www.eia.gov/electricity/data/eia861/archive/zip/861_2007.zip",
+      "census_counties": "https://www2.census.gov/geo/tiger/GENZ2024/shp/cb_2024_us_county_500k.zip"
+     },
+     "license": "public domain (U.S. EIA; U.S. Census Bureau)",
+     "rows": {
+      "eia860_generators": 21261,
+      "eia860_plants": 6413,
+      "eia861_utility_data": 3267,
+      "eia861_sales_ult_cust": 3508,
+      "eia861_short_form": 0,
+      "eia861_service_territory": 11883
+     },
+     "short_form": "none before 2012 (empty table, 2024 columns)",
+     "plants_us_50_dc": 6412,
+     "plants_county_by_method": {
+      "plant_code_2024": 5112,
+      "name_match": 1227,
+      "none": 73
+     },
+     "territory_rows_matched": 11570,
+     "territory_rows_unmatched": 313,
+     "counties": "2024 Census counties (cb_2024), as in the worlds",
+     "written_utc": "2026-11-23T03:24:23.926034+00:00"
+    }
+   },
+   "data_downloads": {
+    "host": "https://data.ruralsim.io",
+    "cache": "/home/runner/.cache/ruralsim/ai_infra/data.ruralsim.io",
+    "fetches": 15,
+    "from_cache": 3,
+    "retried": [],
+    "missing_404": [],
+    "failed": []
+   },
+   "engine_check": "tools/engines/ai_infra at 1c60a12e7fa4 identical to frozen 56b306b18444",
+   "backtest": {
+    "site_id": "V2-03",
+    "version": "v2",
+    "preregistration_commit": "1c60a12e7fa47a25c98044a8047c16f312308c4f",
+    "as_of_year": 2007,
+    "site_point": [
+     -119.6546,
+     45.84088
+    ],
+    "mask_owner_terms": [
+     "Amazon",
+     "AWS",
+     "Vadata"
+    ],
+    "mask_radius_m": 0.0,
+    "cooling": null,
+    "mask_keep_osm_ids": [],
+    "mask_bound": "upper bound (owner-tagged substations only)"
+   },
+   "eia_year": 2007,
+   "admissible": true,
+   "ledger": "20261125T003901_20seeds.json",
+   "bound": "upper",
+   "run_context": [
+    "commit 1c60a12e7fa47a25c98044a8047c16f312308c4f",
+    "engine 1c60a12e7fa47a25c98044a8047c16f312308c4f",
+    "data_base default (see tools/engines/ai_infra/data.py)"
+   ],
+   "actions_run": "https://github.com/khaaliswooden-max/ruralsim/actions/runs/45519303173"
+  },
+  "V2-02 water": {
+   "run_id": "BACKTEST-2-V202-water/20261125T003722Z",
+   "card_id": "BACKTEST-2-V202-water",
+   "engine_version": "1c60a12e7fa47a25c98044a8047c16f312308c4f",
+   "params_sha256": "d0e5a64afaa127f7c6a2a6dc857c6adc6490eb040c5e830e81118bdb7608d3b6",
+   "data_host": "https://data.ruralsim.io",
+   "seeds": 20,
+   "refused": [],
+   "eia_tables": {
+    "2009": {
+     "year": 2009,
+     "purpose": "back-test T0-1 inputs (PREREGISTRATION.md 4.2.1, D-062)",
+     "sources": {
+      "eia860": "https://www.eia.gov/electricity/data/eia860/archive/xls/eia8602009.zip",
+      "eia861": "https://www.eia.gov/electricity/data/eia861/archive/zip/861_2009.zip",
+      "census_counties": "https://www2.census.gov/geo/tiger/GENZ2024/shp/cb_2024_us_county_500k.zip"
+     },
+     "license": "public domain (U.S. EIA; U.S. Census Bureau)",
+     "rows": {
+      "eia860_generators": 22238,
+      "eia860_plants": 6816,
+      "eia861_utility_data": 3272,
+      "eia861_sales_ult_cust": 3598,
+      "eia861_short_form": 0,
+      "eia861_service_territory": 11758
+     },
+     "short_form": "none before 2012 (empty table, 2024 columns)",
+     "plants_us_50_dc": 6815,
+     "plants_county_by_method": {
+      "plant_code_2024": 5463,
+      "name_match": 1280,
+      "none": 72
+     },
+     "territory_rows_matched": 11470,
+     "territory_rows_unmatched": 288,
+     "counties": "2024 Census counties (cb_2024), as in the worlds",
+     "written_utc": "2026-11-23T03:24:32.662286+00:00"
+    }
+   },
+   "data_downloads": {
+    "host": "https://data.ruralsim.io",
+    "cache": "/home/runner/.cache/ruralsim/ai_infra/data.ruralsim.io",
+    "fetches": 16,
+    "from_cache": 3,
+    "retried": [],
+    "missing_404": [],
+    "failed": []
+   },
+   "engine_check": "tools/engines/ai_infra at 1c60a12e7fa4 identical to frozen 56b306b18444",
+   "backtest": {
+    "site_id": "V2-02",
+    "version": "v2",
+    "preregistration_commit": "1c60a12e7fa47a25c98044a8047c16f312308c4f",
+    "as_of_year": 2009,
+    "site_point": [
+     -81.82411,
+     35.31584
+    ],
+    "mask_owner_terms": [
+     "Meta",
+     "Facebook"
+    ],
+    "mask_radius_m": 2000.0,
+    "cooling": "adiabatic_hybrid",
+    "mask_keep_osm_ids": [],
+    "mask_bound": "lower bound (2000 m radius and owner-tagged)",
+    "cooling_source": "validation/backtest sites.yaml"
+   },
+   "eia_year": 2009,
+   "admissible": true,
+   "ledger": "20261125T003722_20seeds.json",
+   "run_context": [
+    "commit 1c60a12e7fa47a25c98044a8047c16f312308c4f",
+    "engine 1c60a12e7fa47a25c98044a8047c16f312308c4f",
+    "data_base default (see tools/engines/ai_infra/data.py)"
+   ],
+   "actions_run": "https://github.com/khaaliswooden-max/ruralsim/actions/runs/45519360126"
+  },
+  "V2-01 water": {
+   "run_id": "BACKTEST-2-V201-water/20261125T003652Z",
+   "card_id": "BACKTEST-2-V201-water",
+   "engine_version": "1c60a12e7fa47a25c98044a8047c16f312308c4f",
+   "params_sha256": "d0e5a64afaa127f7c6a2a6dc857c6adc6490eb040c5e830e81118bdb7608d3b6",
+   "data_host": "https://data.ruralsim.io",
+   "seeds": 20,
+   "refused": [],
+   "eia_tables": {
+    "2009": {
+     "year": 2009,
+     "purpose": "back-test T0-1 inputs (PREREGISTRATION.md 4.2.1, D-062)",
+     "sources": {
+      "eia860": "https://www.eia.gov/electricity/data/eia860/archive/xls/eia8602009.zip",
+      "eia861": "https://www.eia.gov/electricity/data/eia861/archive/zip/861_2009.zip",
+      "census_counties": "https://www2.census.gov/geo/tiger/GENZ2024/shp/cb_2024_us_county_500k.zip"
+     },
+     "license": "public domain (U.S. EIA; U.S. Census Bureau)",
+     "rows": {
+      "eia860_generators": 22238,
+      "eia860_plants": 6816,
+      "eia861_utility_data": 3272,
+      "eia861_sales_ult_cust": 3598,
+      "eia861_short_form": 0,
+      "eia861_service_territory": 11758
+     },
+     "short_form": "none before 2012 (empty table, 2024 columns)",
+     "plants_us_50_dc": 6815,
+     "plants_county_by_method": {
+      "plant_code_2024": 5463,
+      "name_match": 1280,
+      "none": 72
+     },
+     "territory_rows_matched": 11470,
+     "territory_rows_unmatched": 288,
+     "counties": "2024 Census counties (cb_2024), as in the worlds",
+     "written_utc": "2026-11-23T03:24:32.662286+00:00"
+    }
+   },
+   "data_downloads": {
+    "host": "https://data.ruralsim.io",
+    "cache": "/home/runner/.cache/ruralsim/ai_infra/data.ruralsim.io",
+    "fetches": 16,
+    "from_cache": 3,
+    "retried": [],
+    "missing_404": [],
+    "failed": []
+   },
+   "engine_check": "tools/engines/ai_infra at 1c60a12e7fa4 identical to frozen 56b306b18444",
+   "backtest": {
+    "site_id": "V2-01",
+    "version": "v2",
+    "preregistration_commit": "1c60a12e7fa47a25c98044a8047c16f312308c4f",
+    "as_of_year": 2009,
+    "site_point": [
+     -120.88562,
+     44.29732
+    ],
+    "mask_owner_terms": [
+     "Meta",
+     "Facebook"
+    ],
+    "mask_radius_m": 2000.0,
+    "cooling": "adiabatic_hybrid",
+    "mask_keep_osm_ids": [],
+    "mask_bound": "lower bound (2000 m radius and owner-tagged)",
+    "cooling_source": "validation/backtest sites.yaml"
+   },
+   "eia_year": 2009,
+   "admissible": true,
+   "ledger": "20261125T003652_20seeds.json",
+   "run_context": [
+    "commit 1c60a12e7fa47a25c98044a8047c16f312308c4f",
+    "engine 1c60a12e7fa47a25c98044a8047c16f312308c4f",
+    "data_base default (see tools/engines/ai_infra/data.py)"
+   ],
+   "actions_run": "https://github.com/khaaliswooden-max/ruralsim/actions/runs/45519331323"
+  }
+ },
+ "disclosure": [
+  "RuralSim is a free, open-source project by Aldrich K. Wooden, Sr., founder of Get Rural America Done.",
+  "Simulated, screening-grade results with assumed parameters. Decision support, not a finding."
+ ]
+}

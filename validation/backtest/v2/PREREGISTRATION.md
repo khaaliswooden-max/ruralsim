@@ -1,7 +1,7 @@
 # Back-test v2 pre-registration: AI-infrastructure engine against three more built rural data centers
 
 Rollout step 3 · version 2.0 · registered 2026-11-22 · decision **D-207**
-Status: **registered, no runs.** It must merge before the engine runs on any v2 site. Once the first v2 run is recorded, nothing here changes (§8).
+Status: **run 2026-11-24 and frozen (§8).** Results: `RESULTS_2026-11-24.md` (D-211). It must merge before the engine runs on any v2 site. Once the first v2 run is recorded, nothing here changes (§8).
 
 v1 (`../PREREGISTRATION.md`, D-200–D-206) stays frozen and its results stand: no misses, two passes, ten of twelve comparisons not scored, every channel SPECULATIVE. v2 is a new test on held-out sites. It fixes the three rules that left v1's comparisons unscored, plus two errors v1 did not catch. Nothing in v2 changes a v1 grade.
 
@@ -193,6 +193,10 @@ No engine output exists for any v2 site. Neither rule changes a bar.
 - per-run `mask_radius_m` for the two mask bounds;
 - the large-load rate output;
 - per-site cooling.
+
+**D-210 (2026-11-24), run plan, no rule change.** Fixed and pushed before the first v2 run. Frozen engine: `tools/engines/ai_infra` at `56b306b`, unchanged through main `e8cf12f` (D-115, D-116 in). Runs on the GitHub "Back-test run" workflow (D-209), 20 seeds: each power card at mask radius 2000 m and 0 m, each water card once. A run counts only if its record names `https://data.ruralsim.io` as its data host and its engine is the frozen one. Field mapping under §8: G1 from `share_seeds_new_substation`, called on all 20 seeds; R1 at V2-03 from `large_load` with `valid_for_site_share: true`; W1 from `annual_withdrawal_m3`. Stated before the run: R1 at V2-03 is scored only if both mask bounds agree; V2-01 and V2-02 R1 are published below the floor, unscored. Scorer: `tools/score_run_v2.py`.
+
+**D-211 (2026-11-24), results, frozen.** Eight admissible runs, all from `https://data.ruralsim.io`. Misses: W1 at V2-01 and V2-02, R1 at V2-03. W1 and R1 are SPECULATIVE. G1 passes 3 of 3 on both bounds and is PLAUSIBLE by §7, but the engine adds a substation to every computed seed and cannot answer "no", so that grade is not evidence (RESULTS §5). No further change to this document; v3 is next.
 
 ---
 
