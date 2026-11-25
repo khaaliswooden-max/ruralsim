@@ -16,6 +16,8 @@ python3 -m tools.engines.ai_infra.run EXP-0011 --seeds 20      # writes experime
 python3 -m pytest -q tests/test_ai_infra.py                     # offline
 ```
 
+To rerun any record made before D-066, set RURALSIM_DATA_BASE=https://data.ruralsim.io; it serves the same files. Those records name the r2.dev URL; it is the same bucket, and every file is still checked against its manifest's sha256 (D-066, docs/R2_SETUP.md).
+
 - `data.py` reads published county snapshots and the national EIA tables from R2, sha256-checked against each manifest.
 - `network.py` builds a bus-branch network from observed OSM lines and substations.
 - `power_flow.py` runs an N-0 AC power flow (pandapower) per seed, with assumed ratings and impedances drawn by voltage class from the ACTIVSg synthetic grids.
