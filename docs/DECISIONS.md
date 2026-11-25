@@ -489,3 +489,27 @@ Committed and pushed before any v2 run, as v2 §5.1 and §8 require. v2's pre-re
 - **Scorer.** `validation/backtest/v2/tools/score_run_v2.py`, committed with this entry and before any run's output is read. Results go to `validation/backtest/v2/RESULTS_<date>.{json,md}`, misses first.
 
 *Invalidated by:* nothing once the first v2 run is recorded (§8): v2 is then frozen, and a change needs v3 on new held-out sites.
+
+## D-211 (2026-11-24, rollout step 3) — Back-test v2 results: water and rate miss; grid "passes" were guaranteed by the engine
+Eight runs on the GitHub "Back-test run" workflow (D-209), from commit `1c60a12`, with the engine directory identical to the frozen `56b306b`. All eight are admissible. Every record names `https://data.ruralsim.io` as its data host. 20 seeds, no retried or failed downloads. Scored by `v2/tools/score_run_v2.py` exactly as committed before the runs (D-210). Results: `validation/backtest/v2/RESULTS_2026-11-24.{md,json}`. v2 is now frozen (§8).
+
+**Misses first.**
+- **W1 water, V2-01 Crook: MISS.** 0 of 7 years are within 0.5–2.0×. The engine is 4–15× low (`adiabatic_hybrid`, 0.056 L per IT kWh).
+- **W1 water, V2-02 Rutherford: MISS.** 4 of 7 years pass, against a 70% bar. 2014–2016 are low by about half.
+- **R1 rate, V2-03 Morrow: MISS.** E = 2011 passes. E = 2013 misses: the socialized allocation gives +2.3 to +3.2 pp, against an observed −3.9 (peer) and −7.8 (state). Every candidate E must pass.
+- **Not scored.** V2-01 and V2-02 R1 fall below the 5% attribution floor. They are published unscored: they would have been misses, with the engine at about 0 pp against +9 to +20 pp observed. V2-03 W1 has no site-scope record.
+
+**Grades (§7).**
+- W1: SPECULATIVE.
+- R1: SPECULATIVE.
+- G1: **PLAUSIBLE for the v2 back-test sites, by the registered rule.** 3 of 3 sites pass, on both mask bounds, in 20 of 20 seeds.
+
+**The G1 grade carries no evidence, and is not to be cited.** `power_flow.run` adds a new customer substation to `required_upgrades` in every computed seed, so the engine cannot return "no", and every site documented a substation. D-208 had flagged the same thing for v1. D-210 nonetheless mapped G1 to that field without checking whether the engine could fail it. That was a step-3 run-plan error. §8 freezes v2 after its first run, so the recorded grade stands, and every public or partner use of it must carry this paragraph. In practice, G1 remains as untested as before.
+
+**For v3 (held-out sites, new pre-registration):**
+- a G1 output the engine can answer both ways;
+- sites where no build was needed;
+- a cooling mapping that does not rest on one judgment for two sites whose reported water differs by an order of magnitude per kWh;
+- more large-share rate sites.
+
+*Invalidated by:* nothing for v2, which is frozen. A v3 result supersedes these grades for v3's sites only.
