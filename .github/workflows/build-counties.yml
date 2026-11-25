@@ -103,7 +103,21 @@ jobs:
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
           R2_BUCKET: ruralsim-data
-        run: python tools/build_county.py ${{ matrix.fips }} 2>&1 | tee build.log
+        # Every 5 minutes, publish the log so far plus memory use (D-067): a runner that dies
+        # (Los Angeles, builds 47 and 49) leaves no GitHub log, but this copy survives in R2.
+        run: |
+          if [ "${{ inputs.publish }}" = "true" ]; then
+            ( while sleep 300; do
+                { cat build.log 2>/dev/null; echo "--- $(date -u +%FT%TZ) memory (MB)"; free -m | head -2
+                  ps -eo rss,etime,args --sort=-rss | head -4; } > progress.log
+                python tools/publish_world.py ${{ matrix.fips }} --log progress.log --run ${{ github.run_id }} > /dev/null 2>&1 || true
+              done ) &
+          fi
+          set +e  # stop the uploader before the step ends, whatever the build's exit
+          python tools/build_county.py ${{ matrix.fips }} 2>&1 | tee build.log
+          status=${PIPESTATUS[0]}
+          kill %1 2>/dev/null || true
+          exit $status
       - name: Publish the build log (public, read without GitHub sign-in)
         if: ${{ always() && inputs.publish }}
         continue-on-error: true

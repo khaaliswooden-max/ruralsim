@@ -16,6 +16,7 @@ from pxr import Usd, UsdGeom, Gf, Sdf
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from county_config import get
+import geojson_lines
 C = get(sys.argv[1] if len(sys.argv) > 1 else None)
 FIPS = C.fips
 COUNTY = C.slug
@@ -400,30 +401,34 @@ def infer_height(props):
 OVT_FILE = RAW / "buildings_overture" / f"overture_buildings_{FIPS}.geojson"
 
 
-def overture_fill(osm_features):
-    """Overture non-OSM footprints whose centre is not inside an OSM building (D-037)."""
+def _safe_shape(g):
+    """shapely geometry, or None: OSM relations can carry degenerate rings shapely refuses."""
+    from shapely.geometry import shape as _shape
+    try:
+        return _shape(g)
+    except (ValueError, TypeError, KeyError):
+        return None
+
+
+def overture_fill(osm_polys):
+    """Overture non-OSM footprints whose centre is not inside an OSM building (D-037).
+
+    osm_polys: shapely footprints of the OSM buildings kept near the county. Overture
+    covers the county plus ~1 km too, so OSM buildings further out cannot match (D-067)."""
     if not OVT_FILE.exists():
         return []
-    ovt = json.loads(OVT_FILE.read_text()).get("features", [])
+    ovt = list(geojson_lines.iter_features(OVT_FILE))
     if not ovt:
         return []
     from shapely import STRtree
     from shapely.geometry import shape as _shape
-    def safe(g):  # OSM relations can carry degenerate rings that shapely refuses
-        try:
-            return _shape(g)
-        except (ValueError, TypeError):
-            return None
-    polys = [p for f in osm_features
-             if f.get("geometry") and f["geometry"]["type"] in ("Polygon", "MultiPolygon")
-             and (p := safe(f["geometry"])) is not None]
     pts = [_shape(f["geometry"]).representative_point() for f in ovt]  # Overture: valid by spec
     dup = set()
-    if polys and pts:
-        hit = STRtree(polys).query(pts, predicate="within")
+    if osm_polys and pts:
+        hit = STRtree(osm_polys).query(pts, predicate="within")
         dup = set(int(i) for i in hit[0])
     keep = [f for i, f in enumerate(ovt) if i not in dup]
-    print(f"overture fill: {len(keep)} added, {len(dup)} already in OSM")
+    print(f"overture fill: {len(keep)} added, {len(dup)} already in OSM", flush=True)
     return keep
 
 
@@ -436,42 +441,33 @@ def _ovt_height(p):
 
 
 def build_buildings(stage):
-    d = json.loads((RAW / "osm" / "buildings.geojson").read_text())
     # Draw buildings in the county plus ~1 km, as the Overture fill already is (D-037).
     # The OSM layer covers the whole buffered bbox, which for Monroe FL reaches Miami and
     # for DC most of the inner suburbs: hundreds of thousands of buildings outside the
     # county, each a USD prim (D-038). Roads and other context layers keep the bbox.
-    from shapely.geometry import shape as _shape
+    # Streamed one feature at a time, keeping only what is drawn: Los Angeles's bbox
+    # outgrew a 16 GB runner when the layer was loaded whole (D-067).
     from shapely.prepared import prep as _prep
     near = _prep(geom_wgs.buffer(0.01))
-
-    def _keep(f):
-        try:
-            return near.contains(_shape(f["geometry"]).representative_point())
-        except (ValueError, TypeError, KeyError):
-            return False
-    osm_all = d["features"]
-    osm = [f for f in osm_all if f.get("geometry") and _keep(f)]
-    print(f"buildings: {len(osm)} of {len(osm_all)} OSM footprints within ~1 km of the county")
-    feats = [(f, "osm") for f in osm] + [(f, "ovt") for f in overture_fill(osm_all)]
-    n = 0; viewer = []
+    n = n_all = 0; viewer = []; osm_polys = []
     positions, scales = [], []  # one PointInstancer, not one prim per building (D-039)
-    for f, src in feats:
+
+    def add(f, src):
+        nonlocal n
         g = f["geometry"]
         if g["type"] == "Polygon":
-            rings = [g["coordinates"][0]]
+            ring = g["coordinates"][0]
         elif g["type"] == "MultiPolygon":
-            rings = [g["coordinates"][0][0]]
+            ring = g["coordinates"][0][0]
         else:
-            continue
+            return
         h = infer_height(f["properties"]) if src == "osm" else _ovt_height(f["properties"])
-        xs, ys = zip(*enu_coords(rings[0]))
+        xs, ys = zip(*enu_coords(ring))
         cx, cy = float(np.mean(xs)), float(np.mean(ys))
         w = float(max(xs) - min(xs)); dep = float(max(ys) - min(ys))
         if w < 2 or dep < 2:
-            continue
-        base = demz(float(np.mean([c[0] for c in rings[0]])),
-                    float(np.mean([c[1] for c in rings[0]])))
+            return
+        base = demz(float(np.mean([c[0] for c in ring])), float(np.mean([c[1] for c in ring])))
         positions.append(Gf.Vec3f(cx, base + h / 2, cy))
         scales.append(Gf.Vec3f(max(w, 3), h, max(dep, 3)))
         n += 1
@@ -481,6 +477,25 @@ def build_buildings(stage):
         if src == "ovt":
             v["src"] = f["properties"].get("source") or "Overture"
         viewer.append(v)
+
+    n_osm = 0
+    for f in geojson_lines.iter_features(RAW / "osm" / "buildings.geojson"):
+        n_all += 1
+        if not f.get("geometry"):
+            continue
+        shp = _safe_shape(f["geometry"])
+        if shp is None or shp.is_empty or not near.contains(shp.representative_point()):
+            continue
+        n_osm += 1
+        if f["geometry"]["type"] in ("Polygon", "MultiPolygon"):
+            osm_polys.append(shp)
+        add(f, "osm")
+        if n_all % 500_000 == 0:
+            print(f"  buildings read: {n_all}, kept {n_osm}", flush=True)
+    print(f"buildings: {n_osm} of {n_all} OSM footprints within ~1 km of the county", flush=True)
+    for f in overture_fill(osm_polys):
+        add(f, "ovt")
+    del osm_polys
     if n:
         inst = UsdGeom.PointInstancer.Define(stage, "/Buildings/instancer")
         cube = UsdGeom.Cube.Define(stage, "/Buildings/instancer/prototypes/box")
@@ -490,7 +505,8 @@ def build_buildings(stage):
         inst.CreateProtoIndicesAttr([0] * n)
         inst.CreatePositionsAttr(positions)
         inst.CreateScalesAttr(scales)
-    (VIEWER_DATA / "buildings.json").write_text(json.dumps(viewer))
+    with open(VIEWER_DATA / "buildings.json", "w") as fh:
+        json.dump(viewer, fh)
     print("buildings extruded:", n)
 _ovt_meta_f = RAW / "buildings_overture" / "_meta.json"
 if _ovt_meta_f.exists():  # D-037: OSM first, Overture (Microsoft/Google ML, Esri) fills gaps

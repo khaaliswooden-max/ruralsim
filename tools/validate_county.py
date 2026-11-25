@@ -13,6 +13,7 @@ from shapely.geometry import shape, mapping, LineString, MultiLineString
 REPO = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from county_config import get
+import geojson_lines
 C = get(sys.argv[1] if len(sys.argv) > 1 else None)
 FIPS = C.fips
 W = C.world
@@ -50,7 +51,7 @@ BUILDINGS_FLOOR, BUILDINGS_CEILING = 0.8, 5.0
 # (Esmeralda NV 21x, Issaquena MS 14x, Taliaferro GA 5x in the canary run; D-036).
 from shapely.prepared import prep
 _inside = prep(geom_wgs)
-_bfc = json.loads((RAW / "osm" / "buildings.geojson").read_text())["features"]
+_near = prep(geom_wgs.buffer(0.01))
 
 
 def _rep_point(g):
@@ -79,16 +80,23 @@ def _poly(g):
         return None
 
 
-n_osm = sum(1 for f in _bfc if f.get("geometry")
-            and (pt := _rep_point(f["geometry"])) is not None and _inside.contains(pt))
+# One streamed pass (D-067): count the footprints inside the county, and keep only the
+# polygons within ~1 km, which are all an Overture centre inside the county can fall in.
+n_osm, _polys = 0, []
+for _f in geojson_lines.iter_features(RAW / "osm" / "buildings.geojson"):
+    if not _f.get("geometry") or (pt := _rep_point(_f["geometry"])) is None:
+        continue
+    if _inside.contains(pt):
+        n_osm += 1
+    if (_f["geometry"]["type"] in ("Polygon", "MultiPolygon") and _near.contains(pt)
+            and (g := _poly(_f["geometry"])) is not None):
+        _polys.append(g)
 # Overture fill (D-037): the same footprints the stage draws — centre not inside an OSM building
 n_ovt = 0
 _of = RAW / "buildings_overture" / f"overture_buildings_{FIPS}.geojson"
 if _of.exists():
     from shapely import STRtree
-    _ov = json.loads(_of.read_text()).get("features", [])
-    _polys = [g for f in _bfc if f.get("geometry") and f["geometry"]["type"] in ("Polygon", "MultiPolygon")
-              and (g := _poly(f["geometry"])) is not None]
+    _ov = list(geojson_lines.iter_features(_of))
     _pts = [_rep_point(f["geometry"]) for f in _ov]
     _ok = [i for i, pt in enumerate(_pts) if pt is not None]
     _dup = (set(_ok[int(i)] for i in STRtree(_polys).query([_pts[i] for i in _ok], predicate="within")[0])

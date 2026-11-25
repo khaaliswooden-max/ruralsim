@@ -83,6 +83,8 @@ def main():
             t.out.mkdir()
         fo.extract([d / "s1.osm", d / "s2.osm"], [A, B])
         ca, cb = fo.Sink.finish(A), fo.Sink.finish(B)
+        # one feature per line (D-067), so the stage can stream the buildings layer
+        assert (A.out / "buildings.geojson").read_text().startswith('{"type":"FeatureCollection","features":[\n{')
 
         # roads: in-bbox way, vertex-entering way, segment-only crossing way, bridge, closed service way
         assert ids(load(A, "roads")) == [("w", 101), ("w", 102), ("w", 105), ("w", 106), ("w", 107)], ids(load(A, "roads"))
